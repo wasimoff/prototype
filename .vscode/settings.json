@@ -1,0 +1,7 @@
+{
+  "rust-analyzer.linkedProjects": [
+    "wasi-apps/helloworld/rust/Cargo.toml",
+    "wasi-apps/fibonacci/Cargo.toml"
+  ],
+  "ansible.python.interpreterPath": "/bin/python"
+}

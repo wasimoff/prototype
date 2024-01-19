@@ -1,0 +1,35 @@
+{
+  "name": "libp2p-getting-started",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">= 14.0.0",
+    "npm": ">= 6.0.0"
+  },
+  "scripts": {},
+  "dependencies": {
+    "@chainsafe/libp2p-gossipsub": "^7.0.0",
+    "@chainsafe/libp2p-noise": "^12.0.0",
+    "@libp2p/bootstrap": "^8.0.0",
+    "@libp2p/floodsub": "^7.0.1",
+    "@libp2p/mplex": "^8.0.1",
+    "@libp2p/peer-id": "^2.0.3",
+    "@libp2p/peer-id-factory": "^2.0.3",
+    "@libp2p/pubsub-peer-discovery": "^8.0.4",
+    "@libp2p/tcp": "^7.0.1",
+    "@libp2p/webrtc": "^1.2.0",
+    "@libp2p/websockets": "^6.0.1",
+    "@libp2p/webtransport": "^2.0.1",
+    "abortable-iterator": "^5.0.1",
+    "figlet": "^1.6.0",
+    "it-length-prefixed": "^9.0.1",
+    "it-map": "^3.0.3",
+    "it-pipe": "^3.0.1",
+    "libp2p": "^0.45.0",
+    "multiaddr": "^10.0.1",
+    "peer-id": "^0.16.0",
+    "streaming-iterables": "^7.1.0"
+  }
+}

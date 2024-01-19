@@ -1,0 +1,20 @@
+@import './base.css';
+
+/* Root styling. */
+#app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Smooth colour transition animations on links. */
+a {
+  text-decoration: none;
+  color: rgb(98, 0, 189);
+  transition: 0.4s;
+}
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(261, 100%, 37%, 0.2);
+  }
+}

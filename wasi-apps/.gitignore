@@ -1,0 +1,11 @@
+# rust build files
+**/target/
+
+# different compiled binaries
+exe.wasm
+**/wat.wasm
+**/go.wasm
+**/rust.wasm
+
+# but not this symlink
+!web-demo/exe.wasm

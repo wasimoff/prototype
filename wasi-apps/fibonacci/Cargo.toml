@@ -1,0 +1,10 @@
+[package]
+name = "wasi-executable"
+version = "0.1.0"
+edition = "2021"
+
+# strip unneeded custom sections in release builds
+[profile.release]
+strip = "debuginfo"
+# for actual deployment, you could further strip function names, too
+#strip = true

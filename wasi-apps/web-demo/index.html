@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WASI Example</title>
+  </head>
+  <body>
+    <center>
+      There's no content here.<br>
+      Check the console (<kbd>ctrl</kbd>-<kbd>shift</kbd>-<kbd>K</kbd>).
+    </center>
+    <script type="module">
+
+      // import WASI shim
+      import { WASI, File, OpenFile, PreopenDirectory }
+      from "https://cdn.jsdelivr.net/npm/@bjorn3/browser_wasi_shim@0.2.8/dist/index.js";
+
+      // prepare execution arguments
+      let binary = "exe.wasm";
+      let args = [ binary, "some", "example arguments" ];
+      let envs = [ "PROJECT=wasimoff", "bla bla bla" ];
+
+      // prepare virtual filesystem
+      let utf8 = new TextEncoder("utf-8");
+      let files = [
+        /* stdin  */ new OpenFile(new File(utf8.encode("Hello on STDIN."))),
+        /* stdout */ new OpenFile(new File([])),
+        /* stderr */ new OpenFile(new File([])),
+        /* rootfs */ new PreopenDirectory(".", {
+          "hello.txt": new File(utf8.encode("printf(\"Hello, World!\\n\");")),
+        }),
+      ]
+
+      // initialize WASI shim with proper imports
+      let wasi = new WASI(args, envs, files);
+      let shim = {
+        "wasi_unstable": wasi.wasiImport,
+        "wasi_snapshot_preview1": wasi.wasiImport,
+        "wasmoff/v1": {
+          // you could add your own syscalls here
+        }
+      };
+
+      // download binary and begin execution
+      let { instance } = await WebAssembly.instantiateStreaming(fetch(binary), shim);
+      wasi.inst = instance;
+      instance.exports._start();
+
+      // output the stdout to console
+      console.log(new TextDecoder("utf-8").decode(files[1].file.data));
+
+    </script>
+  </body>
+</html>

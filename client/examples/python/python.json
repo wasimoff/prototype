@@ -1,0 +1,7 @@
+{
+  "bin": "python-3.12.0.wasm",
+  "exec": [{
+    "stdin": "import os; r = os.urandom(8).hex(); print(f\"random bytes: {r}\");",
+    "args": [ "-" ]
+  }]
+}

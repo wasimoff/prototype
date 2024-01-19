@@ -1,0 +1,8 @@
+{
+  "bin": "ffmpeg.wasm",
+  "exec": [{
+    "args": ["-i", "/movie.mp4", "-c:v", "h264", "-ss", "00:00", "-to", "00:02", "/clip.mp4"],
+    "loadfs": ["movie.mp4"],
+    "datafile": "clip.mp4"
+  }]
+}

@@ -1,0 +1,18 @@
+[package]
+name = "tsp"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+# strip unneeded custom sections in release builds
+[profile.release]
+strip = "debuginfo"
+# for actual deployment, you could further strip function names, too
+#strip = true
+
+[dependencies]
+csv = "1.2.2"
+rand = "0.8.5"
+serde = { version = "1.0.180", features = ["derive"] }
+travelling_salesman = "1.1.22"

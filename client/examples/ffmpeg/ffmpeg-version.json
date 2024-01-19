@@ -1,0 +1,4 @@
+{
+  "bin": "ffmpeg.wasm",
+  "exec": [{ "args": ["-version"] }]
+}

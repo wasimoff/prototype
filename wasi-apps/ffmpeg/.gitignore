@@ -1,0 +1,6 @@
+# ffmpeg binary
+ffmpeg.wasm
+
+# movie files
+*.mp4
+*.mkv

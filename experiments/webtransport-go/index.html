@@ -1,0 +1,207 @@
+<html>
+  <body>
+
+    <h2>WebTransport Experiment</h2>
+    <b>Check the console (<kbd>ctrl</kbd>-<kbd>shift</kbd>-<kbd>K</kbd>).</b>
+    <pre id="messages" style="white-space: pre-wrap;"><!-- append messages here --></pre>
+    
+    <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.X.X/dist/protobuf.js"></script>
+    <script src="https://unpkg.com/it-length-prefixed/dist/index.min.js">// ItLengthPrefixed </script>
+    <script src="https://unpkg.com/it-reader/dist/index.min.js">// ItReader </script>
+    <script type="module">
+
+      // import the WASI shim
+      import { WASI, File, OpenFile, PreopenDirectory }
+      from "https://cdn.jsdelivr.net/npm/@bjorn3/browser_wasi_shim@0.2.8/dist/index.js";
+
+      const WEBTRANSPORT = "https://localhost:4443/transport";
+      // openssl x509 -in localhost.crt -outform der | openssl dgst -sha256
+      const FINGERPRINT = "aadffd66893cde9fe409e7dec5e2505b3919fb23d6cc01d6e67f6ef26ad68be5";
+      const USE_CERTHASH = !!window.chrome;
+
+      // message colors (https://iamkate.com/data/12-bit-rainbow/)
+      const hue = {
+        burgund: "#817", red: "#a35", orange: "#e94",
+        yellow: "#ed0", lime: "#9d5", green: "#4d8", mint: "#2cb",
+        sky: "#0bc", blue: "#09c", purple: "#639",
+        gray: "#555", black: "#000", light: "#ccc",
+      };
+
+      // append messages to log
+      function message(text, color = hue.gray) {
+        // get element
+        const log = document.getElementById("messages");
+        // create the line
+        const fragment = new DocumentFragment();
+        // blue timestamp and separator
+        const time = document.createElement("span");
+        time.style.color = hue.blue;
+        time.innerText = `${new Date().toLocaleTimeString()}`;
+        fragment.appendChild(time);
+        fragment.appendChild(document.createTextNode(" | "));
+        // message with an optional color and newline
+        const line = document.createElement("span");
+        line.style.color = color;
+        line.innerText = text;
+        fragment.appendChild(line);
+        fragment.appendChild(document.createTextNode("\n"));
+        log.appendChild(fragment);
+      }
+
+
+      // establish a connection to webtransport server
+      async function establish(url) {
+
+        message(`Establish a connection to ${url}`, hue.yellow)
+        const transport = new WebTransport(url, {
+          "requireUnreliable": true,
+          // only required for chrome right now
+          [USE_CERTHASH ? "serverCertificateHashes" : undefined]: [{
+            "algorithm": "sha-256",
+            "value": Uint8Array.from(FINGERPRINT.match(/../g).map(b => parseInt(b, 16))),
+          }],
+        });
+
+        // handle connection closures
+        transport.closed
+          .then(() => message("WebTransport closed gracefully", hue.yellow))
+          .catch(err => message(`WebTransport closed unexpectedly: ${err}`, hue.red));
+
+        // wait until ready and return
+        await transport.ready;
+        message("WebTransport is ready!", hue.yellow)
+        return transport;
+      }
+
+      // async main function
+      (async () => {
+
+        // print current date once
+        message(new Date().toUTCString(), hue.blue);
+
+        // establish a connection
+        const transport = await establish(WEBTRANSPORT);
+        globalThis.transport = transport;
+
+        // receive unidirectional streams from server
+        (async () => {
+
+          // prepare the protobuf unmarshaller
+          const proto = await protobuf.load("proto/note.proto");
+          const Note = proto.lookupType("proto.Note");
+          // const Rspns = proto.lookupType("proto.Rspns");
+          globalThis.Note = Note;
+          // globalThis.pbResponse = pbResponse;
+
+          // read from incoming streams
+          globalThis.incoming = [];
+          globalThis.decoded = [];
+          for await (const stream of transport.incomingUnidirectionalStreams) {
+            message("Received a unidirectional stream.", hue.orange);
+            globalThis.unidirectional = stream;
+            (async () => {
+              // wrap in precise-length reader
+              const reader = ItReader.reader(stream);
+              // decode the varint length-prefixes
+              for await (const chunk of ItLengthPrefixed.decode.fromReader(reader)) {
+                let buf = chunk.subarray();
+                console.log("Unidirectional chunk:", buf);
+                globalThis.incoming.push(buf);
+                let note = Note.decode(buf);
+                console.log(note);
+                globalThis.decoded.push(note);
+                message(`Note ${JSON.stringify(note)}`, hue.green);
+
+                // handle final message with a nested WebAssembly instantiation
+                if (!!note.wasm) {
+                  message("This was a WASM run request!", hue.burgund);
+                  console.log("Received a WASM run request:", note.wasm);
+
+                  // convert the rest of the reader to a proper readablestream
+                  let wasmStream = new ReadableStream({
+                    async pull(ctl) {
+                      const { value, done } = await reader.next();
+                      if (done) ctl.close();
+                      else ctl.enqueue(value.subarray());
+                    },
+                  });
+
+                  // construct the inline response
+                  const r = note.wasm.response;
+                  let inlineWasm = new Response(wasmStream, {
+                    status: r.status,
+                    statusText: r.text,
+                    headers: r.headers,
+                  });
+
+                  // prepare the wasi instance
+                  let args = note.wasm.args;
+                  let envs = Object.entries(note.wasm.envs).map(([k, v]) => `${k}=${v}`);
+                  let files = [null, new OpenFile(new File([])), null]; // only stdout
+
+                  let wasi = new WASI(args, envs, files);
+                  let shim = {
+                    "wasi_unstable": wasi.wasiImport,
+                    "wasi_snapshot_preview1": wasi.wasiImport,
+                  };
+
+                  // instantiate from the inline response
+                  let wasm = await WebAssembly.compileStreaming(inlineWasm);
+                  let inst = await WebAssembly.instantiate(wasm, shim);
+                  wasi.start(inst);
+
+                  // print the output
+                  let output = new TextDecoder("utf8").decode(files[1].file.data);
+                  console.warn(output);
+                  for (let line of output.split("\n")) {
+                    message(line, hue.black);
+                  }
+
+                  // nothing more to fetch from stream
+                  break;
+                }
+
+              };
+            })();
+          }
+
+        })();
+
+        // open a bidirectional stream
+        const stream = await transport.createBidirectionalStream();
+        message("Opened a bidirectional stream.", hue.orange);
+        
+        // readable stream handler that prints received buffers
+        (async () => {
+          for await (const data of stream.readable) {
+            console.log("data:", data);
+            message(`READ "${new TextDecoder().decode(data)}"`, hue.green);
+          };
+          message("Reader is finished.", hue.orange);
+        })();
+        
+        // write some strings to the stream
+        const writer = stream.writable.getWriter();
+        const strings = [ "Hello, WebTransport!", "This is a test." ];
+        for (let s of strings) {
+          let buf = new TextEncoder().encode(s);
+          message(`WRITE "${s}"`, hue.mint);
+          await writer.write(buf);
+          // await new Promise(r => setTimeout(r, 1000));
+        };
+
+        // wait a moment before closing writer
+        await new Promise(r => setTimeout(r, 1000));
+        await writer.close();
+        message("Closed stream writer.", hue.orange);
+
+        // and finally close the transport
+        await new Promise(r => setTimeout(r, 2000));
+        message("Closing connection.", hue.yellow);
+        await transport.close();
+
+      })()
+
+    </script>
+  </body>
+</html>

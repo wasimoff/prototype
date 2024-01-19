@@ -1,0 +1,7 @@
+# ignore certificates
+*.crt
+*.key
+*.pem
+
+# compiled binary
+broker

@@ -1,0 +1,11 @@
+{
+  "bin": "tsp.wasm",
+  "exec": [
+    { "args": ["rand", "10"] },
+    { "args": ["rand", "10"] }, 
+    { "args": ["rand", "10"] },
+    { "args": ["rand", "10"] },
+    { "args": ["rand", "10"] },
+    { "args": ["rand", "10"] }
+  ]
+}

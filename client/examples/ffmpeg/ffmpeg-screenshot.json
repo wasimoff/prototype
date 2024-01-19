@@ -1,0 +1,8 @@
+{
+  "bin": "ffmpeg.wasm",
+  "exec": [{
+    "args": [ "-ss", "03:14", "-i", "/movie.mp4", "-frames:v", "1", "/image.jpg" ],
+    "loadfs": [ "movie.mp4" ],
+    "datafile": "image.jpg"
+  }]
+}

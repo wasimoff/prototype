@@ -1,0 +1,9 @@
+{
+  "bin": "hello.wasm",
+  "exec": [{
+    "envs": [ "DOS=demonstration" ],
+    "args": [ "print_envs", "print_rootfs", "file:hello.txt" ],
+    "loadfs": [ "hello.txt" ]
+  }],
+  "trace": true
+}
