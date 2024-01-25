@@ -1,0 +1,36 @@
+---
+- name: setup a machines to act as a provider with chromium-shell
+  hosts: provider
+  tasks:
+
+    - name: verify that we're running on a Debian 12 with systemd and apt
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.system == "Linux"
+          - ansible_facts.machine == "x86_64"
+          - ansible_facts.distribution == "Debian"
+          - ansible_facts.lsb.release == "12"
+          - ansible_facts.service_mgr == "systemd"
+          - ansible_facts.pkg_mgr == "apt"
+
+    - name: ensure that chomium-shell is installed
+      ansible.builtin.apt:
+        package: [ chromium-shell, psmisc ]
+        state: present
+        update_cache: yes
+
+    - name: write a connect.sh script to start the provider
+      ansible.builtin.copy:
+        dest: connect.sh
+        mode: "0755"
+        content: |
+          #!/usr/bin/env bash
+          # pass "show" in $1 to show the console output (pretty verbose!)
+          killall --quiet chromium-shell || true
+          chromium-shell --headless --no-sandbox \
+            $([[ $1 == show ]] && echo '--v=0' || echo '--v=-1') \
+            "https://{{ broker }}/#autoconnect=yes&workers=max"
+
+    - name: print usable command to output
+      ansible.builtin.debug:
+        msg: "ssh -t {{ ansible_user }}@{{ ansible_host }} ./connect.sh show"

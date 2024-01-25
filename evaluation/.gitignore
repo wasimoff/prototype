@@ -1,0 +1,9 @@
+# python things
+venv/
+__pycache__/
+
+# ansible clutter
+ansible/ansible_log.txt
+
+# libreoffice locks
+.~lock.*#

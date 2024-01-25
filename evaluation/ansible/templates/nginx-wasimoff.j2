@@ -1,0 +1,50 @@
+# {{ ansible_managed }}
+
+add_header X-Frame-Options SAMEORIGIN;
+add_header X-Content-Type-Options nosniff;
+add_header X-XSS-Protection "1; mode=block";
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google-analytics.com; img-src 'self' data: https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-src 'none'; object-src 'none'";
+
+upstream wasimoff {
+  server 127.0.0.1:{{ wasimoff_http_port }};
+}
+
+server {
+
+    listen [::]:443 ssl default deferred ipv6only=off;
+    server_name {{ broker }};
+
+    # allow larger file uploads
+    client_max_body_size 256M;
+
+    ssl_certificate     /etc/letsencrypt/live/{{ broker }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ broker }}/privkey.pem;
+
+    # only use server-side session id cache, no tickets
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 60m;
+    ssl_session_tickets off;
+
+    # ocsp stapling
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt;
+
+    # prefer strong ciphers
+    ssl_protocols TLSv1.2;
+    ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:EECDH+CHACHA20:EDH+CHACHA20";
+    ssl_prefer_server_ciphers on;
+
+    # mozilla recommends standard params: https://ssl-config.mozilla.org/ffdhe2048.txt
+    ssl_dhparam /etc/nginx/dhparams.pem;
+
+    location / {
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection 'upgrade';
+      proxy_set_header Host $host;
+      proxy_ignore_headers X-Accel-Expires Expires Cache-Control;
+      proxy_read_timeout 3600; # one hour
+      proxy_pass http://wasimoff;
+    }
+}

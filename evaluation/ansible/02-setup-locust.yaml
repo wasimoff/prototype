@@ -1,0 +1,185 @@
+#!/usr/bin/env ansible-playbook
+# Locust doesn't need to be publicly reachable and you're going to connect via
+# SSH to start the server anyway, so you should just use a reverse runn
+---
+- name: gather facts about broker
+  hosts: broker
+  gather_facts: yes
+  tasks: [ ]
+
+- name: setup a machine to act as client with locust
+  hosts: locust
+  vars:
+
+    # path to the directory and which locustfiles to copy
+    locust_dir: /root/locust
+    locust_files: "{{ pwd_locustfiles }}"
+
+  tasks:
+
+    - name: verify that we're running on a Debian 12 with systemd and apt
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.system == "Linux"
+          - ansible_facts.machine == "x86_64"
+          - ansible_facts.distribution == "Debian"
+          - ansible_facts.lsb.release == "12"
+          - ansible_facts.service_mgr == "systemd"
+          - ansible_facts.pkg_mgr == "apt"
+
+    - name: ensure that required packages are installed
+      ansible.builtin.apt:
+        package: [ firewalld, python3, python3-venv, tmux, vim, psmisc, unzip ]
+        state: present
+        update_cache: yes
+
+    - name: tmux configuration copied
+      ansible.builtin.copy:
+        dest: /etc/tmux.conf
+        src: templates/tmux.conf
+        mode: "0644"
+
+    - name: simple bashrc copied
+      ansible.builtin.copy:
+        dest: ~/.bashrc
+        src: templates/profile
+        mode: "0644"
+
+    - name: firewalld is started and enabled
+      ansible.builtin.systemd:
+        service: firewalld
+        state: started
+        enabled: yes
+
+    - name: increase the fs.file-max sysctl to a useful value
+      notify: reboot
+      ansible.posix.sysctl:
+        key: fs.file-max
+        value: 2097152
+        state: present
+        reload: yes
+
+    - name: increase the nofiles limit for pam sessions, too
+      notify: reboot
+      community.general.pam_limits:
+        domain: "{{ ansible_user }}"
+        limit_type: "{{ item.type }}"
+        limit_item: nofile
+        value: "{{ item.limit }}"
+      loop:
+        - { type: soft, limit:   65536 }
+        - { type: hard, limit: 2097152 }
+
+    - name: increate the DefaultLimitNOFILE via systemd system.conf, too
+      notify: reboot
+      ansible.builtin.lineinfile:
+        dest: /etc/systemd/system.conf
+        regexp: "^DefaultLimitNOFILE="
+        insertafter: "^#DefaultLimitNOFILE="
+        line: DefaultLimitNOFILE=65536:2097152
+        state: present
+
+    - name: flush handlers and reboot now, if needed
+      ansible.builtin.meta: flush_handlers
+
+    - name: wrote a simple ssh config to ignore hostkeys
+      ansible.builtin.copy:
+        dest: "~/.ssh/config"
+        mode: "0644"
+        content: |
+          Host *.ansemjo.de
+            User root
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+
+    - name: destination directory for the locust environment
+      ansible.builtin.file:
+        dest: "{{ locust_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: locust is installed in a virtualenv
+      ansible.builtin.pip:
+        virtualenv: "{{ locust_dir }}/.venv"
+        virtualenv_command: python3 -m venv
+        name: locust==2.16.1
+        state: present
+
+    - name: symlinked locust binary to /usr/local
+      ansible.builtin.file:
+        dest: "/usr/local/bin/locust"
+        src: "{{ locust_dir }}/.venv/bin/locust"
+        state: link
+
+    - name: upload tsp.wasm to locust
+      tags: [ upload ]
+      ansible.builtin.copy:
+        dest: "{{ locust_dir }}/tsp.wasm"
+        src: "{{ pwd_tsp }}/tsp.wasm"
+        mode: "0644"
+
+    - name: copy locustfiles to target directory
+      with_fileglob: "{{ locust_files }}"
+      tags: [ upload ]
+      ansible.builtin.copy:
+        dest: "{{ locust_dir }}/"
+        src: "{{ item }}"
+        mode: "0644"
+
+    # - name: point the default host variable in locustfiles to broker
+    #   with_fileglob: "{{ locust_files }}"
+    #   ansible.builtin.lineinfile:
+    #     dest: "{{ locust_dir }}/{{ item | basename }}"
+    #     regexp: '^((\s\s)+)host\s*='
+    #     backrefs: yes
+    #     line: '\1host = "https://{{ broker }}"'
+    #     state: present
+
+    - name: templated a current provider connection script
+      tags: [ upload ]
+      ansible.builtin.copy:
+        dest: "~/start-providers"
+        mode: "0755"
+        content: |
+          #!/usr/bin/env bash
+          # connect to the wasimoff providers and start chromium-shells
+
+          # list of providers
+          providers=({{ groups['provider'] | join(' ') }})
+
+          # possibly pass a 'show' parameter to connect.sh here to see console
+          args=""
+
+          # this tmux command assumes that there are at least two providers
+          tmuxscript=("new-session" "-s" "providers")
+          tmuxscript+=("-n" "${providers[0]}" "ssh -t ${providers[0]} './connect.sh $args'" \;)
+          for p in "${providers[@]:1}"; do
+            tmuxscript+=("new-window" "-n" "$p" "ssh -t $p './connect.sh $args'" \;)
+          done
+          #tmuxscript+=("select-layout" "even-vertical")
+          tmux "${tmuxscript[@]}"
+
+    - name: templated run-* scripts
+      tags: [ upload ]
+      ansible.builtin.template:
+        dest: "~/"
+        src: "templates/{{ item }}"
+        mode: "0755"
+      loop:
+        - run-wasimoff
+        - run-serverledge
+
+
+    - name: print usable commands to output
+      with_fileglob: "{{ locust_files }}"
+      loop_control:
+        label: "{{ item | basename }}"
+      ansible.builtin.debug:
+        msg: "ssh -t -L 8089:localhost:8089 {{ ansible_user }}@{{ ansible_host }} '{{ locust_dir }}/locust -f {{ locust_dir }}/{{ item | basename }}'"
+
+  handlers:
+
+    - name: reboot to pick up new limits
+      listen: reboot
+      ansible.builtin.reboot:
+        msg: reboot required to properly apply new NOFILE limits

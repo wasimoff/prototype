@@ -1,0 +1,16 @@
+step_ms;label;colour
+0.131;transmit request;1
+0.043;decode request;2
+0.026;queue task;2
+0.028;schedule task;2
+0.394;transmit RPC;2
+0.020;get a Worker;4
+0.224;transmit task;4
+4.104;log arguments;4
+0.389;prepare filesystem;4
+0.178;get cached module;4
+0.036;prepare WASI shim;4
+0.114;instantiate module;4
+1.430;execute task;4
+0.737;respond to RPC;2
+0.161;respond to client;1

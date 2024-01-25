@@ -1,0 +1,34 @@
+#!/usr/bin/env ansible-playbook
+# This playbook stop running serverledge resources on nodes.
+---
+- name: "all serverledge resources {{ state }}"
+  hosts: broker, provider
+  gather_facts: false
+  tasks:
+
+    - name: remove all containers from provider nodes
+      when: state in ["stopped", "restarted"] and inventory_hostname in groups["provider"]
+      block:
+
+        - name: "get docker containers on host"
+          community.docker.docker_host_info:
+            containers: yes
+            containers_all: yes
+          register: containers
+
+        - name: "stop and remove all containers, except etcd"
+          community.docker.docker_container:
+            name: "{{ item }}"
+            state: absent
+            force_kill: yes
+          loop: "{{ containers.containers | map(attribute='Id') | list }}"
+
+    - name: "serverledge and docker services {{ state }}"
+      ansible.builtin.systemd:
+        service: "{{ item }}"
+        state: "{{ state }}"
+      loop:
+        - serverledge.service
+        - docker.service
+        - docker.socket
+        - containerd.service

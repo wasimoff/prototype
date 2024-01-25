@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# {{ ansible_managed }}
+# script to upload the tsp.wasm binary and start a workload with locust
+say() { printf '\033[1m>> %s\033[0m\n' "$*"; }
+set -eu
+
+# filled in by ansible templating
+TSP_N="${1:-{{ tsp_n_default }}}"
+SCENARIO="{{ scenario }}"
+
+BROKER="https://{{ broker }}/api/broker/v1"
+say "upload 'tsp.wasm' to $BROKER"
+curl -fkH "content-type: application/wasm" "$BROKER/upload?name=tsp.wasm" --data-binary "@{{ locust_dir }}/tsp.wasm"
+echo
+sleep 1
+
+say "create results directory for $SCENARIO/tsp-$TSP_N/wasimoff"
+RESULTS="$HOME/results/$SCENARIO/tsp-$TSP_N/wasimoff"
+if [[ -d $RESULTS ]]; then
+  say " !!! WARNING !!! results directory exists already. is this a rerun?"
+  read -rsp 'Press any key to continue ...' -n1 _;
+  echo;
+fi
+ts=$(date +%s)
+mkdir -p "$RESULTS/$ts"
+cd "$RESULTS/$ts"
+pwd
+
+say "start locust and record statistics"
+locust -f /root/locust/workload_wasimoff.py --headless \
+  --csv locust --logfile locust.log \
+  --users "{{ locust_users }}" --spawn-rate 4 \
+  --run-time "{{ locust_run_time }}" \
+  --tsp-n "$TSP_N" \
+|| curl -d "ERRORS: $SCENARIO (wasimoff, tsp-$TSP_N)" https://ntfy.sh/wasimoff_eval
+
+say "send notification"
+curl -d "$SCENARIO (wasimoff, tsp-$TSP_N)" https://ntfy.sh/wasimoff_eval
+
+say ""
+say "DONE. DON'T FORGET TO COPY RESULTS!"
+say " ... AND / OR STOP THE PROVIDERS!"
+say ""

@@ -1,0 +1,78 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: create a server on hetzner
+  hosts: localhost
+  vars:
+
+    # the hosts to act on
+    servers: "{{ groups['locust'] + groups['broker'] + groups['provider'] }}"
+
+    # what shall happen to the servers
+    do: present # pass '-e do=rebuild' to rebuild or 'absent' to destroy
+
+    # print information between steps
+    debug: false
+
+  tasks:
+
+    # API tokens for hcloud and hetzner DNS
+    - name: load encrypted hetzner tokens
+      community.sops.load_vars:
+        file: "{{ hetzner_tokens }}"
+        expressions: ignore
+
+    - name: debug hostvars of servers in cluster
+      ansible.builtin.debug:
+        msg:
+          hostname: "{{ hostvars[item]['inventory_hostname'] }}"
+          location: "{{ hostvars[item]['location'] }}"
+          type: "{{ hostvars[item]['type'] }}"
+      loop: "{{ servers }}"
+      when: debug
+
+    - name: create the specified servers
+      hetzner.hcloud.hcloud_server:
+        api_token: "{{ hetzner_cloud_token }}"
+        name: "{{ hostvars[server].inventory_hostname_short }}"
+        server_type: "{{ hostvars[server].type }}"
+        image: debian-12
+        state: "{{ do }}"
+        location: "{{ hostvars[server].location }}"
+        ssh_keys: [ "wasimoff_evaluation" ]
+        enable_ipv4: yes
+      register: hcloud
+      loop: "{{ servers }}"
+      loop_control: { loop_var: server }
+
+    - name: debug hcloud results
+      ansible.builtin.debug:
+        msg: "{{ hcloud.results }}"
+      when: debug
+
+    - name: set dns entries in zone
+      community.dns.hetzner_dns_record_set:
+        api_token: "{{ hetzner_dns_token }}"
+        zone: ansemjo.de
+        type: A
+        prefix: "{{ result.hcloud_server.name }}"
+        value: [ "{{ result.hcloud_server.ipv4_address }}" ]
+        state: present
+        on_existing: replace
+        ttl: 30
+      loop: "{{ hcloud.results }}"
+      loop_control:
+        loop_var: result
+        label: "{{ result.hcloud_server }}"
+      when: result.hcloud_server and result.hcloud_server.status in 'running|starting'
+
+    - name: wait for propagation of dns
+      ansible.builtin.debug:
+        msg: waiting for dns ...
+      until: lookup("community.general.dig", result.server) == result.hcloud_server.ipv4_address
+      retries: 12
+      delay: 5
+      loop: "{{ hcloud.results }}"
+      loop_control:
+        loop_var: result
+        label: "{{ result.hcloud_server }}"
+      when: result.hcloud_server and result.hcloud_server.status in 'running|starting'

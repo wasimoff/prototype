@@ -1,0 +1,11 @@
+ID         NAME         TYPE    LOCATION   IPV4             IPV6
+37692059   locust       ccx23   hil        5.78.73.28       2a01:4ff:1f0:83ac::/64
+37692061   broker       ccx23   fsn1       23.88.114.179    2a01:4f8:c17:27a4::/64
+37692063   provider01   ccx33   fsn1       188.34.183.208   2a01:4f8:c013:ae0::/64
+37692064   provider02   ccx33   fsn1       49.13.87.116     2a01:4f8:c012:34a4::/64
+37692068   provider03   ccx33   fsn1       188.34.184.20    2a01:4f8:c013:b2b::/64
+37692070   provider04   ccx33   fsn1       49.13.18.105     2a01:4f8:1c17:6ba5::/64
+37692073   provider05   ccx33   fsn1       188.34.163.121   2a01:4f8:c013:eda::/64
+37692075   provider06   ccx33   fsn1       188.34.180.205   2a01:4f8:c17:6c7b::/64
+37692077   provider07   ccx33   fsn1       162.55.35.3      2a01:4f8:c012:7c7d::/64
+37692078   provider08   ccx33   fsn1       138.201.93.148   2a01:4f8:c012:3006::/64

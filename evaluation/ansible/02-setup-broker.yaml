@@ -1,0 +1,200 @@
+---
+- name: setup and start the broker
+  hosts: broker
+  vars:
+
+    # variables for the wasimoff systemd service
+    wasimoff_binary: /usr/local/bin/wasimoff
+    wasimoff_static: /var/www/wasimoff
+    wasimoff_http_port: 4080
+    wasimoff_quic_port: 443
+    wasimoff_environment:
+      - WASIMOFF_HTTP_LISTEN=127.0.0.1:{{ wasimoff_http_port }}
+      - WASIMOFF_QUIC_LISTEN=:{{ wasimoff_quic_port }}
+      - WASIMOFF_QUIC_CERT=/etc/letsencrypt/live/{{ broker }}/fullchain.pem
+      - WASIMOFF_QUIC_KEY=/etc/letsencrypt/live/{{ broker }}/privkey.pem
+      - WASIMOFF_TRANSPORT_URL=https://{{ broker }}:{{ wasimoff_quic_port }}/transport
+      - WASIMOFF_STATIC_FILES={{ wasimoff_static }}
+
+  tasks:
+
+    - name: verify that we're running on a Debian 12 with systemd and apt
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.system == "Linux"
+          - ansible_facts.machine == "x86_64"
+          - ansible_facts.distribution == "Debian"
+          - ansible_facts.lsb.release == "12"
+          - ansible_facts.service_mgr == "systemd"
+          - ansible_facts.pkg_mgr == "apt"
+
+    - name: ensure that required packages are installed
+      ansible.builtin.apt:
+        package: [ firewalld, nginx, letsencrypt, psmisc ]
+        state: present
+        update_cache: yes
+
+    - name: firewalld is started and enabled
+      ansible.builtin.systemd:
+        service: firewalld
+        state: started
+        enabled: yes
+
+    - name: firewall ports for http services are open
+      loop: [ http, https, http3 ]
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        state: enabled
+        permanent: yes
+        immediate: yes
+
+    - name: overwrite default nginx site for letsencrypt challenges
+      notify: reload nginx configuration
+      ansible.builtin.template:
+        dest: /etc/nginx/sites-enabled/default
+        src: templates/nginx-default.j2
+        mode: "0644"
+
+    - name: flush handlers
+      ansible.builtin.meta: flush_handlers
+
+    - name: imported existing certificates
+      when: use_existing_brokercert
+      block:
+
+        - name: load certificate from encrypted file
+          community.sops.load_vars:
+            file: "{{ existing_brokercert }}"
+            name: brokercert
+            expressions: ignore
+
+        - name: certificates directory exists
+          ansible.builtin.file:
+            dest: /etc/letsencrypt/live/{{ broker }}
+            mode: "0755"
+            state: directory
+
+        - name: stored certificates copied to broker
+          ansible.builtin.copy:
+            dest: "/etc/letsencrypt/live/{{ broker }}/{{ item.key }}.pem"
+            mode: "0600"
+            content: "{{ item.value }}"
+          loop: "{{ brokercert | dict2items }}"
+          loop_control: { label: "{{ item.key }}.pem" }
+
+    - name: requested a certificate through letsencrypt
+      when: not use_existing_brokercert
+      block:
+
+        - name: letsencrypt certificate obtained for domain
+          notify: reload nginx configuration
+          tags: [ skip_ansible_lint ] # prefer certbot over builtins
+          ansible.builtin.shell:
+            cmd: >
+              letsencrypt certonly -n --webroot -w /var/www/html
+              {{ letsencrypt_agree_tos | ternary('--agree-tos', '') }}
+              -m {{ letsencrypt_account }}
+              -d {{ broker }}
+            creates: /etc/letsencrypt/live/{{ broker }}
+
+        - name: insert post-renewal hook to restart services
+          ansible.builtin.copy:
+            dest: /etc/letsencrypt/renewal-hooks/post/reload-services
+            mode: "0755"
+            content: |
+              #!/usr/bin/env sh
+              nginx -s reload
+              systemctl restart wasimoff.service || true
+
+        - name: ensure that the renew timer is enabled
+          ansible.builtin.systemd:
+            unit: certbot.timer
+            state: started
+            enabled: yes
+
+    - name: downloaded mozilla's dhparams
+      notify: reload nginx configuration
+      ansible.builtin.get_url:
+        dest: /etc/nginx/dhparams.pem
+        url: https://ssl-config.mozilla.org/ffdhe2048.txt
+        mode: "0644"
+
+    - name: templated wasimoff nginx site
+      notify: reload nginx configuration
+      ansible.builtin.template:
+        dest: /etc/nginx/sites-enabled/wasimoff
+        src: templates/nginx-wasimoff.j2
+        mode: "0644"
+
+    - name: flush handlers now
+      ansible.builtin.meta: flush_handlers
+
+    - name: compile broker binary
+      delegate_to: localhost
+      run_once: yes
+      changed_when: yes # silence linter
+      ansible.builtin.shell:
+        cmd: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o broker
+        chdir: "{{ pwd_broker }}"
+
+    - name: broker binary copied to host
+      ansible.builtin.copy:
+        dest: /usr/local/bin/wasimoff
+        src: "{{ pwd_broker }}/broker"
+        mode: "0755"
+
+    - name: compile webprovider frontend dist
+      delegate_to: localhost
+      run_once: yes
+      changed_when: yes # silence linter
+      ansible.builtin.shell:
+        cmd: yarn install && yarn build
+        chdir: "{{ pwd_webprovider }}"
+
+    - name: directory for wasimoff frontend created
+      ansible.builtin.file:
+        dest: "{{ wasimoff_static }}"
+        state: directory
+        mode: "0755"
+
+    - name: webprovider frontend dist rsynced to host
+      ansible.posix.synchronize:
+        dest: "{{ wasimoff_static }}"
+        src: "{{ pwd_webprovider }}/dist/"
+
+    - name: templated wasimoff systemd service
+      ansible.builtin.template:
+        dest: /etc/systemd/system/wasimoff.service
+        src: templates/wasimoff.service.j2
+        mode: "0644"
+
+    - name: make sure the broker service is always (re)started
+      ansible.builtin.systemd:
+        service: wasimoff.service
+        daemon_reload: yes
+        state: restarted
+        enabled: yes
+    
+    - name: make sure nginx is always (re)started
+      ansible.builtin.systemd:
+        service: nginx.service
+        state: restarted
+        enabled: yes
+
+    # - name: upload binaries to the broker
+    #   delegate_to: localhost
+    #   run_once: yes
+    #   tags: [ skip_ansible_lint, upload ] # yes, i need shell
+    #   ansible.builtin.shell:
+    #     stdin: false
+    #     cmd: BROKER="{{ broker }}" ./client.sh upload "{{ item }}"
+    #     chdir: "{{ pwd_broker }}"
+    #   loop:
+    #     - data/tsp.wasm
+
+  handlers:
+    - name: reload nginx configuration
+      ansible.builtin.systemd:
+        service: nginx
+        state: restarted
+        enabled: yes

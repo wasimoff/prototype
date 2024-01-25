@@ -6,6 +6,7 @@ set -eu
 # this script shows curl [https://curl.se/] and httpie [https://httpie.io/] commands
 # side-by-side. use the one that you prefer. curl is faster but httpie formats
 # the output nicer ...
+http=curl # or http
 
 # set the URL to the broker here
 BROKER="${BROKER:-http://localhost:4080}/api/broker/v1"
@@ -14,8 +15,11 @@ BROKER="${BROKER:-http://localhost:4080}/api/broker/v1"
 runjson() { # $1: run configuration
 
   # upload run configuration and show the result 
-  #curl -kX POST -H "content-type: application/json" "$BROKER/run" --data "@$1"
-  http --verify=false "$BROKER/run" "@$1"
+  if [[ $http = curl ]]; then
+    curl -kX POST -H "content-type: application/json" "$BROKER/run" --data-binary "@$1"
+  else
+    http --verify=false "$BROKER/run" "@$1"
+  fi
 
 }
 
@@ -25,8 +29,11 @@ execute() { # $@ arguments
   bin="${1:?first argument is the binary}"; shift 1;
   args="$([[ -n ${1+defined} ]] && printf '"%s",' "$@" || printf ".")"
   config=$(printf '{ "bin":"%s", "exec":[{ "args": [%s]}] }' "$bin" "${args::-1}")
-  #curl -kX POST -H "content-type: application/json" "$BROKER/run" <<<"$config"
-  http -v --verify=false "$BROKER/run" content-type:application/json <<<"$config"
+  if [[ $http = curl ]]; then
+    curl -kX POST -H "content-type: application/json" "$BROKER/run" --data-binary @- <<<"$config"
+  else
+    http -v --verify=false "$BROKER/run" content-type:application/json <<<"$config"
+  fi
 }
 
 # upload a file to the providers in preparation
@@ -36,8 +43,11 @@ upload() { # $1: the file to upload, $2: the filename
   name="${2:-$(basename "$1")}"
 
   # upload the file, giving name in query parameter
-  #curl -kX POST -H "content-type: application/wasm" "$BROKER/upload?name=$name" --data-binary "@$1"
-  http --verify=false --ignore-stdin "$BROKER/upload" "@$1" name=="$name"
+  if [[ $http = curl ]]; then
+    curl -kX POST -H "content-type: application/wasm" "$BROKER/upload?name=$name" --data-binary "@$1"
+  else
+    http --verify=false --ignore-stdin "$BROKER/upload" "@$1" name=="$name"
+  fi
 
 }
 
