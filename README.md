@@ -2,7 +2,9 @@
 
 This is the codebase for the result of my [Master's thesis "Opportunistic Distributed Computation Offloading using WebAssembly"](https://git.informatik.uni-hamburg.de/dos/teaching/theses/ma_anton_semjonov/thesis). It is a computation offloading platform which uses WebAssembly as its executable format and sends requests to participating browser clients through a central broker over WebTransport streams.
 
-The paper has been accepted on the [*LESS'24 (aka. STARLESS'24)](https://starless.iit.cnr.it/) that is co-located with the IEEE Percom'24.
+![](wasimoff_architecture.png)
+
+The condensed paper has been accepted on the [*LESS'24 (aka. STARLESS'24)](https://starless.iit.cnr.it/) that is co-located with the IEEE Percom'24. Its title is `Wasimoff: Distributed Computation Offloading Using WebAssembly in the Browser`.
 
 ### Essential roles
 
