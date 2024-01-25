@@ -2,6 +2,8 @@
 
 This is the codebase for the result of my [Master's thesis "Opportunistic Distributed Computation Offloading using WebAssembly"](https://git.informatik.uni-hamburg.de/dos/teaching/theses/ma_anton_semjonov/thesis). It is a computation offloading platform which uses WebAssembly as its executable format and sends requests to participating browser clients through a central broker over WebTransport streams.
 
+The paper has been accepted on the [*LESS'24 (aka. STARLESS'24)](https://starless.iit.cnr.it/) that is co-located with the IEEE Percom'24.
+
 ### Essential roles
 
 The three essential roles **Broker**, Web**Provider** and **Client** can be found in their respective subdirectories.
@@ -21,7 +23,7 @@ The WebAssembly System Interface (WASI) was chosen as an abstraction layer for t
 
 ### Evaluation
 
-**TODO** My Ansible configs and evaluation scripts + data are currently missing from this first commit.
+The `evaluation` subdirectory contains an extensive Ansible configuration to deploy a testing environment on the Hetzner Cloud, as well as various further subdirectories, that describe the performed evaluations and contain result data. Each evaluation has a separate README with information on how to reproduce the results.
 
 ### Experiments
 
