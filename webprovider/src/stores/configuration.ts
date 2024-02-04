@@ -19,7 +19,7 @@ export const useConfiguration = defineStore("Configuration", () => {
   // ---------- priority configuration via URL fragment --------- //
 
   // parse the URL fragment (the part after # symbol) as query parameters with URL class
-  const fragments = new URL(`none://:/?${window.location.hash.substring(1)}`).searchParams;
+  const fragments = new URL(`dummy://local/?${window.location.hash.substring(1)}`).searchParams;
 
   // get the relevant values from URL fragment
   const fragmentconf: Configuration = {
