@@ -33,7 +33,7 @@ type tlsConfig struct {
 
 // Create a new Server. Internally just returns a `webtransport.Server` with some
 // default settings for now.
-func NewServer(handler http.Handler, httpAddr, quicAddr, quicCert, quicKey string) (*Server, error) {
+func NewServer(handler http.Handler, httpAddr, quicAddr, quicCert, quicKey string, https bool) (*Server, error) {
 
 	http.NewServeMux()
 
@@ -86,11 +86,15 @@ func NewServer(handler http.Handler, httpAddr, quicAddr, quicCert, quicKey strin
 			handler.ServeHTTP(w, r)
 		}),
 	}
+	if https {
+		// reuse quic's tls config for the http server
+		h.TLSConfig = tlsconf.config
+	}
 
 	return &Server{q, h, tlsconf}, nil
 }
 
-func (s *Server) ListenAndServeTLS(cert, key string) error {
+func (s *Server) ListenAndServe() error {
 
 	// signal handler to close connections on CTRL-C
 	sigint := make(chan os.Signal, 1)
@@ -100,8 +104,14 @@ func (s *Server) ListenAndServeTLS(cert, key string) error {
 	httpErr := make(chan error)
 	quicErr := make(chan error)
 
-	// start the TLS server
-	go func() { httpErr <- s.Http.ListenAndServe() }()
+	// start the HTTP server
+	go func() {
+		if s.Http.TLSConfig != nil {
+			httpErr <- s.Http.ListenAndServeTLS("", "")
+		} else {
+			httpErr <- s.Http.ListenAndServe()
+		}
+	}()
 
 	// start the QUIC/WebTransport server
 	go func() { quicErr <- s.Quic.ListenAndServe() }()

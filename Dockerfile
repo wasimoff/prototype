@@ -50,6 +50,9 @@ ENV WASIMOFF_QUIC_LISTEN=":4443"
 ENV WASIMOFF_QUIC_CERT=
 ENV WASIMOFF_QUIC_KEY=
 
+# use certificates to enable TLS on HTTP server, too?
+ENV WASIMOFF_HTTPS=false
+
 # externally-reachable URL to the QUIC server
 ENV WASIMOFF_TRANSPORT_URL="https://localhost:4443/transport"
 

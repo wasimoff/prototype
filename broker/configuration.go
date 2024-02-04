@@ -14,6 +14,10 @@ type Configuration struct {
 	QuicCert string `split_words:"true" default:""`
 	QuicKey  string `split_words:"true" default:""`
 
+	// Https will reuse the TLS config of the QUIC server for the HTTP server, whether it's
+	// an ephemeral keypair or specified files.
+	Https bool `split_words:"true" default:"false"`
+
 	// TransportURL is the URL that is given to external clients to connect to the WebTransport socket
 	TransportURL string `split_words:"true" default:"https://localhost:4443/transport"`
 

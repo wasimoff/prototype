@@ -36,9 +36,10 @@ compose the environment variable name.
 
 | env | description |
 | --- | ----------- |
-| WASIMOFF_HTTP_LISTEN | the port to listen on with the plaintext HTTP server |
+| WASIMOFF_HTTP_LISTEN | the port to listen on with the HTTP server |
 | WASIMOFF_QUIC_LISTEN | the port for the QUIC/WebTransport server |
 | WASIMOFF_QUIC_{CERT,KEY} | paths to PEM-encoded certificate and key pair for the QUIC server (see notes below) |
+| WASIMOFF_HTTPS | reuse the above certificates to enable TLS for the HTTP server, too |
 | WASIMOFF_TRANSPORT_URL | externally-reachable URL to the QUIC server |
 | WASIMOFF_STATIC_FILES | filesystem path to static files to be served (e.g. the Vue frontend) |
 
@@ -58,9 +59,9 @@ For the best support between browsers, you must use a publicly trusted certifica
 e.g. one obtained through the ACME protocol from LetsEncrypt.
 
 * leave blank, create ephemeral keys, use `serverCertificateHashes`
-  * Chrome: ok, Firefox, Safari: **no**
+  * Chrome: ok; Firefox, Safari: **no**
 * create selfsigned certificate, add CA in browser, add paths
-  * Chrome: **no**, Firefox: ok, Safari: unknown
+  * Chrome: **no**; Firefox: ok; Safari: unknown
 * publicly trusted certificate, add paths
   * all: ok
 

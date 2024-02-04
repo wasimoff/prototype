@@ -22,7 +22,7 @@ func main() {
 	log.Printf("%#v", conf)
 
 	// create a new server with default http handler
-	server, err := q.NewServer(http.DefaultServeMux, conf.HttpListen, conf.QuicListen, conf.QuicCert, conf.QuicKey)
+	server, err := q.NewServer(http.DefaultServeMux, conf.HttpListen, conf.QuicListen, conf.QuicCert, conf.QuicKey, conf.Https)
 	if err != nil {
 		log.Fatalf("failed to start server: %s", err)
 	}
@@ -52,8 +52,14 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir(conf.StaticFiles)))
 
 	// start listening on tls and quic/webtransport
-	log.Printf("Server listening on http://%s (HTTP) / https://%s (QUIC)", conf.HttpListen, conf.QuicListen)
-	if err := server.ListenAndServeTLS("", ""); err != nil {
+	var httproto string
+	if conf.Https {
+		httproto = "https"
+	} else {
+		httproto = "http"
+	}
+	log.Printf("Server listening on %s://%s (HTTP) / https://%s (QUIC)", httproto, conf.HttpListen, conf.QuicListen)
+	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("oops: %s", err)
 	}
 
