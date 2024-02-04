@@ -32,36 +32,12 @@ The `evaluation` subdirectory contains an extensive Ansible configuration to dep
 The `experiments` directory contains various experiments and evaluations of pieces of the networking stack that were considered.
 
 
-### Dockerized deployment
+### Containerized deployment
 
 This repository includes a multi-stage `Dockerfile`, which:
-* compiles the `broker` binary in a `golang:1.21-bookworm` image
-* compiles the webprovider frontend dist in a `node:20-bookworm` image
-* copies both in a barebones `alpine` image to save space (even a `scratch` image would be suitable but that would complicate implementing healthchecks with curl)
-* and prepares another image with a headless Chromium to act as the provider
+* compiles the `broker` binary in a `golang:1.21-bookworm` image,
+* compiles the webprovider frontend dist in a `node:20-bookworm` image,
+* copies both in a barebones `alpine` image to save space and
+* prepares another image with a headless Chromium to act as the provider.
 
-You can build the combined Broker + Frontend image by specifying the target for `docker`:
-
-```
-docker build -t wasimoff:broker --target wasimoff ./
-```
-
-The headless provider image can be built like this:
-
-```
-docker build -t wasimoff:provider --target provider ./
-```
-
-#### Docker Compose
-
-Additionally, a `docker-compose.yaml` file is provided, which starts the combined broker in one container and a headless provider in another container. The broker's ports are forwarded to your local machine, so that you can directly issue `client.sh` commands using `BROKER=http://localhost:4080`. Copy the `provider01` section multiple times if you want to simulate multiple providers and run:
-
-```
-docker compose up --build
-```
-
-The config is a little tricky and is not really suitable for a public deployment:
-* some of the used Web APIs require a secure context, thus even loading the frontend from `http://broker:4080/` will **not** work. Luckily `localhost` is a secure context but that requires the `provider01` and `broker` to be in the same networking namespace.
-* using `network_mode: service:broker` to put the provider into the broker's networking namespace seemed to work on first glance but the WebTransport socket wouldn't connect
-* using `networking_mode: host` with a **rootless** Docker installation worked for communication between both containers but made the broker inaccessible from the host machine
-* so please, use a normal, *system*-Docker to start this compose file :)
+Usage notes for these container images have been offloaded *\*ahem\** to [`README_containerized.md`](README_containerized.md).
