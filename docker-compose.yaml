@@ -1,0 +1,41 @@
+version: "3.8"
+services:
+
+  broker:
+    image: ansemjo/wasimoff:starless24-broker
+    build:
+      context: ./
+      target: wasimoff
+    restart: unless-stopped
+    network_mode: host
+    healthcheck:
+      test: [ "CMD", "curl", "-sf", "http://localhost:4080/api/broker/v1/healthz" ]
+      interval: 5s
+    environment:
+      # listen on these addresses
+      WASIMOFF_HTTP_LISTEN: ":4080" # TCP
+      WASIMOFF_QUIC_LISTEN: ":4443" # UDP
+      # paths to certificate pair, leave empty to generate ephemeral
+      WASIMOFF_QUIC_CERT: ""
+      WASIMOFF_QUIC_KEY: ""
+      # external URL to WebTransport endpoint
+      WASIMOFF_TRANSPORT_URL: "https://localhost:4443/transport"
+    ports:
+      - 4080:4080
+      - 4443:4443/udp
+
+  provider01:
+    image: ansemjo/wasimoff:starless24-provider
+    build:
+      context: ./
+      target: provider
+    # network_mode: service:broker
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      broker:
+        condition: service_healthy
+    #entrypoint: [ "ash", "-c", "sleep 1000000" ]
+    environment:
+      WASIMOFF_BROKER: "http://localhost:4080/"
+      WASIMOFF_WORKERS: "1"
