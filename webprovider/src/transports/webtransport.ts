@@ -34,7 +34,7 @@ export class WebTransportBroker implements BrokerTransport {
 
     // assemble options with an optional certificate hash
     let options: WebTransportOptions = { requireUnreliable: true };
-    if (!!(window as any).chrome && certhash !== undefined) {
+    if (certhash !== undefined) {
       options.serverCertificateHashes = [{
         "algorithm": "sha-256",
         "value": Uint8Array.from(certhash.match(/../g)!.map(b => parseInt(b, 16))), // parse hex to bytes
