@@ -1,11 +1,9 @@
-import { computed, shallowRef, watch } from "vue";
+import { ref } from "vue";
 import { defineStore } from "pinia";
-import { type Remote, construct, proxy } from "@/workerpool";
-import { WASMRunner } from "@/worker/wasmrunner";
 import { useTerminal } from "./terminal";
-import { useFilesystem } from "./filesystem";
-import { Queue, serialize } from "@/fn/utilities";
-import type { WasiTaskExecution } from "@/workerpool/wasiworker";
+import { serialize } from "@/fn/utilities";
+import { type WasiTaskExecution } from "@/workerpool/wasiworker";
+import { SharedWorkerPool } from "@/workerpool/sharedworkerpool";
 
 /** Use a store as a "thread pool" of `WASMRunner` Workers to run computation requests on. */
 export const useWorkerPool = defineStore("WorkerPool", () => {
@@ -14,81 +12,65 @@ export const useWorkerPool = defineStore("WorkerPool", () => {
 
   // use other stores for terminal output and filesystem access
   const terminal = useTerminal();
-  const filesystem = useFilesystem();
+
+  // get a connection to the SharedWorker
+  let pool: Awaited<ReturnType<typeof SharedWorkerPool>> | undefined;
+  (async () => {
+    pool = await SharedWorkerPool();
+    let spawn = pool.link.__spawned; let n = fill();
+    terminal.success(`SharedWasiWorkerPool connected! { spawned: ${await spawn}, workers: ${await n} }`);
+  })();
 
   // how many threads we can sensibly have at most
   const nmax = Math.max(2, window.navigator.hardwareConcurrency);
 
-  // clamp a desired target count below the `nmax` value
-  function limitedCount(n: number | "max"): number {
-    if (n === "max" || n > nmax) return nmax;
-    if (n <= 0) return 0;
-    return n;
-  };
-
   // keep workers and their comlinks in an array
-  type Runner = { worker: Worker, link: Remote<WASMRunner> };
-  const pool = shallowRef<Runner[]>([]);
-  const count = computed(() => pool.value.length);
-  let next = 0; // running index for worker naming
+  const count = ref(0);
 
-  // queue of workers awaiting requests
-  let workerqueue = new Queue<Runner>();
-
-  /** Add a new `WASMRunner` to the pool. */
   async function add() {
-
-    // check for maximum size
-    if (count.value >= nmax) { throw "Maximum pool capacity reached!"; }
-
-    // construct a new worker with comlink
-    console.debug(...prefix, "add worker", next, "to the pool");
-    const worker = new Worker(new URL("@/worker/wasmrunner", import.meta.url), { type: "module" });
-    const link = await construct(worker, WASMRunner, String(next++).padStart(2, "0"), proxy(terminal), proxy(filesystem), false);
-    // terminal.success(`New Worker: ${await link.name}!`);
-
-    // append to pool and enqueue worker
-    const wrapped = { worker, link };
-    pool.value = [ ...pool.value, wrapped ];
-    await workerqueue.put(wrapped);
-
+    if (pool === undefined) throw "pool not connected yet";
+    try {
+      let name = await pool.link.spawn();
+      console.debug(...prefix, "added worker", name, "to the pool");
+      // terminal.success(`New Worker: ${await link.name}!`);
+      count.value += 1;
+      return name;
+    } catch(err) {
+      console.error("couldn't spawn worker:", err);
+      terminal.error("couldn't spawn Worker: " + String(err));
+    };
   };
 
-  /** Fill the pool with runners up to `nmax`. */
-  async function fill() { while (count.value < nmax) await add(); }
+  async function fill() {
+    if (pool === undefined) throw "pool not connected yet";
+    let n = await pool?.link.fill();
+    count.value = n;
+    return n;
+  }
 
   /** Ensure that a certain number of runners is in the pool. */
   async function ensure(n: number | "max") {
-    n = limitedCount(n);
-    if (count.value < n) while (count.value < n) await add();
-    else while (count.value > n) await terminate();
+    if (pool === undefined) throw "pool not connected yet";
+    return await pool.link.scale(n);
   }
 
   /** Terminate a single Worker from the pool (oldest first). */
   async function terminate() {
-    if (count.value > 0) {
-      let wrapped = await workerqueue.get();
-      let name = await wrapped.link.name;
-      let index = pool.value.indexOf(wrapped);
-      console.debug(...prefix, "terminate worker", `(${index}, ${name})`);
-      terminal.error(`Terminating Worker (${index}, ${name}).`);
-      
-      pool.value.splice(index, 1);
-      pool.value = [ ...pool.value ];
-      wrapped.worker.terminate();
-    };
+    if (pool === undefined) throw "pool not connected yet";
+    let name = await pool.link.drop();
+    if (name === undefined) return;
+    console.debug(...prefix, "terminated worker", name);
+    terminal.error(`Terminated Worker ${name}.`);
+    count.value -= 1;
   }
 
   /** Terminate and remove all Workers from the pool. */
   async function killall() {
-    while (count.value > 0) {
-      let w = pool.value[0];
-      w.worker.terminate();
-      pool.value = pool.value.slice(1);
-    };
-    terminal.error("Killed all workers!")
-    workerqueue = new Queue<Runner>();
-  }
+    if (pool === undefined) throw "pool not connected yet";
+    await pool.link.killall();
+    count.value = 0;
+    terminal.error("Killed all workers!");
+  };
 
 
   /** The `exec` method tries to get a free (~ non computing) worker from
@@ -97,18 +79,20 @@ export const useWorkerPool = defineStore("WorkerPool", () => {
    * Afterwards, the method makes sure to put the worker back into the queue,
    * so *don't* keep any references to it around! The result of the computation
    * is finally returned to the caller in a Promise. */
-  async function exec <Result> (task: (worker: Remote<WASMRunner>) => Promise<Result>, next?: () => void) {
-    if (count.value === 0) throw new Error("no workers in pool");
-    const wrapped = await workerqueue.get(); next?.();
-    try {
-      return await task(wrapped.link);
-    } finally {
-      await workerqueue.put(wrapped);
-    }
-  };
+  // async function exec <Result> (task: (worker: Remote<WASMRunner>) => Promise<Result>, next?: () => void) {
+  //   if (count.value === 0) throw new Error("no workers in pool");
+  //   const wrapped = await workerqueue.get(); next?.();
+  //   try {
+  //     return await task(wrapped.link);
+  //   } finally {
+  //     await workerqueue.put(wrapped);
+  //   }
+  // };
 
   async function run(id: string, task: WasiTaskExecution, next?: () => void) {
-    return exec(w => w.run(id, task.wasm, task.argv, task.envs), next);
+    if (next) next(); // TODO, without function
+    if (pool === undefined) throw "pool not connected yet";
+    return await pool.link.run(id, task);
   };
 
   // return methods for consumers
@@ -117,7 +101,7 @@ export const useWorkerPool = defineStore("WorkerPool", () => {
     add: serialize(add),
     terminate: serialize(terminate),
     fill: serialize(fill),
-    exec, run,
+    run,
     killall,
     ensure: serialize(ensure),
   };

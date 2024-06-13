@@ -10,8 +10,9 @@ import { useConfiguration } from "@/stores/configuration";
 const conf = useConfiguration();
 
 // filesystem storage
-import { useFilesystem } from "@/stores/filesystem";
-const opfs = useFilesystem();
+import { OPFSDirectory } from "@/filesystem/opfs";
+let fs: OPFSDirectory;
+(async () => fs = await OPFSDirectory.open("/wasm"))();
 
 // webassembly runner worker pool
 import { useWorkerPool } from "@/stores/workerpool";
@@ -38,21 +39,25 @@ async function connect() {
 if (conf.autoconnect) setTimeout(connect, 100);
 
 async function rmrf() {
-  let files = await opfs.rmrf()
+  let files = await fs.prune();
   for (const file of files) {
     terminal.error(`Deleted: '${file}'`);
   };
 };
 
 async function listdir() {
-  let files = await opfs.ls();
-  if (files.length > 0) {
-    terminal.log("OPFS directory listing:", LogType.Link);
-    for (const file of files) {
-      terminal.log(` /${file.name} [${filesize(file.size)}, ${file.type}]`, LogType.Link);
+  let items = await fs.ls();
+  console.log("DEBUG", items);
+  if (items.length > 0) {
+    terminal.log(`OPFS directory ${fs.path} listing:`, LogType.Link);
+    for (const it of items) {
+      if (it instanceof File)
+        terminal.log(` ${it.name} [${filesize(it.size)}, ${it.type}]`, LogType.Link);
+      else
+        terminal.log(` ${it.name}/ [directory]`, LogType.Link);
     };
   } else {
-    terminal.log("OPFS directory is empty!", LogType.Link);
+    terminal.log(`OPFS directory ${fs.path} is empty!`, LogType.Link);
   };
 };
 
@@ -114,33 +119,33 @@ async function runloadtesting(iterations: number = 1000) {
   terminal.success(`START LOCAL LOAD TESTING with ${iterations} iterations.`);
 
   // get the binary from OPFS and precompile a module
-  const wasm = await opfs.getWasmModule("tsp.wasm");
+  const wasm = await fs.getWasmModule("tsp.wasm");
 
   let t0 = performance.now(); // calculate how long it took
   let ooms = 0; // count the number of OOMs that surfaced
   let tasks: Promise<void>[] = []; // collect tasks to properly await
 
   // start lots of tasks asynchronously and await them all
-  for (let count = 0; count < iterations; count++) {
-    await new Promise<void>(async next => {
-      let task = pool.exec(async worker => {
-        try {
-          await worker.run(String(count), wasm, ["tsp", "rand", "8"], [], undefined, undefined, true);
-        } catch(err) {
-          console.error("oops:", err);
-          // just wait for OOM errors
-          if (String(err).includes("Out of memory")) {
-            ooms++;
-          } else {
-            terminal.error(String(err));
-            throw err;
-          };
-        };
-      }, next);
-      tasks.push(task);
-    });
-  };
-  await Promise.allSettled(tasks);
+  // for (let count = 0; count < iterations; count++) {
+  //   await new Promise<void>(async next => {
+  //     let task = pool.exec(async worker => {
+  //       try {
+  //         await worker.run(String(count), wasm, ["tsp", "rand", "8"], [], undefined, undefined, true);
+  //       } catch(err) {
+  //         console.error("oops:", err);
+  //         // just wait for OOM errors
+  //         if (String(err).includes("Out of memory")) {
+  //           ooms++;
+  //         } else {
+  //           terminal.error(String(err));
+  //           throw err;
+  //         };
+  //       };
+  //     }, next);
+  //     tasks.push(task);
+  //   });
+  // };
+  // await Promise.allSettled(tasks);
 
   // log the results
   let ms = (performance.now() - t0).toFixed(3);
@@ -176,7 +181,7 @@ async function runloadtesting(iterations: number = 1000) {
       <label class="label has-text-grey-dark">Origin-Private Filesystem</label>
       <div class="buttons">
         <button class="button is-family-monospace is-success" @click="listdir" title="List files in OPFS">ls</button>
-        <button class="button is-family-monospace is-danger" @click="rmrf" title="Delete all files in OPFS">rm -rf</button>
+        <button class="button is-family-monospace is-danger" @click="rmrf" title="Delete all files in OPFS">rm -f *</button>
       </div>
 
     </div>
@@ -214,4 +219,4 @@ async function runloadtesting(iterations: number = 1000) {
     </div>
 
   </div>
-</template>
+</template>@/filesystem/opfs

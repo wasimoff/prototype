@@ -33,7 +33,7 @@ if (import.meta.hot) {
 
 
 // run various tests locally against different worker pools
-(async () => {
+let benchmark = async () => {
 
   // parameters for the bursty race
   const n = 10; const tsp = "4";
@@ -60,7 +60,7 @@ if (import.meta.hot) {
   const sharedFill = await timed(() => sharedLink.fill());
   
   // setup the direct pool
-  const localPool = new WasiWorkerPool();
+  const localPool = new WasiWorkerPool(Math.max(2, window.navigator.hardwareConcurrency));
   hmrController.signal.addEventListener("abort", () => localPool.killall());
   const localFill = await timed(() => localPool.fill());
   
@@ -76,7 +76,7 @@ if (import.meta.hot) {
   terminal.warn(`SharedWorkerPool raced: ${sharedRace.result.toFixed(1)}/${sharedRace.duration.toFixed(1)} ms`);
   terminal.warn(`LocalWorkerPool raced: ${localRace.result.toFixed(1)}/${localRace.duration.toFixed(1)} ms`);
 
-})();
+}; // benchmark();
 
 
 </script>

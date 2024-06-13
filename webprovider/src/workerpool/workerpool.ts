@@ -1,33 +1,37 @@
-import { type Remote, construct, releaseProxy } from "@/workerpool";
-import { type SomeWasiWorkerMessage, WasiWorker, type WasiTaskExecution } from "@/workerpool/wasiworker";
+import { type Remote, construct, releaseProxy, type WrappedWorker } from "@/workerpool";
+import { WasiWorker, type WasiTaskExecution } from "@/workerpool/wasiworker";
 import { Queue } from "@/fn/utilities";
-import { Observable, Subject } from "observable-fns";
+import { OPFSDirectory } from "@/filesystem/opfs";
+
+let fs: OPFSDirectory;
+(async () => fs = await OPFSDirectory.open("/wasm"))();
+
 
 /** Worker threadpool, which dispatches tasks to WasmWorkers. */
 export class WasiWorkerPool {
 
   constructor(
     /** The maximum number of workers in this pool. */
-    private readonly nmax: number = Math.max(2, window.navigator.hardwareConcurrency),
+    private readonly nmax: number,
   ) { };
 
   // colorful console logging prefix
   private readonly logprefix = [ "%c WasmWorkerPool ", "background: violet; color: black;" ];
 
   // TODO: make proper event emitter?
-  private channel = new BroadcastChannel("WasiWorkerBroadcast");
-  public events = new Observable<SomeWasiWorkerMessage>(subscriber => {
-    this.channel.addEventListener("message", ({ data }) => subscriber.next(data as SomeWasiWorkerMessage));
-  });
+  // private channel = new BroadcastChannel("WasiWorkerBroadcast");
+  // public events = new Observable<SomeWasiWorkerMessage>(subscriber => {
+  //   this.channel.addEventListener("message", ({ data }) => subscriber.next(data as SomeWasiWorkerMessage));
+  // });
 
   // hold the Workers in an array
-  private pool: WrappedWorker[] = [];
+  private pool: WrappedWorker<WasiWorker, { name: string }>[] = [];
   public get workers() { return this.pool.map(p => p.name); };
   private nextindex = 0;
 
   // an asynchronous queue to fetch an available worker
   // TODO: rather set properties on WrappedWorker { busy: bool } atomically and use a filter?
-  private queue = new Queue<WrappedWorker>;
+  private queue = new Queue<WrappedWorker<WasiWorker, { name: string }>>;
 
 
   /** The `exec` method tries to get a free (~ non computing) worker from
@@ -53,6 +57,11 @@ export class WasiWorkerPool {
 
   /** More limited form of `exec`, which only runs `WasmWorker.run` tasks. */
   async run(id: string, task: WasiTaskExecution, next?: () => void) {
+    if (fs === undefined) throw "oops, too fast";
+    if (typeof task.wasm === "string") {
+      task.argv = [ task.wasm, ...task.argv ];
+      task.wasm = await fs.getWasmModule(task.wasm);
+    }
     return this.exec(w => w.run(id, task), next);
   };
 
@@ -73,6 +82,7 @@ export class WasiWorkerPool {
     const wrapped = { name, worker, link };
     this.pool.push(wrapped); // TODO: make observable?
     this.queue.put(wrapped);
+    return wrapped.name;
 
   };
 
@@ -84,10 +94,22 @@ export class WasiWorkerPool {
     console.info(...this.logprefix, "terminate worker", w.name, "from pool");
     w.link[releaseProxy]();
     w.worker.terminate();
+    return w.name;
+  }
+
+  /** Ensure that a certain number of Workers is in the pool. */
+  async scale(n: number | "max") {
+    n = this.clamped(n);
+    if (this.pool.length < n)
+      while (this.pool.length < n) await this.spawn();
+    else
+      while (this.pool.length > n) await this.drop();
+    return this.pool.length;
   }
 
   /** Add Workers to maximum capacity. */
   async fill() {
+    console.warn("FILLING", this);
     while (this.pool.length < this.nmax) await this.spawn();
     return this.pool.length;
   };
@@ -107,12 +129,12 @@ export class WasiWorkerPool {
     this.queue = new Queue();
   };
 
-  // // clamp a desired value to maximum number of workers
-  // private clamped(n: number | "nmax"): number {
-  //   if (n === "nmax" || n > this.nmax) return this.nmax;
-  //   if (n <= 0) return 0;
-  //   return n;
-  // };
+  // clamp a desired value to maximum number of workers
+  private clamped(n: number | "max"): number {
+    if (n === "max" || n > this.nmax) return this.nmax;
+    if (n <= 0) return 0;
+    return n;
+  };
 
 
 
@@ -128,6 +150,3 @@ export class WasiWorkerPool {
   };
 
 }
-
-/** Reference to a WasmWorker with both the Web Worker API and Comlink proxy. */
-type WrappedWorker = { name: string, worker: Worker, link: Remote<WasiWorker> };

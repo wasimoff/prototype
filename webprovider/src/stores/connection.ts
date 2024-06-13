@@ -3,8 +3,8 @@ import { defineStore, storeToRefs } from "pinia";
 import { useWorkerPool } from "@/stores/workerpool";
 import { WebTransportBroker, BrokerTransport } from "@/transports";
 import { useTerminal } from "./terminal";
-import { useFilesystem } from "./filesystem";
-import type { AdvancedExecutionOptions, CompletedExecution } from "@/worker/wasmrunner";
+import { OPFSDirectory } from "@/filesystem/opfs";
+import type { WasiTaskExecution, WasiTaskResult } from "@/workerpool/wasiworker";
 import { Trace } from "@/fn/trace";
 import { proxy } from "comlink";
 
@@ -19,7 +19,8 @@ export const useConnection = defineStore("Connection", () => {
 
   // use other stores for terminal output and filesystem access
   const terminal = useTerminal();
-  const filesystem = useFilesystem();
+  let filesystem: OPFSDirectory;
+  (async () => filesystem = await OPFSDirectory.open("/wasm"))();
 
   // use the worker pool needed to execute WASM
   let pool = useWorkerPool();
@@ -147,7 +148,7 @@ export const useConnection = defineStore("Connection", () => {
   const methods: { [method: string]: (body: any, next: () => void) => Promise<any> } = {
 
     /** Execute a stored WASI executable via the /run endpoint in Broker. */
-    async run(body, next): Promise<CompletedExecution> {
+    async run(body, next): Promise<WasiTaskResult> {
       // expected body type
       let { id, binary, args, envs, stdin, loadfs, datafile, trace } = body as WASMRun;
       // maybe start a trace
@@ -158,16 +159,19 @@ export const useConnection = defineStore("Connection", () => {
       if (envs === null) envs = [];
       if (loadfs === null) loadfs = [];
       // assembly advanced options
-      let options: AdvancedExecutionOptions = {};
-      // preload files under exactly their names in OPFS storage, as a simplification
-      if (loadfs) options.rootfs = loadfs.reduce((o,v) => { o[v] = v; return o; }, { } as { [k: string]: string });
-      if (datafile) options.datafile = datafile;
-      if (stdin) options.stdin = stdin;
+      // let options: AdvancedExecutionOptions = {};
+      // // preload files under exactly their names in OPFS storage, as a simplification
+      // if (loadfs) options.rootfs = loadfs.reduce((o,v) => { o[v] = v; return o; }, { } as { [k: string]: string });
+      // if (datafile) options.datafile = datafile;
+      // if (stdin) options.stdin = stdin;
       tracer?.now("rpc: parsed options");
-      return await pool.exec(async worker => {
-        tracer?.now("rpc: pool.exec got a worker");
-        return await worker.run(id, binary, [binary, ...args], envs, options, trace ? proxy(tracer!) : undefined);
-      }, next);
+      let run = pool.run(id, { wasm: binary, argv: args, envs, stdin });
+      next();
+      return run;
+      // return await pool.exec(async worker => {
+      //   tracer?.now("rpc: pool.exec got a worker");
+      //   return await worker.run(id, binary, [binary, ...args], envs, options, trace ? proxy(tracer!) : undefined);
+      // }, next);
     },
 
     /** Broker probes if we have a certain file. */
@@ -175,7 +179,7 @@ export const useConnection = defineStore("Connection", () => {
       // expect a normal file sans the bytes
       const { filename, hash, length } = body;
       // find the file by filename
-      let file = await filesystem.ls().then(files => files.find(f => f.name === filename));
+      let file = (await filesystem.lsf()).find(f => f.name === filename);
       if (file === undefined) return false;
       // check the filesize
       if (file.size !== length) return false;
@@ -201,7 +205,7 @@ export const useConnection = defineStore("Connection", () => {
 
     /** Broker asks for a list of available files in storage. */
     async "fs:list"(body: null, next): Promise<Partial<UploadedFile>[]> {
-      let has = await Promise.all((await filesystem.ls()).map(async file => ({
+      let has = await Promise.all((await filesystem.lsf()).map(async file => ({
         filename: file.name,
         hash: await digest(file),
         length: file.size,

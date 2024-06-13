@@ -58,5 +58,14 @@ export function whenready(endpoint: Endpoint, callback: (u?: unknown) => void) {
 /** The message expected by the `readinessListener`. */
 export const workerReady = { ready: true } as const;
 
+/** A Comlink-wrapped Worker, which also still holds the bare Worker reference. */
+export type WrappedWorker<Exposed, Metadata extends Object> = {
+  worker: Worker,
+  link: Remote<Exposed>,
+} & Metadata;
 
-
+/** A Comlink-wrapped SharedWorker, which also still holds the bare SharedWorker reference. */
+export type WrappedSharedWorker<Exposed, Metadata extends Object> = {
+  worker: SharedWorker,
+  link: Remote<Exposed>,
+} & Metadata;

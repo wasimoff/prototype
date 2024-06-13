@@ -19,9 +19,14 @@ const pool = new WasiWorkerPool(16);
 
 export const SharedWasimoff = {
 
-  async fill() {
-    return pool.fill();
-  },
+  __spawned: spawned,
+  spawn: async () => pool.spawn(),
+  fill: async () => pool.fill(),
+  flush: async () => pool.flush(),
+  drop: async () => pool.drop(),
+  killall: async () => pool.killall(),
+  scale: async (n: number | "max") => pool.scale(n),
+  count: async () => pool.workers.length,
 
   async run(id: string, task: WasiTaskExecution) {
     console.log(...logprefix, "RUN", id, task);
@@ -38,6 +43,7 @@ export const SharedWasimoff = {
     console.warn(...logprefix, "race finished after", t1);
     return t1;
   },
+
 
 }
 
