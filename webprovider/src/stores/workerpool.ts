@@ -1,10 +1,11 @@
 import { computed, shallowRef, watch } from "vue";
 import { defineStore } from "pinia";
-import { type Remote, construct, proxy } from "@/worker";
+import { type Remote, construct, proxy } from "@/workerpool";
 import { WASMRunner } from "@/worker/wasmrunner";
 import { useTerminal } from "./terminal";
 import { useFilesystem } from "./filesystem";
 import { Queue, serialize } from "@/fn/utilities";
+import type { WasiTaskExecution } from "@/workerpool/wasiworker";
 
 /** Use a store as a "thread pool" of `WASMRunner` Workers to run computation requests on. */
 export const useWorkerPool = defineStore("WorkerPool", () => {
@@ -43,8 +44,8 @@ export const useWorkerPool = defineStore("WorkerPool", () => {
     // construct a new worker with comlink
     console.debug(...prefix, "add worker", next, "to the pool");
     const worker = new Worker(new URL("@/worker/wasmrunner", import.meta.url), { type: "module" });
-    const link = await construct(worker, WASMRunner, String(next++).padStart(2, "0"), proxy(terminal), proxy(filesystem), true);
-    terminal.success(`New Worker: ${await link.name}!`);
+    const link = await construct(worker, WASMRunner, String(next++).padStart(2, "0"), proxy(terminal), proxy(filesystem), false);
+    // terminal.success(`New Worker: ${await link.name}!`);
 
     // append to pool and enqueue worker
     const wrapped = { worker, link };
@@ -106,13 +107,17 @@ export const useWorkerPool = defineStore("WorkerPool", () => {
     }
   };
 
+  async function run(id: string, task: WasiTaskExecution, next?: () => void) {
+    return exec(w => w.run(id, task.wasm, task.argv, task.envs), next);
+  };
+
   // return methods for consumers
   return {
     nmax, count,
     add: serialize(add),
     terminate: serialize(terminate),
     fill: serialize(fill),
-    exec,
+    exec, run,
     killall,
     ensure: serialize(ensure),
   };

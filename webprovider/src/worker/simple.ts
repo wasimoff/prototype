@@ -3,7 +3,7 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers
 /// <reference lib="webworker" />
 
-import { expose, Ready } from "./";
+import { expose, workerReady } from "@/workerpool";
 
 export class SimpleWorker {
   constructor(public name: string) { }
@@ -26,7 +26,7 @@ export class SimpleWorker {
 }
 
 expose(SimpleWorker);
-postMessage(Ready);
+postMessage(workerReady);
 
 
 /** Usage example:

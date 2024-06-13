@@ -8,7 +8,7 @@ export type LogLine = { date: Date, text: string, is: LogType };
 export const useTerminal = defineStore("Terminal", () => {
 
   const lines = reactive<LogLine[]>([]);
-  let limit = 256;
+  let limit = 2000;
 
   /** Append a line to the log. */
   function log(message: string, type: LogType = LogType.Black) {

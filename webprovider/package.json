@@ -2,6 +2,7 @@
   "name": "wasimoff-webprovider",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check build-only",
@@ -10,23 +11,23 @@
     "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false"
   },
   "dependencies": {
-    "@bjorn3/browser_wasi_shim": "^0.2.15",
+    "@bjorn3/browser_wasi_shim": "^0.3.0",
     "@msgpack/msgpack": "^3.0.0-beta2",
-    "bulma": "^0.9.4",
+    "@tsconfig/node20": "^20.1.4",
+    "bulma": "^1.0.1",
     "comlink": "^4.4.1",
     "lru-cache": "^10.0.1",
+    "observable-fns": "^0.6.1",
     "pinia": "^2.0.36",
     "vue": "^3.3.2"
   },
   "devDependencies": {
-    "@tsconfig/node18": "^2.0.1",
-    "@types/node": "^18.16.8",
-    "@typescript/lib-dom": "npm:@types/web",
-    "@vitejs/plugin-vue": "^4.2.3",
-    "@vue/tsconfig": "^0.4.0",
+    "@types/node": "^20.14.2",
+    "@vitejs/plugin-vue": "^5.0.5",
+    "@vue/tsconfig": "^0.5.1",
     "npm-run-all": "^4.1.5",
-    "typescript": "~5.0.4",
-    "vite": "^4.3.5",
-    "vue-tsc": "^1.6.4"
+    "typescript": "^5.4.5",
+    "vite": "^5.2.13",
+    "vue-tsc": "^2.0.19"
   }
 }

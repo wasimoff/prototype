@@ -3,7 +3,7 @@
 /// <reference lib="webworker" />
 
 import { OpenFile, File, WASI, PreopenDirectory, SyncOPFSFile, Fd, strace, Directory } from "@bjorn3/browser_wasi_shim";
-import { expose, Ready, type ProxyMarked } from "./";
+import { expose, workerReady, type ProxyMarked } from "@/workerpool";
 import type { useTerminal } from "@/stores/terminal";
 import type { useFilesystem } from "@/stores/filesystem";
 import type { Trace, ExportedTrace } from "@/fn/trace";
@@ -51,7 +51,7 @@ export class WASMRunner {
 
   //! FinalizationRegistry test to get notified when WebAssembly.Memory is collected
   // @ts-ignore
-  private registry = new FinalizationRegistry(m => console.warn(...this.prefix, m));
+  private registry = new FinalizationRegistry(m => { if (this.verbose) console.warn(...this.prefix, m); });
 
   // colorful console logging prefix
   private get prefix() { return [ `%c ${this.name} `, 'background: #f03a5f; color: white;' ]; }
@@ -66,7 +66,7 @@ export class WASMRunner {
     name: string,
     private terminal: ReturnType<typeof useTerminal> & ProxyMarked,
     private filesystem: ReturnType<typeof useFilesystem> & ProxyMarked,
-    verbose: boolean = true,
+    verbose: boolean = false,
   ) {
     this.name = `WASMRunner:${name}`;
     this.verbose = verbose;
@@ -101,7 +101,7 @@ export class WASMRunner {
       new OpenFile(new File(stdin)),
       new OpenFile(new File([])), // stdout
       new OpenFile(new File([])), // stderr
-      new PreopenDirectory("/", rootfs),
+      // new PreopenDirectory("/", rootfs), // TODO
     ];
   };
 
@@ -127,10 +127,10 @@ export class WASMRunner {
       trace?.now("worker: function top");
 
       // log the overall commandline to terminal and console
-      if (verbose) {
+      if (true) { // TODO
         let cmdline = [args[0] || "<binary>", ...args.slice(1), ...envs];
         console.log(...this.prefix, { cmdline, options });
-        this.terminal.info(`${this.name}: ${id} ${JSON.stringify(cmdline)}`);
+        // this.terminal.info(`${this.name}: ${id} ${JSON.stringify(cmdline)}`);
         trace?.now("worker: commandline logged");
       };
 
@@ -212,14 +212,14 @@ export class WASMRunner {
       };
       if (verbose) console.debug(...this.prefix, "Finished execution:", {
         stdout: output.stdout, stderr: output.stderr,
-        filesystem: (shim.fds[3] as PreopenDirectory).dir.contents,
+        // filesystem: (shim.fds[3] as PreopenDirectory).dir.contents,
       });
       if (options?.datafile) { // maybe copy an output file
         // TODO, BUG: if the binary exited non-sucessfully, the file may not exist here!
-        let f = options.datafile;
-        let dir = (shim.fds[3] as PreopenDirectory).dir.contents;
-        if (dir[f] === undefined) throw `requested datafile "${f}" not found!`;
-        output.datafile = (dir[f] as File).data;
+        // let f = options.datafile;
+        // let dir = (shim.fds[3] as PreopenDirectory).dir.contents;
+        // if (dir[f] === undefined) throw `requested datafile "${f}" not found!`;
+        // output.datafile = (dir[f] as File).data;
       };
       if (verbose && trace) console.info(`Trace of ${id}:`, trace.export());
       if (verbose) console.info(...this.prefix, "Task output:", output);
@@ -235,7 +235,7 @@ export class WASMRunner {
 };
 
 expose(WASMRunner);
-postMessage(Ready);
+postMessage(workerReady);
 
 
 /** Usage example:

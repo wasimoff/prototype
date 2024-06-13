@@ -85,7 +85,8 @@ const connectionStatus = computed(() => conn.connected
 // ---------- WORKER POOL ---------- //
 
 // fill the pool on launch
-(async () => await pool.ensure(conf.workers))();
+if (conf.autoconnect)
+  (async () => await pool.ensure(conf.workers))();
 
 // add / remove / fill workers in the pool
 async function addWorker() {

@@ -9,6 +9,76 @@ import { useTerminal, LogType } from "@/stores/terminal";
 const terminal = useTerminal();
 terminal.log(`Hello, ${title}!`, LogType.Black);
 
+
+
+import { comlink } from "@/workerpool";
+import { SharedWasimoff } from "@/workerpool/sharedworker";
+import { type SomeWasiWorkerMessage } from "@/workerpool/wasiworker";
+import { WasiWorkerPool } from "@/workerpool/workerpool";
+
+// simple performance timer function
+async function timed<T>(fn: () => Promise<T>) {
+  let t0 = performance.now();
+  let result = await fn();
+  return { result, duration: performance.now() - t0 };
+};
+
+let hmrController = new AbortController();
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    terminal.error("HMR! Cancel hmrController ..");
+    hmrController.abort();
+  });
+}
+
+
+// run various tests locally against different worker pools
+(async () => {
+
+  // parameters for the bursty race
+  const n = 10; const tsp = "4";
+  terminal.warn(`Setup ...`);
+
+  // listen to worker messages on broadcast channel and print to terminal?
+  if (true) {
+    terminal.log(`Setup BroadcastChannel listener ...`);
+    let bc = new BroadcastChannel("WasiWorkerBroadcast");
+    bc.addEventListener("message", ({ data }: { data: SomeWasiWorkerMessage }) => {
+      if (data.type === "cmdline") terminal.info(`WasiWorker ${data.name}: ${data.payload.id} ${data.payload.cmdline}`);
+    }, { signal: hmrController.signal });
+  };
+
+  // prepare task payload
+  //! use ArrayBuffer since we can't seem to transfer WebAssembly.Modules to SharedWorkers
+  let wasm = await (await fetch("/tsp.wasm")).arrayBuffer();
+  let task = { wasm, argv: [ "tsp.wasm", "rand", tsp ], envs: [ "PROJECT=wasimoff" ] };
+
+
+  // setup the SharedWorker pool
+  const sharedWorker = new SharedWorker(new URL("@/workerpool/sharedworker", import.meta.url), { type: "module" });
+  const sharedLink = await comlink<typeof SharedWasimoff>(sharedWorker.port);
+  const sharedFill = await timed(() => sharedLink.fill());
+  
+  // setup the direct pool
+  const localPool = new WasiWorkerPool();
+  hmrController.signal.addEventListener("abort", () => localPool.killall());
+  const localFill = await timed(() => localPool.fill());
+  
+  // remotely trigger a RACE!
+  terminal.warn(`Race!`);
+  let sharedRace = await timed(() => sharedLink.race(n, task));
+  terminal.log(`SharedWorkerPool race done.`);
+  let localRace = await timed(() => localPool.race(n, task));
+  terminal.log(`LocalWorkerPool race done.`);
+
+  terminal.success(`SharedWorkerPool filled with ${sharedFill.result} workers in ${sharedFill.duration.toFixed(1)} ms`);
+  terminal.success(`LocalWorkerPool filled with ${localFill.result} workers in ${localFill.duration.toFixed(1)} ms`);
+  terminal.warn(`SharedWorkerPool raced: ${sharedRace.result.toFixed(1)}/${sharedRace.duration.toFixed(1)} ms`);
+  terminal.warn(`LocalWorkerPool raced: ${localRace.result.toFixed(1)}/${localRace.duration.toFixed(1)} ms`);
+
+})();
+
+
 </script>
 
 <template>
