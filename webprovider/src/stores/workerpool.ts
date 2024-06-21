@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 import { useTerminal } from "./terminal";
 import { serialize } from "@/fn/utilities";
 import { type WasiTaskExecution } from "@/workerpool/wasiworker";
-import { SharedWorkerPool } from "@/workerpool/sharedworkerpool";
+import { SharedWasiWorkerPool } from "@/workerpool/workerpoolshared";
 
 /** Use a store as a "thread pool" of `WASMRunner` Workers to run computation requests on. */
 export const useWorkerPool = defineStore("WorkerPool", () => {
@@ -14,9 +14,9 @@ export const useWorkerPool = defineStore("WorkerPool", () => {
   const terminal = useTerminal();
 
   // get a connection to the SharedWorker
-  let pool: Awaited<ReturnType<typeof SharedWorkerPool>> | undefined;
+  let pool: Awaited<ReturnType<typeof SharedWasiWorkerPool>> | undefined;
   (async () => {
-    pool = await SharedWorkerPool();
+    pool = await SharedWasiWorkerPool();
     let spawn = pool.link.__spawned; let n = fill();
     terminal.success(`SharedWasiWorkerPool connected! { spawned: ${await spawn}, workers: ${await n} }`);
   })();
