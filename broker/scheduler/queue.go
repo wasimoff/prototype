@@ -3,7 +3,7 @@ package scheduler
 import (
 	"log"
 	"sync"
-	"wasmoff/broker/tracer"
+	"wasimoff/broker/tracer"
 )
 
 // A single Task struct that is parametrized from the run configuration's Exec array.

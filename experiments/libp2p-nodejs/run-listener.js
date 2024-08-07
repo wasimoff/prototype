@@ -61,7 +61,7 @@ const node = await createLibp2p({
     }),
     pubsubPeerDiscovery({
       interval: 1000,
-      topics: [ "wasmoff/discovery" ],
+      topics: [ "wasimoff/discovery" ],
     }),
   ],
 
@@ -83,7 +83,7 @@ cm.printListeningAddrs(node); // print own multiaddr once we have a relay
 cm.printPeerStoreUpdates(node, "peer:update");
 
 // handle a simple chat protocol
-await node.handle("/wasmoff/chat/v1", async ({ stream }) => {
+await node.handle("/wasimoff/chat/v1", async ({ stream }) => {
   console.log("--- opened chat stream ---");
   // await iostream(stream);
   stdinToStream(stream);

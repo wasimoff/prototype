@@ -3,7 +3,7 @@ package scheduler
 import (
 	"context"
 	"reflect"
-	"wasmoff/broker/provider"
+	"wasimoff/broker/provider"
 )
 
 // Scheduler is a generic interface which must be fulfilled by a concrete scheduler,

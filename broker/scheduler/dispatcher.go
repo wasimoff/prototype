@@ -3,8 +3,8 @@ package scheduler
 import (
 	"context"
 	"fmt"
-	"wasmoff/broker/provider"
-	"wasmoff/broker/tracer"
+	"wasimoff/broker/provider"
+	"wasimoff/broker/tracer"
 )
 
 // The Dispatcher takes a task queue and a provider selector strategy and then

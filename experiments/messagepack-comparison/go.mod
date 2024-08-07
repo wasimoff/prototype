@@ -1,4 +1,4 @@
-module wasmoff/test
+module wasimoff/test
 
 go 1.20
 

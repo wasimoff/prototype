@@ -10,9 +10,9 @@ import (
 	"mime"
 	"net/http"
 	"strings"
-	"wasmoff/broker/provider"
-	"wasmoff/broker/storage"
-	"wasmoff/broker/tracer"
+	"wasimoff/broker/provider"
+	"wasimoff/broker/storage"
+	"wasimoff/broker/tracer"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"

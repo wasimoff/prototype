@@ -1,4 +1,4 @@
-module wasmoff/experiment/webtransport
+module wasimoff/experiment/webtransport
 
 go 1.20
 

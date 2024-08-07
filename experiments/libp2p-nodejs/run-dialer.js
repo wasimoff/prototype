@@ -62,7 +62,7 @@ const node = await createLibp2p({
     }),
     pubsubPeerDiscovery({
       interval: 1000,
-      topics: [ "wasmoff/discovery" ],
+      topics: [ "wasimoff/discovery" ],
     }),
   ],
 
@@ -104,13 +104,13 @@ function chatStream(stream) {
     };
 
     // try to dial the requested peer for chat
-    chatStream(await node.dialProtocol(pid, "/wasmoff/chat/v1"));
+    chatStream(await node.dialProtocol(pid, "/wasimoff/chat/v1"));
 
   } else {
 
     // directly dial the peer by encapsulating in relay address
     const relayed = relay.encapsulate("/p2p-circuit").encapsulate(peer);
-    chatStream(await node.dialProtocol(relayed, "/wasmoff/chat/v1"));
+    chatStream(await node.dialProtocol(relayed, "/wasimoff/chat/v1"));
 
   };
 })();

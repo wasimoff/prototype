@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"time"
-	"wasmoff/broker/provider"
+	"wasimoff/broker/provider"
 )
 
 // The SimpleMatchSelector is another simple implementation of a ProviderSelector,

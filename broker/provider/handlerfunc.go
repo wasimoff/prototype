@@ -3,7 +3,7 @@ package provider
 import (
 	"log"
 	"net/http"
-	"wasmoff/broker/net/server"
+	"wasimoff/broker/net/server"
 )
 
 func WebTransportHandler(server *server.Server, store *ProviderStore) http.HandlerFunc {

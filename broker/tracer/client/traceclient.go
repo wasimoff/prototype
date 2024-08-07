@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"os"
 	"time"
-	"wasmoff/broker/scheduler"
-	"wasmoff/broker/tracer"
+	"wasimoff/broker/scheduler"
+	"wasimoff/broker/tracer"
 )
 
 // fixed broker url and payload for now

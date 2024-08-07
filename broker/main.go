@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 	"net/http"
-	"wasmoff/broker/net/server"
-	"wasmoff/broker/provider"
-	"wasmoff/broker/scheduler"
+	"wasimoff/broker/net/server"
+	"wasimoff/broker/provider"
+	"wasimoff/broker/scheduler"
 
 	"github.com/kelseyhightower/envconfig"
 )

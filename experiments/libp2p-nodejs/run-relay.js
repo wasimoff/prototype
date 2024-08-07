@@ -53,7 +53,7 @@ const node = await createLibp2p({
   peerDiscovery: [
     pubsubPeerDiscovery({
       interval: 1000,
-      topics: [ "wasmoff/discovery" ],
+      topics: [ "wasimoff/discovery" ],
     }),
   ],
 

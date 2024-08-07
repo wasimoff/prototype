@@ -1,7 +1,7 @@
 package provider
 
 import (
-	"wasmoff/broker/storage"
+	"wasimoff/broker/storage"
 
 	"github.com/puzpuzpuz/xsync"
 )

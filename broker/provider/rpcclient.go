@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"wasmoff/broker/storage"
-	"wasmoff/broker/tracer"
+	"wasimoff/broker/storage"
+	"wasimoff/broker/tracer"
 )
 
 // --------------- functions for the RPC client ---------------
-// the client itself is provided by net/rpc using wasmoff/broker/msgprpc codec
+// the client itself is provided by net/rpc using wasimoff/broker/msgprpc codec
 
 // ----- Misc. -----
 

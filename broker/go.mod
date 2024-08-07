@@ -1,4 +1,4 @@
-module wasmoff/broker
+module wasimoff/broker
 
 go 1.21
 

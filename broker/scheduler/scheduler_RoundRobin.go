@@ -3,7 +3,7 @@ package scheduler
 import (
 	"context"
 	"fmt"
-	"wasmoff/broker/provider"
+	"wasimoff/broker/provider"
 
 	"golang.org/x/exp/slices"
 )
