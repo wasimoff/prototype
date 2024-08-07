@@ -1,15 +1,13 @@
 package qhttp
 
 import (
-	"crypto/sha256"
-	"crypto/tls"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+	"wasmoff/broker/qhttp/cert"
 
 	"github.com/quic-go/quic-go"
 	"github.com/quic-go/quic-go/http3"
@@ -21,14 +19,7 @@ import (
 type Server struct {
 	Quic *webtransport.Server
 	Http *http.Server
-	tls  *tlsConfig
-}
-
-// Holds the certificate for the QUIC server and whether
-// it was selfsigned or loaded from an external file.
-type tlsConfig struct {
-	config     *tls.Config
-	selfsigned bool
+	cr   *cert.CertReloader
 }
 
 // Create a new Server. Internally just returns a `webtransport.Server` with some
@@ -37,29 +28,10 @@ func NewServer(handler http.Handler, httpAddr, quicAddr, quicCert, quicKey strin
 
 	http.NewServeMux()
 
-	// select tls config for quic server
-	var tlsconf *tlsConfig
-	if quicCert != "" && quicKey != "" {
-		// load keys given in configuration parameters
-		keypair, err := tls.LoadX509KeyPair(quicCert, quicKey)
-		if err != nil {
-			return nil, fmt.Errorf("can't load keypair: %w", err)
-		}
-		tlsconf = &tlsConfig{
-			selfsigned: false,
-			config: &tls.Config{
-				Certificates: []tls.Certificate{keypair},
-			},
-		}
-	} else if quicCert != "" || quicKey != "" {
-		return nil, fmt.Errorf("either none or both of QuicCert + QuicKey must be given")
-	} else {
-		// generate a selfsigned certificate for quic/webtransport
-		cfg, err := GetTLSConfig()
-		if err != nil {
-			return nil, fmt.Errorf("can't generate selfsigned certificates: %w", err)
-		}
-		tlsconf = &tlsConfig{cfg, true}
+	// load a tls config for quic server
+	cr, err := cert.NewCertReloader(quicCert, quicKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot load tls keypair: %w", err)
 	}
 
 	// quic/webtransport server
@@ -72,7 +44,7 @@ func NewServer(handler http.Handler, httpAddr, quicAddr, quicCert, quicKey strin
 				MaxIdleTimeout:  5 * time.Second,
 				KeepAlivePeriod: 2 * time.Second,
 			},
-			TLSConfig: tlsconf.config,
+			TLSConfig: cr.GetTLSConfig(),
 		},
 		//! this function allows *all* origins
 		CheckOrigin: func(r *http.Request) bool { return true },
@@ -88,10 +60,10 @@ func NewServer(handler http.Handler, httpAddr, quicAddr, quicCert, quicKey strin
 	}
 	if https {
 		// reuse quic's tls config for the http server
-		h.TLSConfig = tlsconf.config
+		h.TLSConfig = cr.GetTLSConfig()
 	}
 
-	return &Server{q, h, tlsconf}, nil
+	return &Server{q, h, cr}, nil
 }
 
 func (s *Server) ListenAndServe() error {
@@ -136,12 +108,6 @@ func (s *Server) ListenAndServe() error {
 
 // TransportConfigHandler returns a HandlerFunc replying with the URL and certificate hash for WebTransport connections
 func (s *Server) TransportConfigHandler(transport string) func(http.ResponseWriter, *http.Request) {
-	// encode certhash, if using a selfsigned certificate
-	var certhash string
-	if s.tls.selfsigned {
-		sum := sha256.Sum256(s.tls.config.Certificates[0].Leaf.Raw)
-		certhash = hex.EncodeToString(sum[:])
-	}
 	// payload type with json properties
 	type confPayload struct {
 		// URL for WebTransport connections
@@ -149,8 +115,12 @@ func (s *Server) TransportConfigHandler(transport string) func(http.ResponseWrit
 		// undefined certhash means the certificate must be trusted
 		Certhash string `json:"certhash,omitempty"`
 	}
+	payload := confPayload{transport, ""}
+	// add certhash when using a selfsigned certificate
+	if s.cr.IsSelfsigned() {
+		payload.Certhash = s.cr.Certhash()
+	}
 	// encode the payload for endpoint
-	payload := confPayload{transport, certhash}
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("content-type", "application/json")
 		w.Header().Set("access-control-allow-origin", "*") // TODO: proper CORS
