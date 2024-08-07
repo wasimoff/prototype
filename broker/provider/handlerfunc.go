@@ -3,10 +3,10 @@ package provider
 import (
 	"log"
 	"net/http"
-	"wasmoff/broker/qhttp"
+	"wasmoff/broker/net/server"
 )
 
-func WebTransportHandler(server *qhttp.Server, store *ProviderStore) http.HandlerFunc {
+func WebTransportHandler(server *server.Server, store *ProviderStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		// connection upgrade

@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 	"net/http"
+	"wasmoff/broker/net/server"
 	"wasmoff/broker/provider"
-	q "wasmoff/broker/qhttp"
 	"wasmoff/broker/scheduler"
 
 	"github.com/kelseyhightower/envconfig"
@@ -21,14 +21,14 @@ func main() {
 	envconfig.MustProcess("wasimoff", &conf)
 	log.Printf("%#v", conf)
 
-	// create a new server with default http handler
-	server, err := q.NewServer(http.DefaultServeMux, conf.HttpListen, conf.QuicListen, conf.QuicCert, conf.QuicKey, conf.Https)
+	// create a new broker with default http handler
+	broker, err := server.NewServer(http.DefaultServeMux, conf.HttpListen, conf.QuicListen, conf.QuicCert, conf.QuicKey, conf.Https)
 	if err != nil {
 		log.Fatalf("failed to start server: %s", err)
 	}
 
 	// simple health message
-	http.HandleFunc(apiPrefix+"/healthz", q.Healthz())
+	http.HandleFunc(apiPrefix+"/healthz", server.Healthz())
 
 	// create a provider store and scheduler
 	store := provider.NewProviderStore()
@@ -43,10 +43,10 @@ func main() {
 	http.HandleFunc(apiPrefix+"/upload", scheduler.UploadHandler(&store))
 
 	// return configuration for webtransport connections
-	http.HandleFunc(apiPrefix+"/config", server.TransportConfigHandler(conf.TransportURL))
+	http.HandleFunc(apiPrefix+"/config", broker.TransportConfigHandler(conf.TransportURL))
 
 	// webtransport endpoint to upgrade connection
-	http.HandleFunc("/transport", provider.WebTransportHandler(server, &store))
+	http.HandleFunc("/transport", provider.WebTransportHandler(broker, &store))
 
 	// serve static files for frontend
 	http.Handle("/", http.FileServer(http.Dir(conf.StaticFiles)))
@@ -58,8 +58,8 @@ func main() {
 	} else {
 		httproto = "http"
 	}
-	log.Printf("Server listening on %s://%s (HTTP) / https://%s (QUIC)", httproto, conf.HttpListen, conf.QuicListen)
-	if err := server.ListenAndServe(); err != nil {
+	log.Printf("Broker listening on %s://%s (HTTP) / https://%s (QUIC)", httproto, conf.HttpListen, conf.QuicListen)
+	if err := broker.ListenAndServe(); err != nil {
 		log.Fatalf("oops: %s", err)
 	}
 
