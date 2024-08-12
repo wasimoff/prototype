@@ -1,0 +1,173 @@
+// best practices: https://protobuf.dev/programming-guides/dos-donts/
+edition = "2023";
+
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+
+
+// ---------- wrapped message format on the wire ---------- //
+
+// Envelope contains one of [ Request | Response | Event ]. All of them contain
+// sequence counters but they count independently, so don't unify them up here.
+message Envelope {
+  oneof message {
+    Request request = 1;
+    Response response = 2;
+    Event event = 3;
+  };
+}
+
+// Request is an RPC request with Any payload. The sequence number is used
+// in responses, so the caller can correctly route the pending response.
+message Request {
+  uint64 sequence = 1;
+  google.protobuf.Any request = 3;
+  // TODO: timeout etc.
+}
+
+// Response is the reply to an RPC request with the same sequence number.
+// The presence of an error indicates that something went wrong with the call
+// in general (like a server "oops"). Otherwise, the called function may encode
+// its own error within the payload.
+message Response {
+  uint64 sequence = 1;
+  string error = 2; // nil => ok
+  google.protobuf.Any response = 3;
+}
+
+// Event is a simple informative message that expects no reply.
+message Event {
+  uint64 sequence = 1; // might be nil, if ordering is not important
+  google.protobuf.Any event = 3;
+}
+
+// TODO: using google.protobuf.Any is ergonomically simpler because you don't need
+// to explicitly list all possible types in the message and at least in Go it's much
+// nicer to use when creating objects (oneof leads to a *lot* of nesting). But maybe
+// the oneof performance is better in the long run because Any effectively double-
+// encodes an arbitrary message as bytes within another message.
+
+// Ping stub, if the transport does not provide them. WebSocket does have its
+// own mechanism. On WebTransport, you should use a separate stream to avoid re-
+// introducing head-of-line blocking with the other RPC requests; so Ping is
+// *not* in the Evelope oneof above.
+message Ping {
+  enum Direction { Ping = 0; Pong = 1; }
+  Direction direction = 1;
+  google.protobuf.Timestamp time = 2;
+}
+
+
+// ---------- individual message definitions ---------- //
+
+// we're not using gRPC but we can codify the expected message types anyway
+service Provider {
+  // execute
+  rpc ExecuteWasi (ExecuteWasiArgs) returns (ExecuteWasiResult);
+  rpc ExecuteWasm (ExecuteWasmArgs) returns (ExecuteWasmResult);
+  // filesystem
+  rpc FileListing (FileListingArgs) returns (FileListingResult);
+  rpc FileProbe (FileProbeArgs) returns (FileProbeResult);
+  rpc FileUpload (FileUploadArgs) returns (FileUploadResult);
+}
+
+// ---> execute
+
+// TaskMetadata contains some information about the originating task for logging
+message TaskMetadata {
+  string id = 1;
+  string client = 2;
+  uint64 index = 3; // within a job with multiple tasks
+}
+
+// Executable can be either a string reference or the raw binary itself
+message Executable {
+  oneof binary {
+    string reference = 1;
+    bytes raw = 2;
+  }
+}
+
+// ExecuteWasi runs a webassembly/wasi binary on the Provider
+message ExecuteWasiArgs {
+  TaskMetadata task = 1;
+  Executable binary = 2;
+  repeated string args = 3;
+  repeated string envs = 4;
+  bytes stdin = 5;
+  repeated string loadfs = 6; // TODO: replace with complete rootfs archive
+}
+message ExecuteWasiResult {
+  // TODO
+}
+
+// ExecuteWasm runs a webassembly/plain binary on the Provider
+message ExecuteWasmArgs {
+  TaskMetadata task = 1;
+  Executable binary = 2;
+  string method = 3;
+  // TODO: how to encode plain parameters?
+}
+message ExecuteWasmResult {
+  // TODO
+}
+
+
+// ---> filesystem
+
+// FileStat contains metadata about a file for identification in other messages
+message FileStat {
+  string filename = 1;
+  string contenttype = 2;
+  uint64 length = 3;
+  uint64 epoch = 5;
+  bytes hash = 4;
+}
+
+// FileListing asks for a listing of all available files on Provider
+message FileListingArgs {
+  // empty
+}
+message FileListingResult {
+  repeated FileStat files = 1;
+}
+
+// FileProbe checks if a certain file exists on provider
+message FileProbeArgs {
+  repeated FileStat files = 1;
+}
+message FileProbeResult {
+  repeated bool ok = 1;
+}
+
+// FileUpload pushes a file to the Provider.
+// TODO: to be replaced with on-demand client-side fetch
+message FileUploadArgs {
+  FileStat stat = 1;
+  bytes file = 2;
+}
+message FileUploadResult {
+  bool ok = 1;
+}
+
+
+// ---> events, sent by Provider
+
+// ProviderInfo is sent once at the beginning to identify the Provider
+message ProviderInfo {
+  string name = 1;
+  string platform = 2;
+  string useragent = 3;
+  ProviderResources pool = 4;
+}
+
+// ProviderResources is information about the available resources in Worker pool
+message ProviderResources {
+  uint32 nmax = 1; // maximum available
+  uint32 tasks = 2; // currently active
+}
+
+
+// ---------- client interface ---------- //
+
+// TODO

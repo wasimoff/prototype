@@ -8,10 +8,12 @@
     "build": "run-p type-check build-only",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false"
+    "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
+    "protoc": "protoc --plugin=node_modules/.bin/protoc-gen-es --es_out=src/proto --es_opt=target=ts,json_types=true -I=../broker ../broker/messages.proto"
   },
   "dependencies": {
     "@bjorn3/browser_wasi_shim": "^0.3.0",
+    "@bufbuild/protobuf": "^2.0.0",
     "@msgpack/msgpack": "^3.0.0-beta2",
     "@tsconfig/node20": "^20.1.4",
     "bulma": "^1.0.1",
@@ -22,6 +24,7 @@
     "vue": "^3.3.2"
   },
   "devDependencies": {
+    "@bufbuild/protoc-gen-es": "^2.0.0",
     "@types/node": "^20.14.2",
     "@vitejs/plugin-vue": "^5.0.5",
     "@vue/tsconfig": "^0.5.1",

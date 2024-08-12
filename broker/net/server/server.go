@@ -40,7 +40,7 @@ func NewServer(handler http.Handler, httpAddr, quicAddr, quicCert, quicKey strin
 			Addr:            quicAddr,
 			Handler:         handler,
 			EnableDatagrams: false,
-			QuicConfig: &quic.Config{
+			QUICConfig: &quic.Config{
 				MaxIdleTimeout:  5 * time.Second,
 				KeepAlivePeriod: 2 * time.Second,
 			},
