@@ -160,7 +160,7 @@ func UploadHandler(store *provider.ProviderStore) http.HandlerFunc {
 		// persist this file to upload to new providers as they connect
 		persist := func(q string) bool {
 			// mostly true by default, except when falsy value
-			return !slices.Contains[string]([]string{"n", "no", "false"}, strings.ToLower(q))
+			return !slices.Contains[[]string]([]string{"n", "no", "false"}, strings.ToLower(q))
 		}(r.URL.Query().Get("persist"))
 
 		// read the expected binary or return a "Bad Request"

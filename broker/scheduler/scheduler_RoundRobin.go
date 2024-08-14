@@ -39,7 +39,7 @@ func (s *RoundRobinSelector) selectCandidates(task *Task) (candidates []*provide
 
 	// collect keys and sort them to make sure the roundrobin uses a stable order
 	keys := s.store.Keys()
-	slices.Sort[string](keys)
+	slices.Sort[[]string](keys)
 
 	// increment the index with wrap-around
 	s.index = (s.index + 1) % len(keys)
