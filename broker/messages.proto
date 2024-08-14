@@ -1,28 +1,40 @@
 // best practices: https://protobuf.dev/programming-guides/dos-donts/
 edition = "2023";
 
-import "google/protobuf/any.proto";
+//import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 
 
 // ---------- wrapped message format on the wire ---------- //
 
-// Envelope contains one of [ Request | Response | Event ]. All of them contain
-// sequence counters but they count independently, so don't unify them up here.
+// Subprotocol is used to identify the concrete encoding on the wire.
+enum Subprotocol {
+  UNKNOWN = 0;
+  wasimoff_provider_v1_protobuf = 1; // binary messages with Protobuf encoding
+  wasimoff_provider_v1_json     = 2; // text messages with JSON encoding
+}
+
+// Envelope contains one of [ Request | Response | Event ]. The sequence counter
+// counts independently between Request and Event.
 message Envelope {
+  uint64 sequence = 1;
   oneof message {
-    Request request = 1;
-    Response response = 2;
-    Event event = 3;
+    Request   request   = 10;
+    Response  response  = 11;
+    Event     event     = 12;
   };
 }
 
-// Request is an RPC request with Any payload. The sequence number is used
+// Request is an RPC request with some payload. The sequence number is used
 // in responses, so the caller can correctly route the pending response.
 message Request {
-  uint64 sequence = 1;
-  google.protobuf.Any request = 3;
-  // TODO: timeout etc.
+  oneof request {
+    ExecuteWasiArgs executeWasiArgs   = 10;
+    ExecuteWasmArgs executeWasmArgs   = 11;
+    FileListingArgs fileListingArgs   = 12;
+    FileProbeArgs   fileProbeArgs     = 13;
+    FileUploadArgs  fileUploadArgs    = 14;
+  }
 }
 
 // Response is the reply to an RPC request with the same sequence number.
@@ -30,15 +42,22 @@ message Request {
 // in general (like a server "oops"). Otherwise, the called function may encode
 // its own error within the payload.
 message Response {
-  uint64 sequence = 1;
-  string error = 2; // nil => ok
-  google.protobuf.Any response = 3;
+  string error = 1; // nil => ok
+  oneof response {
+    ExecuteWasiResult executeWasiResult   = 10;
+    ExecuteWasmResult executeWasmResult   = 11;
+    FileListingResult fileListingResult   = 12;
+    FileProbeResult   fileProbeResult     = 13;
+    FileUploadResult  fileUploadResult    = 14;
+  }
 }
 
 // Event is a simple informative message that expects no reply.
 message Event {
-  uint64 sequence = 1; // might be nil, if ordering is not important
-  google.protobuf.Any event = 3;
+  oneof event {
+    ProviderInfo providerInfo = 10;
+    ProviderResources providerResources = 11;
+  }
 }
 
 // TODO: using google.protobuf.Any is ergonomically simpler because you don't need
@@ -60,7 +79,7 @@ message Ping {
 
 // ---------- individual message definitions ---------- //
 
-// we're not using gRPC but we can codify the expected message types anyway
+// we're not using gRPC but we can codify the expected request-response pairs anyway
 service Provider {
   // execute
   rpc ExecuteWasi (ExecuteWasiArgs) returns (ExecuteWasiResult);

@@ -3,6 +3,7 @@ module wasimoff/broker
 go 1.21
 
 require (
+	github.com/coder/websocket v1.8.12
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/google/uuid v1.6.0
 	github.com/kelseyhightower/envconfig v1.4.0
