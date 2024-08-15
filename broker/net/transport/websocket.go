@@ -27,13 +27,11 @@ type WebSocketTransport struct {
 func UpgradeToWebSocketTransport(w http.ResponseWriter, r *http.Request, origins []string) (t *WebSocketTransport, err error) {
 	defer wraperr(&err, "upgrade failed: %w")
 
-	// upgrade the connection specifying our wasimoff/provider/v1 subprotocols
+	// subprotocols in order of preference, upgrade will pick first
+	protocols := []string{provider_v1_protobuf, provider_v1_json}
+	// upgrade the connection to create a socket
 	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
-		Subprotocols: []string{
-			// in order of preference, though we shouldn't rely on that
-			provider_v1_protobuf,
-			provider_v1_json,
-		},
+		Subprotocols: protocols,
 		// TODO: check if slices.Contains(origins, "*") and prevent in production
 		OriginPatterns: origins,
 	})
@@ -42,8 +40,8 @@ func UpgradeToWebSocketTransport(w http.ResponseWriter, r *http.Request, origins
 	}
 	if conn.Subprotocol() == "" {
 		// reject unsupported (empty) subprotocol
-		conn.Close(websocket.StatusProtocolError, "must use a supported wasimoff.provider.v1+codec subprotocol")
-		return nil, fmt.Errorf("unsupported subprotocol")
+		conn.Close(websocket.StatusProtocolError, fmt.Sprintf("supported protocols: %v", protocols))
+		return nil, fmt.Errorf("no supported subprotocol")
 	}
 
 	// return the Transport

@@ -1,7 +1,7 @@
 // best practices: https://protobuf.dev/programming-guides/dos-donts/
 edition = "2023";
 
-//import "google/protobuf/any.proto";
+import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 
 
@@ -23,6 +23,16 @@ message Envelope {
     Response  response  = 11;
     Event     event     = 12;
   };
+}
+
+// EnvelopeAny is an alternative approach with an Any at the top level to reduce
+// indirection and pointer allocation in Go.
+message EnvelopeAny {
+  enum MessageType { UNKNOWN = 0; Request = 1; Response = 2; Event = 3; }
+  uint64 sequence = 1;
+  MessageType type = 2;
+  string error = 3;
+  google.protobuf.Any payload = 4;
 }
 
 // Request is an RPC request with some payload. The sequence number is used

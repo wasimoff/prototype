@@ -123,6 +123,17 @@ func (m *Messaging) receiver() {
 			// new imcoming message. I don't want to burden the consumer with unpacking the
 			// entire pb.Envelope again but without using a double-pointer, there is no way to
 			// efficiently put the result into a user-provided parameter.
+			// Another consideration is number of allocations. Right now, the entire envelope
+			// must be on the heap to be able to return parts of it "upwards". I am afraid that
+			// the GC won't be able to collect the outer envelope as long as the inner response
+			// is still in use. You could get around that with proto.Clone() or proto.Merge()
+			// into a fresh heap-allocated struct. Then again, the envelope is not that much
+			// larger than the request itself; probably better to avoid another allocation here.
+			// Maybe proto.Merge() can also be a method to use stack-allocated memory that was
+			// passed in from above but I doubt it, since the first thing the Response contains
+			// is a pointer to the concrete oneof message type. The memory passed in will only
+			// hold the memory for this first layer and a pointer. Or ... does Merge() do the
+			// right thing if we already pass a Response with our expected concrete type struct?
 			call.Response = response
 			call.done()
 
