@@ -278,7 +278,8 @@ func (*Envelope_Response) isEnvelope_Message() {}
 func (*Envelope_Event) isEnvelope_Message() {}
 
 // EnvelopeAny is an alternative approach with an Any at the top level to reduce
-// indirection and pointer allocation in Go.
+// indirection and pointer allocation in Go. DO NOT USE. This was added for a benchmark.
+// TODO: remove
 type EnvelopeAny struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

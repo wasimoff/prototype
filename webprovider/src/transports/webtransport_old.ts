@@ -1,7 +1,7 @@
 import * as MessagePack from "@msgpack/msgpack";
 import { pairs, next } from "@/fn/utilities";
 import type { NetRPCDecoder, NetRPCEncoder, NetRPCRequestHeader, NetRPCResponseHeader, RPCServer } from "@/transports";
-import { MessagePackChannel, BrokerTransport } from "@/transports";
+import { MessagePackChannel, type IBrokerTransport } from "@/transports";
 
 //? +--------------------------------------------------------------+
 //? | Implement a Broker transport over a WebTransport connection. |
@@ -10,7 +10,7 @@ import { MessagePackChannel, BrokerTransport } from "@/transports";
 /** `WebTransportBroker` implements a WebTransport connection to the Broker, on
  * which there is an asymmetric channel for control messages and an async generator
  * of received RPC requests. Use `WebTransportBroker.connect()` to instantiate. */
-export class WebTransportBroker implements BrokerTransport {
+export class WebTransportBroker implements IBrokerTransport {
 
   private constructor(
 

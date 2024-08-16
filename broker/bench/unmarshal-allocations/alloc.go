@@ -118,6 +118,10 @@ BenchmarkOneofMergeResponseInto-16      	 2063744	       545.3 ns/op	     226 B/
 PASS
 ok  	wasimoff/broker/bench/unmarshal-allocations	21.747s
 
+More pointers (*ba-dum-tss*):
+- https://medium.com/eureka-engineering/understanding-allocations-in-go-stack-heap-memory-9a2631b5035d
+- https://gist.github.com/CAFxX/e96e8a5c3841d152f16d266a1fe7f8bd
+
 
 */
 

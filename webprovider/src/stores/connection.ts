@@ -1,7 +1,7 @@
 import { ref, shallowRef, watch, type ComputedRef, computed } from "vue";
 import { defineStore, storeToRefs } from "pinia";
 import { useWorkerPool } from "@/stores/workerpool";
-import { WebTransportBroker, BrokerTransport } from "@/transports";
+import { WebTransportBroker, type IBrokerTransport } from "@/transports";
 import { useTerminal } from "./terminal";
 import { OPFSDirectory } from "@/filesystem/opfs";
 import type { WasiTaskExecution, WasiTaskResult } from "@/workerpool/wasiworker";
@@ -26,7 +26,7 @@ export const useConnection = defineStore("Connection", () => {
   let pool = useWorkerPool();
 
   // keep reference to the connection itself
-  const transport = shallowRef<BrokerTransport | null>(null);
+  const transport = shallowRef<IBrokerTransport | null>(null);
   const connected = computed(() => transport.value !== null);
 
   // send control messages over the transport

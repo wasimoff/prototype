@@ -92,7 +92,13 @@ func (m *Messaging) receiver() {
 		case *pb.Envelope_Request:
 			// TODO: not implemented yet
 			log.Printf("%s: unexpected request %d, not implemented yet", prefix, letter.GetSequence())
-			err = ErrNotImplemented
+			m.send(&pb.Envelope{
+				Sequence: letter.Sequence,
+				Message: &pb.Envelope_Response{Response: &pb.Response{
+					Error: proto.String("not implemented yet"),
+				}},
+			})
+			// err = ErrNotImplemented
 
 		case *pb.Envelope_Response:
 			// get the sequence number from message; valid RPC responses will never
@@ -154,7 +160,10 @@ func (m *Messaging) receiver() {
 			if m.closing {
 				err = ErrClosedTransport
 			} else {
+				// TODO: probably makes more sense to have m.err instead of two bools for this case
 				err = io.ErrUnexpectedEOF
+				m.transport.Close()
+				m.closing = true
 			}
 		}
 		for _, call := range m.pending {
@@ -188,6 +197,10 @@ func (m *Messaging) SendEvent(event *pb.Event) error {
 
 	// send over transport, return any errors directly
 	return m.send(letter)
+}
+
+func (m *Messaging) SendRaw(envelope *pb.Envelope) error {
+	return m.send(envelope)
 }
 
 func (m *Messaging) SendRequest(request *pb.Request, done chan *Call) (call *Call) {

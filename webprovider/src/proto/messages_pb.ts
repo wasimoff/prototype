@@ -14,33 +14,38 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file messages.proto.
  */
 export const file_messages: GenFile = /*@__PURE__*/
-  fileDesc("Cg5tZXNzYWdlcy5wcm90byJqCghFbnZlbG9wZRIbCgdyZXF1ZXN0GAEgASgLMgguUmVxdWVzdEgAEh0KCHJlc3BvbnNlGAIgASgLMgkuUmVzcG9uc2VIABIXCgVldmVudBgDIAEoCzIGLkV2ZW50SABCCQoHbWVzc2FnZSJCCgdSZXF1ZXN0EhAKCHNlcXVlbmNlGAEgASgEEiUKB3JlcXVlc3QYAyABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IlMKCFJlc3BvbnNlEhAKCHNlcXVlbmNlGAEgASgEEg0KBWVycm9yGAIgASgJEiYKCHJlc3BvbnNlGAMgASgLMhQuZ29vZ2xlLnByb3RvYnVmLkFueSI+CgVFdmVudBIQCghzZXF1ZW5jZRgBIAEoBBIjCgVldmVudBgDIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkidQoEUGluZxIiCglkaXJlY3Rpb24YASABKA4yDy5QaW5nLkRpcmVjdGlvbhIoCgR0aW1lGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCIfCglEaXJlY3Rpb24SCAoEUGluZxAAEggKBFBvbmcQASI5CgxUYXNrTWV0YWRhdGESCgoCaWQYASABKAkSDgoGY2xpZW50GAIgASgJEg0KBWluZGV4GAMgASgEIjoKCkV4ZWN1dGFibGUSEwoJcmVmZXJlbmNlGAEgASgJSAASDQoDcmF3GAIgASgMSABCCAoGYmluYXJ5IoYBCg9FeGVjdXRlV2FzaUFyZ3MSGwoEdGFzaxgBIAEoCzINLlRhc2tNZXRhZGF0YRIbCgZiaW5hcnkYAiABKAsyCy5FeGVjdXRhYmxlEgwKBGFyZ3MYAyADKAkSDAoEZW52cxgEIAMoCRINCgVzdGRpbhgFIAEoDBIOCgZsb2FkZnMYBiADKAkiEwoRRXhlY3V0ZVdhc2lSZXN1bHQiWwoPRXhlY3V0ZVdhc21BcmdzEhsKBHRhc2sYASABKAsyDS5UYXNrTWV0YWRhdGESGwoGYmluYXJ5GAIgASgLMgsuRXhlY3V0YWJsZRIOCgZtZXRob2QYAyABKAkiEwoRRXhlY3V0ZVdhc21SZXN1bHQiXgoIRmlsZVN0YXQSEAoIZmlsZW5hbWUYASABKAkSEwoLY29udGVudHR5cGUYAiABKAkSDgoGbGVuZ3RoGAMgASgEEg0KBWVwb2NoGAUgASgEEgwKBGhhc2gYBCABKAwiEQoPRmlsZUxpc3RpbmdBcmdzIi0KEUZpbGVMaXN0aW5nUmVzdWx0EhgKBWZpbGVzGAEgAygLMgkuRmlsZVN0YXQiKQoNRmlsZVByb2JlQXJncxIYCgVmaWxlcxgBIAMoCzIJLkZpbGVTdGF0Ih0KD0ZpbGVQcm9iZVJlc3VsdBIKCgJvaxgBIAMoCCI3Cg5GaWxlVXBsb2FkQXJncxIXCgRzdGF0GAEgASgLMgkuRmlsZVN0YXQSDAoEZmlsZRgCIAEoDCIeChBGaWxlVXBsb2FkUmVzdWx0EgoKAm9rGAEgASgIImMKDFByb3ZpZGVySW5mbxIMCgRuYW1lGAEgASgJEhAKCHBsYXRmb3JtGAIgASgJEhEKCXVzZXJhZ2VudBgDIAEoCRIgCgRwb29sGAQgASgLMhIuUHJvdmlkZXJSZXNvdXJjZXMiMAoRUHJvdmlkZXJSZXNvdXJjZXMSDAoEbm1heBgBIAEoDRINCgV0YXNrcxgCIAEoDTKKAgoIUHJvdmlkZXISMwoLRXhlY3V0ZVdhc2kSEC5FeGVjdXRlV2FzaUFyZ3MaEi5FeGVjdXRlV2FzaVJlc3VsdBIzCgtFeGVjdXRlV2FzbRIQLkV4ZWN1dGVXYXNtQXJncxoSLkV4ZWN1dGVXYXNtUmVzdWx0EjMKC0ZpbGVMaXN0aW5nEhAuRmlsZUxpc3RpbmdBcmdzGhIuRmlsZUxpc3RpbmdSZXN1bHQSLQoJRmlsZVByb2JlEg4uRmlsZVByb2JlQXJncxoQLkZpbGVQcm9iZVJlc3VsdBIwCgpGaWxlVXBsb2FkEg8uRmlsZVVwbG9hZEFyZ3MaES5GaWxlVXBsb2FkUmVzdWx0YghlZGl0aW9uc3DoBw", [file_google_protobuf_any, file_google_protobuf_timestamp]);
+  fileDesc("Cg5tZXNzYWdlcy5wcm90byJ8CghFbnZlbG9wZRIQCghzZXF1ZW5jZRgBIAEoBBIbCgdyZXF1ZXN0GAogASgLMgguUmVxdWVzdEgAEh0KCHJlc3BvbnNlGAsgASgLMgkuUmVzcG9uc2VIABIXCgVldmVudBgMIAEoCzIGLkV2ZW50SABCCQoHbWVzc2FnZSK/AQoLRW52ZWxvcGVBbnkSEAoIc2VxdWVuY2UYASABKAQSJgoEdHlwZRgCIAEoDjIYLkVudmVsb3BlQW55Lk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADIu8BCgdSZXF1ZXN0EisKD2V4ZWN1dGVXYXNpQXJncxgKIAEoCzIQLkV4ZWN1dGVXYXNpQXJnc0gAEisKD2V4ZWN1dGVXYXNtQXJncxgLIAEoCzIQLkV4ZWN1dGVXYXNtQXJnc0gAEisKD2ZpbGVMaXN0aW5nQXJncxgMIAEoCzIQLkZpbGVMaXN0aW5nQXJnc0gAEicKDWZpbGVQcm9iZUFyZ3MYDSABKAsyDi5GaWxlUHJvYmVBcmdzSAASKQoOZmlsZVVwbG9hZEFyZ3MYDiABKAsyDy5GaWxlVXBsb2FkQXJnc0gAQgkKB3JlcXVlc3QilAIKCFJlc3BvbnNlEg0KBWVycm9yGAEgASgJEi8KEWV4ZWN1dGVXYXNpUmVzdWx0GAogASgLMhIuRXhlY3V0ZVdhc2lSZXN1bHRIABIvChFleGVjdXRlV2FzbVJlc3VsdBgLIAEoCzISLkV4ZWN1dGVXYXNtUmVzdWx0SAASLwoRZmlsZUxpc3RpbmdSZXN1bHQYDCABKAsyEi5GaWxlTGlzdGluZ1Jlc3VsdEgAEisKD2ZpbGVQcm9iZVJlc3VsdBgNIAEoCzIQLkZpbGVQcm9iZVJlc3VsdEgAEi0KEGZpbGVVcGxvYWRSZXN1bHQYDiABKAsyES5GaWxlVXBsb2FkUmVzdWx0SABCCgoIcmVzcG9uc2UiaAoFRXZlbnQSJQoMcHJvdmlkZXJJbmZvGAogASgLMg0uUHJvdmlkZXJJbmZvSAASLwoRcHJvdmlkZXJSZXNvdXJjZXMYCyABKAsyEi5Qcm92aWRlclJlc291cmNlc0gAQgcKBWV2ZW50InUKBFBpbmcSIgoJZGlyZWN0aW9uGAEgASgOMg8uUGluZy5EaXJlY3Rpb24SKAoEdGltZRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiHwoJRGlyZWN0aW9uEggKBFBpbmcQABIICgRQb25nEAEiOQoMVGFza01ldGFkYXRhEgoKAmlkGAEgASgJEg4KBmNsaWVudBgCIAEoCRINCgVpbmRleBgDIAEoBCI6CgpFeGVjdXRhYmxlEhMKCXJlZmVyZW5jZRgBIAEoCUgAEg0KA3JhdxgCIAEoDEgAQggKBmJpbmFyeSKGAQoPRXhlY3V0ZVdhc2lBcmdzEhsKBHRhc2sYASABKAsyDS5UYXNrTWV0YWRhdGESGwoGYmluYXJ5GAIgASgLMgsuRXhlY3V0YWJsZRIMCgRhcmdzGAMgAygJEgwKBGVudnMYBCADKAkSDQoFc3RkaW4YBSABKAwSDgoGbG9hZGZzGAYgAygJIhMKEUV4ZWN1dGVXYXNpUmVzdWx0IlsKD0V4ZWN1dGVXYXNtQXJncxIbCgR0YXNrGAEgASgLMg0uVGFza01ldGFkYXRhEhsKBmJpbmFyeRgCIAEoCzILLkV4ZWN1dGFibGUSDgoGbWV0aG9kGAMgASgJIhMKEUV4ZWN1dGVXYXNtUmVzdWx0Il4KCEZpbGVTdGF0EhAKCGZpbGVuYW1lGAEgASgJEhMKC2NvbnRlbnR0eXBlGAIgASgJEg4KBmxlbmd0aBgDIAEoBBINCgVlcG9jaBgFIAEoBBIMCgRoYXNoGAQgASgMIhEKD0ZpbGVMaXN0aW5nQXJncyItChFGaWxlTGlzdGluZ1Jlc3VsdBIYCgVmaWxlcxgBIAMoCzIJLkZpbGVTdGF0IikKDUZpbGVQcm9iZUFyZ3MSGAoFZmlsZXMYASADKAsyCS5GaWxlU3RhdCIdCg9GaWxlUHJvYmVSZXN1bHQSCgoCb2sYASADKAgiNwoORmlsZVVwbG9hZEFyZ3MSFwoEc3RhdBgBIAEoCzIJLkZpbGVTdGF0EgwKBGZpbGUYAiABKAwiHgoQRmlsZVVwbG9hZFJlc3VsdBIKCgJvaxgBIAEoCCJjCgxQcm92aWRlckluZm8SDAoEbmFtZRgBIAEoCRIQCghwbGF0Zm9ybRgCIAEoCRIRCgl1c2VyYWdlbnQYAyABKAkSIAoEcG9vbBgEIAEoCzISLlByb3ZpZGVyUmVzb3VyY2VzIjAKEVByb3ZpZGVyUmVzb3VyY2VzEgwKBG5tYXgYASABKA0SDQoFdGFza3MYAiABKA0qXAoLU3VicHJvdG9jb2wSCwoHVU5LTk9XThAAEiEKHXdhc2ltb2ZmX3Byb3ZpZGVyX3YxX3Byb3RvYnVmEAESHQoZd2FzaW1vZmZfcHJvdmlkZXJfdjFfanNvbhACMooCCghQcm92aWRlchIzCgtFeGVjdXRlV2FzaRIQLkV4ZWN1dGVXYXNpQXJncxoSLkV4ZWN1dGVXYXNpUmVzdWx0EjMKC0V4ZWN1dGVXYXNtEhAuRXhlY3V0ZVdhc21BcmdzGhIuRXhlY3V0ZVdhc21SZXN1bHQSMwoLRmlsZUxpc3RpbmcSEC5GaWxlTGlzdGluZ0FyZ3MaEi5GaWxlTGlzdGluZ1Jlc3VsdBItCglGaWxlUHJvYmUSDi5GaWxlUHJvYmVBcmdzGhAuRmlsZVByb2JlUmVzdWx0EjAKCkZpbGVVcGxvYWQSDy5GaWxlVXBsb2FkQXJncxoRLkZpbGVVcGxvYWRSZXN1bHRiCGVkaXRpb25zcOgH", [file_google_protobuf_any, file_google_protobuf_timestamp]);
 
 /**
- * Envelope contains one of [ Request | Response | Event ]. All of them contain
- * sequence counters but they count independently, so don't unify them up here.
+ * Envelope contains one of [ Request | Response | Event ]. The sequence counter
+ * counts independently between Request and Event.
  *
  * @generated from message Envelope
  */
 export type Envelope = Message<"Envelope"> & {
   /**
+   * @generated from field: uint64 sequence = 1;
+   */
+  sequence: bigint;
+
+  /**
    * @generated from oneof Envelope.message
    */
   message: {
     /**
-     * @generated from field: Request request = 1;
+     * @generated from field: Request request = 10;
      */
     value: Request;
     case: "request";
   } | {
     /**
-     * @generated from field: Response response = 2;
+     * @generated from field: Response response = 11;
      */
     value: Response;
     case: "response";
   } | {
     /**
-     * @generated from field: Event event = 3;
+     * @generated from field: Event event = 12;
      */
     value: Event;
     case: "event";
@@ -52,17 +57,22 @@ export type Envelope = Message<"Envelope"> & {
  */
 export type EnvelopeJson = {
   /**
-   * @generated from field: Request request = 1;
+   * @generated from field: uint64 sequence = 1;
+   */
+  sequence?: string;
+
+  /**
+   * @generated from field: Request request = 10;
    */
   request?: RequestJson;
 
   /**
-   * @generated from field: Response response = 2;
+   * @generated from field: Response response = 11;
    */
   response?: ResponseJson;
 
   /**
-   * @generated from field: Event event = 3;
+   * @generated from field: Event event = 12;
    */
   event?: EventJson;
 };
@@ -75,23 +85,143 @@ export const EnvelopeSchema: GenMessage<Envelope, EnvelopeJson> = /*@__PURE__*/
   messageDesc(file_messages, 0);
 
 /**
- * Request is an RPC request with Any payload. The sequence number is used
- * in responses, so the caller can correctly route the pending response.
+ * EnvelopeAny is an alternative approach with an Any at the top level to reduce
+ * indirection and pointer allocation in Go. DO NOT USE. This was added for a benchmark.
+ * TODO: remove
  *
- * @generated from message Request
+ * @generated from message EnvelopeAny
  */
-export type Request = Message<"Request"> & {
+export type EnvelopeAny = Message<"EnvelopeAny"> & {
   /**
    * @generated from field: uint64 sequence = 1;
    */
   sequence: bigint;
 
   /**
-   * TODO: timeout etc.
-   *
-   * @generated from field: google.protobuf.Any request = 3;
+   * @generated from field: EnvelopeAny.MessageType type = 2;
    */
-  request?: Any;
+  type: EnvelopeAny_MessageType;
+
+  /**
+   * @generated from field: string error = 3;
+   */
+  error: string;
+
+  /**
+   * @generated from field: google.protobuf.Any payload = 4;
+   */
+  payload?: Any;
+};
+
+/**
+ * JSON type for the message EnvelopeAny.
+ */
+export type EnvelopeAnyJson = {
+  /**
+   * @generated from field: uint64 sequence = 1;
+   */
+  sequence?: string;
+
+  /**
+   * @generated from field: EnvelopeAny.MessageType type = 2;
+   */
+  type?: EnvelopeAny_MessageTypeJson;
+
+  /**
+   * @generated from field: string error = 3;
+   */
+  error?: string;
+
+  /**
+   * @generated from field: google.protobuf.Any payload = 4;
+   */
+  payload?: AnyJson;
+};
+
+/**
+ * Describes the message EnvelopeAny.
+ * Use `create(EnvelopeAnySchema)` to create a new message.
+ */
+export const EnvelopeAnySchema: GenMessage<EnvelopeAny, EnvelopeAnyJson> = /*@__PURE__*/
+  messageDesc(file_messages, 1);
+
+/**
+ * @generated from enum EnvelopeAny.MessageType
+ */
+export enum EnvelopeAny_MessageType {
+  /**
+   * @generated from enum value: UNKNOWN = 0;
+   */
+  UNKNOWN = 0,
+
+  /**
+   * @generated from enum value: Request = 1;
+   */
+  Request = 1,
+
+  /**
+   * @generated from enum value: Response = 2;
+   */
+  Response = 2,
+
+  /**
+   * @generated from enum value: Event = 3;
+   */
+  Event = 3,
+}
+
+/**
+ * JSON type for the enum EnvelopeAny.MessageType.
+ */
+export type EnvelopeAny_MessageTypeJson = "UNKNOWN" | "Request" | "Response" | "Event";
+
+/**
+ * Describes the enum EnvelopeAny.MessageType.
+ */
+export const EnvelopeAny_MessageTypeSchema: GenEnum<EnvelopeAny_MessageType, EnvelopeAny_MessageTypeJson> = /*@__PURE__*/
+  enumDesc(file_messages, 1, 0);
+
+/**
+ * Request is an RPC request with some payload. The sequence number is used
+ * in responses, so the caller can correctly route the pending response.
+ *
+ * @generated from message Request
+ */
+export type Request = Message<"Request"> & {
+  /**
+   * @generated from oneof Request.request
+   */
+  request: {
+    /**
+     * @generated from field: ExecuteWasiArgs executeWasiArgs = 10;
+     */
+    value: ExecuteWasiArgs;
+    case: "executeWasiArgs";
+  } | {
+    /**
+     * @generated from field: ExecuteWasmArgs executeWasmArgs = 11;
+     */
+    value: ExecuteWasmArgs;
+    case: "executeWasmArgs";
+  } | {
+    /**
+     * @generated from field: FileListingArgs fileListingArgs = 12;
+     */
+    value: FileListingArgs;
+    case: "fileListingArgs";
+  } | {
+    /**
+     * @generated from field: FileProbeArgs fileProbeArgs = 13;
+     */
+    value: FileProbeArgs;
+    case: "fileProbeArgs";
+  } | {
+    /**
+     * @generated from field: FileUploadArgs fileUploadArgs = 14;
+     */
+    value: FileUploadArgs;
+    case: "fileUploadArgs";
+  } | { case: undefined; value?: undefined };
 };
 
 /**
@@ -99,14 +229,29 @@ export type Request = Message<"Request"> & {
  */
 export type RequestJson = {
   /**
-   * @generated from field: uint64 sequence = 1;
+   * @generated from field: ExecuteWasiArgs executeWasiArgs = 10;
    */
-  sequence?: string;
+  executeWasiArgs?: ExecuteWasiArgsJson;
 
   /**
-   * @generated from field: google.protobuf.Any request = 3;
+   * @generated from field: ExecuteWasmArgs executeWasmArgs = 11;
    */
-  request?: AnyJson;
+  executeWasmArgs?: ExecuteWasmArgsJson;
+
+  /**
+   * @generated from field: FileListingArgs fileListingArgs = 12;
+   */
+  fileListingArgs?: FileListingArgsJson;
+
+  /**
+   * @generated from field: FileProbeArgs fileProbeArgs = 13;
+   */
+  fileProbeArgs?: FileProbeArgsJson;
+
+  /**
+   * @generated from field: FileUploadArgs fileUploadArgs = 14;
+   */
+  fileUploadArgs?: FileUploadArgsJson;
 };
 
 /**
@@ -114,7 +259,7 @@ export type RequestJson = {
  * Use `create(RequestSchema)` to create a new message.
  */
 export const RequestSchema: GenMessage<Request, RequestJson> = /*@__PURE__*/
-  messageDesc(file_messages, 1);
+  messageDesc(file_messages, 2);
 
 /**
  * Response is the reply to an RPC request with the same sequence number.
@@ -126,21 +271,46 @@ export const RequestSchema: GenMessage<Request, RequestJson> = /*@__PURE__*/
  */
 export type Response = Message<"Response"> & {
   /**
-   * @generated from field: uint64 sequence = 1;
-   */
-  sequence: bigint;
-
-  /**
    * nil => ok
    *
-   * @generated from field: string error = 2;
+   * @generated from field: string error = 1;
    */
   error: string;
 
   /**
-   * @generated from field: google.protobuf.Any response = 3;
+   * @generated from oneof Response.response
    */
-  response?: Any;
+  response: {
+    /**
+     * @generated from field: ExecuteWasiResult executeWasiResult = 10;
+     */
+    value: ExecuteWasiResult;
+    case: "executeWasiResult";
+  } | {
+    /**
+     * @generated from field: ExecuteWasmResult executeWasmResult = 11;
+     */
+    value: ExecuteWasmResult;
+    case: "executeWasmResult";
+  } | {
+    /**
+     * @generated from field: FileListingResult fileListingResult = 12;
+     */
+    value: FileListingResult;
+    case: "fileListingResult";
+  } | {
+    /**
+     * @generated from field: FileProbeResult fileProbeResult = 13;
+     */
+    value: FileProbeResult;
+    case: "fileProbeResult";
+  } | {
+    /**
+     * @generated from field: FileUploadResult fileUploadResult = 14;
+     */
+    value: FileUploadResult;
+    case: "fileUploadResult";
+  } | { case: undefined; value?: undefined };
 };
 
 /**
@@ -148,19 +318,34 @@ export type Response = Message<"Response"> & {
  */
 export type ResponseJson = {
   /**
-   * @generated from field: uint64 sequence = 1;
-   */
-  sequence?: string;
-
-  /**
-   * @generated from field: string error = 2;
+   * @generated from field: string error = 1;
    */
   error?: string;
 
   /**
-   * @generated from field: google.protobuf.Any response = 3;
+   * @generated from field: ExecuteWasiResult executeWasiResult = 10;
    */
-  response?: AnyJson;
+  executeWasiResult?: ExecuteWasiResultJson;
+
+  /**
+   * @generated from field: ExecuteWasmResult executeWasmResult = 11;
+   */
+  executeWasmResult?: ExecuteWasmResultJson;
+
+  /**
+   * @generated from field: FileListingResult fileListingResult = 12;
+   */
+  fileListingResult?: FileListingResultJson;
+
+  /**
+   * @generated from field: FileProbeResult fileProbeResult = 13;
+   */
+  fileProbeResult?: FileProbeResultJson;
+
+  /**
+   * @generated from field: FileUploadResult fileUploadResult = 14;
+   */
+  fileUploadResult?: FileUploadResultJson;
 };
 
 /**
@@ -168,7 +353,7 @@ export type ResponseJson = {
  * Use `create(ResponseSchema)` to create a new message.
  */
 export const ResponseSchema: GenMessage<Response, ResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 2);
+  messageDesc(file_messages, 3);
 
 /**
  * Event is a simple informative message that expects no reply.
@@ -177,16 +362,21 @@ export const ResponseSchema: GenMessage<Response, ResponseJson> = /*@__PURE__*/
  */
 export type Event = Message<"Event"> & {
   /**
-   * might be nil, if ordering is not important
-   *
-   * @generated from field: uint64 sequence = 1;
+   * @generated from oneof Event.event
    */
-  sequence: bigint;
-
-  /**
-   * @generated from field: google.protobuf.Any event = 3;
-   */
-  event?: Any;
+  event: {
+    /**
+     * @generated from field: ProviderInfo providerInfo = 10;
+     */
+    value: ProviderInfo;
+    case: "providerInfo";
+  } | {
+    /**
+     * @generated from field: ProviderResources providerResources = 11;
+     */
+    value: ProviderResources;
+    case: "providerResources";
+  } | { case: undefined; value?: undefined };
 };
 
 /**
@@ -194,14 +384,14 @@ export type Event = Message<"Event"> & {
  */
 export type EventJson = {
   /**
-   * @generated from field: uint64 sequence = 1;
+   * @generated from field: ProviderInfo providerInfo = 10;
    */
-  sequence?: string;
+  providerInfo?: ProviderInfoJson;
 
   /**
-   * @generated from field: google.protobuf.Any event = 3;
+   * @generated from field: ProviderResources providerResources = 11;
    */
-  event?: AnyJson;
+  providerResources?: ProviderResourcesJson;
 };
 
 /**
@@ -209,7 +399,7 @@ export type EventJson = {
  * Use `create(EventSchema)` to create a new message.
  */
 export const EventSchema: GenMessage<Event, EventJson> = /*@__PURE__*/
-  messageDesc(file_messages, 3);
+  messageDesc(file_messages, 4);
 
 /**
  * Ping stub, if the transport does not provide them. WebSocket does have its
@@ -251,7 +441,7 @@ export type PingJson = {
  * Use `create(PingSchema)` to create a new message.
  */
 export const PingSchema: GenMessage<Ping, PingJson> = /*@__PURE__*/
-  messageDesc(file_messages, 4);
+  messageDesc(file_messages, 5);
 
 /**
  * @generated from enum Ping.Direction
@@ -277,7 +467,7 @@ export type Ping_DirectionJson = "Ping" | "Pong";
  * Describes the enum Ping.Direction.
  */
 export const Ping_DirectionSchema: GenEnum<Ping_Direction, Ping_DirectionJson> = /*@__PURE__*/
-  enumDesc(file_messages, 4, 0);
+  enumDesc(file_messages, 5, 0);
 
 /**
  * TaskMetadata contains some information about the originating task for logging
@@ -328,7 +518,7 @@ export type TaskMetadataJson = {
  * Use `create(TaskMetadataSchema)` to create a new message.
  */
 export const TaskMetadataSchema: GenMessage<TaskMetadata, TaskMetadataJson> = /*@__PURE__*/
-  messageDesc(file_messages, 5);
+  messageDesc(file_messages, 6);
 
 /**
  * Executable can be either a string reference or the raw binary itself
@@ -374,7 +564,7 @@ export type ExecutableJson = {
  * Use `create(ExecutableSchema)` to create a new message.
  */
 export const ExecutableSchema: GenMessage<Executable, ExecutableJson> = /*@__PURE__*/
-  messageDesc(file_messages, 6);
+  messageDesc(file_messages, 7);
 
 /**
  * ExecuteWasi runs a webassembly/wasi binary on the Provider
@@ -455,7 +645,7 @@ export type ExecuteWasiArgsJson = {
  * Use `create(ExecuteWasiArgsSchema)` to create a new message.
  */
 export const ExecuteWasiArgsSchema: GenMessage<ExecuteWasiArgs, ExecuteWasiArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 7);
+  messageDesc(file_messages, 8);
 
 /**
  * TODO
@@ -476,7 +666,7 @@ export type ExecuteWasiResultJson = {
  * Use `create(ExecuteWasiResultSchema)` to create a new message.
  */
 export const ExecuteWasiResultSchema: GenMessage<ExecuteWasiResult, ExecuteWasiResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 8);
+  messageDesc(file_messages, 9);
 
 /**
  * ExecuteWasm runs a webassembly/plain binary on the Provider
@@ -527,7 +717,7 @@ export type ExecuteWasmArgsJson = {
  * Use `create(ExecuteWasmArgsSchema)` to create a new message.
  */
 export const ExecuteWasmArgsSchema: GenMessage<ExecuteWasmArgs, ExecuteWasmArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 9);
+  messageDesc(file_messages, 10);
 
 /**
  * TODO
@@ -548,7 +738,7 @@ export type ExecuteWasmResultJson = {
  * Use `create(ExecuteWasmResultSchema)` to create a new message.
  */
 export const ExecuteWasmResultSchema: GenMessage<ExecuteWasmResult, ExecuteWasmResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 10);
+  messageDesc(file_messages, 11);
 
 /**
  * FileStat contains metadata about a file for identification in other messages
@@ -617,7 +807,7 @@ export type FileStatJson = {
  * Use `create(FileStatSchema)` to create a new message.
  */
 export const FileStatSchema: GenMessage<FileStat, FileStatJson> = /*@__PURE__*/
-  messageDesc(file_messages, 11);
+  messageDesc(file_messages, 12);
 
 /**
  * FileListing asks for a listing of all available files on Provider
@@ -640,7 +830,7 @@ export type FileListingArgsJson = {
  * Use `create(FileListingArgsSchema)` to create a new message.
  */
 export const FileListingArgsSchema: GenMessage<FileListingArgs, FileListingArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 12);
+  messageDesc(file_messages, 13);
 
 /**
  * @generated from message FileListingResult
@@ -667,7 +857,7 @@ export type FileListingResultJson = {
  * Use `create(FileListingResultSchema)` to create a new message.
  */
 export const FileListingResultSchema: GenMessage<FileListingResult, FileListingResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 13);
+  messageDesc(file_messages, 14);
 
 /**
  * FileProbe checks if a certain file exists on provider
@@ -696,7 +886,7 @@ export type FileProbeArgsJson = {
  * Use `create(FileProbeArgsSchema)` to create a new message.
  */
 export const FileProbeArgsSchema: GenMessage<FileProbeArgs, FileProbeArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 14);
+  messageDesc(file_messages, 15);
 
 /**
  * @generated from message FileProbeResult
@@ -723,7 +913,7 @@ export type FileProbeResultJson = {
  * Use `create(FileProbeResultSchema)` to create a new message.
  */
 export const FileProbeResultSchema: GenMessage<FileProbeResult, FileProbeResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 15);
+  messageDesc(file_messages, 16);
 
 /**
  * FileUpload pushes a file to the Provider.
@@ -763,7 +953,7 @@ export type FileUploadArgsJson = {
  * Use `create(FileUploadArgsSchema)` to create a new message.
  */
 export const FileUploadArgsSchema: GenMessage<FileUploadArgs, FileUploadArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 16);
+  messageDesc(file_messages, 17);
 
 /**
  * @generated from message FileUploadResult
@@ -790,7 +980,7 @@ export type FileUploadResultJson = {
  * Use `create(FileUploadResultSchema)` to create a new message.
  */
 export const FileUploadResultSchema: GenMessage<FileUploadResult, FileUploadResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 17);
+  messageDesc(file_messages, 18);
 
 /**
  * ProviderInfo is sent once at the beginning to identify the Provider
@@ -849,7 +1039,7 @@ export type ProviderInfoJson = {
  * Use `create(ProviderInfoSchema)` to create a new message.
  */
 export const ProviderInfoSchema: GenMessage<ProviderInfo, ProviderInfoJson> = /*@__PURE__*/
-  messageDesc(file_messages, 18);
+  messageDesc(file_messages, 19);
 
 /**
  * ProviderResources is information about the available resources in Worker pool
@@ -892,10 +1082,47 @@ export type ProviderResourcesJson = {
  * Use `create(ProviderResourcesSchema)` to create a new message.
  */
 export const ProviderResourcesSchema: GenMessage<ProviderResources, ProviderResourcesJson> = /*@__PURE__*/
-  messageDesc(file_messages, 19);
+  messageDesc(file_messages, 20);
 
 /**
- * we're not using gRPC but we can codify the expected message types anyway
+ * Subprotocol is used to identify the concrete encoding on the wire.
+ *
+ * @generated from enum Subprotocol
+ */
+export enum Subprotocol {
+  /**
+   * @generated from enum value: UNKNOWN = 0;
+   */
+  UNKNOWN = 0,
+
+  /**
+   * binary messages with Protobuf encoding
+   *
+   * @generated from enum value: wasimoff_provider_v1_protobuf = 1;
+   */
+  wasimoff_provider_v1_protobuf = 1,
+
+  /**
+   * text messages with JSON encoding
+   *
+   * @generated from enum value: wasimoff_provider_v1_json = 2;
+   */
+  wasimoff_provider_v1_json = 2,
+}
+
+/**
+ * JSON type for the enum Subprotocol.
+ */
+export type SubprotocolJson = "UNKNOWN" | "wasimoff_provider_v1_protobuf" | "wasimoff_provider_v1_json";
+
+/**
+ * Describes the enum Subprotocol.
+ */
+export const SubprotocolSchema: GenEnum<Subprotocol, SubprotocolJson> = /*@__PURE__*/
+  enumDesc(file_messages, 0);
+
+/**
+ * we're not using gRPC but we can codify the expected request-response pairs anyway
  *
  * @generated from service Provider
  */

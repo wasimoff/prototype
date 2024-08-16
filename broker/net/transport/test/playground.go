@@ -12,6 +12,7 @@ import (
 	"wasimoff/broker/net/transport"
 
 	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
@@ -61,21 +62,24 @@ func server(addr string) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			ticker := time.NewTicker(2 * time.Second)
-			defer ticker.Stop()
-			for range ticker.C {
-				log.Println("messagesock: sending request")
-				response, err := messaging.RequestSync(&pb.Request{Request: &pb.Request_FileListingArgs{
+			log.Println("messagesock: starting rpc benchmark with", r.RemoteAddr)
+			t0 := time.Now()
+			iters := 10000
+			for i := 0; i < iters; i++ {
+				_, err = messaging.RequestSync(&pb.Request{Request: &pb.Request_FileListingArgs{
 					FileListingArgs: &pb.FileListingArgs{},
 				}})
-				s, _ := DebugProto(response)
-				log.Println(s)
-				log.Printf("messagesock: RPC response: err=%#v, res=%#v\n", err, response.GetFileListingResult())
+				// t, _ := prototext.Marshal(response)
+				// log.Printf("messagesock: RPC response: err=%#v, res=%#v\n", err, string(t))
 				if err != nil {
+					log.Println("ERROR after", i, "iterations:", err)
 					break
 				}
 			}
-			log.Println("--- ERROR --- exited rpc loop:", err)
+			d := time.Since(t0)
+			if err == nil {
+				log.Printf("done after %.3f with %.1f req/s", d.Seconds(), float64(iters)/d.Seconds())
+			}
 		}()
 		// print incoming events
 		wg.Add(1)
@@ -111,6 +115,9 @@ func client(url string) {
 // place to debug how messages are constructed and look internally
 func dxtests() {
 
+	// clear terminal
+	fmt.Print("\033[2J\033[1;1H")
+
 	envelope := &pb.Envelope{
 		Sequence: proto.Uint64(33),
 		Message: &pb.Envelope_Response{Response: &pb.Response{
@@ -129,8 +136,10 @@ func dxtests() {
 		}},
 	}
 	// print the normal envelope
-	e, _ := DebugProto(envelope)
-	fmt.Printf("\n\n-- Envelope --\n%v\n", e)
+	// e, _ := DebugProto(envelope)
+	e := prototext.Format(envelope)
+	envelopeBuf, _ := proto.Marshal(envelope)
+	fmt.Printf("-- Envelope --\n%v\bbase64: %s\n", string(e), base64.StdEncoding.EncodeToString(envelopeBuf))
 
 	// pack the entire envelope in an Any
 	envelopeAny, _ := pb.Any(envelope)

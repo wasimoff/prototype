@@ -26,7 +26,8 @@ message Envelope {
 }
 
 // EnvelopeAny is an alternative approach with an Any at the top level to reduce
-// indirection and pointer allocation in Go.
+// indirection and pointer allocation in Go. DO NOT USE. This was added for a benchmark.
+// TODO: remove
 message EnvelopeAny {
   enum MessageType { UNKNOWN = 0; Request = 1; Response = 2; Event = 3; }
   uint64 sequence = 1;
