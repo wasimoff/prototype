@@ -57,7 +57,7 @@ func server(addr string) {
 			return
 		}
 		// wrap a messaging interface around it
-		messaging := transport.NewMessagingInterface(t)
+		messaging := transport.NewMessengerInterface(t)
 		// send rpc requests in a loop on interval
 		wg.Add(1)
 		go func() {
@@ -128,7 +128,7 @@ func dxtests() {
 						Filename:    proto.String("tsp.wasm"),
 						Contenttype: proto.String("application/wasm"),
 						Length:      proto.Uint64(64),
-						Epoch:       proto.Uint64(uint64(time.Now().Unix())),
+						Epoch:       proto.Int64(time.Now().Unix()),
 						Hash:        make([]byte, 0),
 					},
 				},

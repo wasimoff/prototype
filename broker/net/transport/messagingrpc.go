@@ -41,7 +41,7 @@ type Transport interface {
 	Close() error
 }
 
-type Messaging struct {
+type Messenger struct {
 	transport      Transport
 	incomingEvents chan *pb.Event
 
@@ -55,8 +55,8 @@ type Messaging struct {
 	stopping    bool // server told us to stop
 }
 
-func NewMessagingInterface(transport Transport) *Messaging {
-	m := &Messaging{
+func NewMessengerInterface(transport Transport) *Messenger {
+	m := &Messenger{
 		transport:      transport,
 		pending:        make(map[uint64]*Call),
 		incomingEvents: make(chan *pb.Event, 10),
@@ -65,7 +65,14 @@ func NewMessagingInterface(transport Transport) *Messaging {
 	return m
 }
 
-func (m *Messaging) Close() {
+func WrapMessengerInterface(transport Transport, err error) (*Messenger, error) {
+	if err != nil {
+		return nil, err
+	}
+	return NewMessengerInterface(transport), nil
+}
+
+func (m *Messenger) Close() {
 	m.pendingLock.Lock()
 	defer m.pendingLock.Unlock()
 	if !m.closing {
@@ -74,11 +81,11 @@ func (m *Messaging) Close() {
 	}
 }
 
-func (m *Messaging) IncomingEvents() <-chan *pb.Event {
+func (m *Messenger) IncomingEvents() <-chan *pb.Event {
 	return m.incomingEvents
 }
 
-func (m *Messaging) receiver() {
+func (m *Messenger) receiver() {
 	var err error
 	for err == nil {
 		// receive into a fresh struct
@@ -112,6 +119,7 @@ func (m *Messaging) receiver() {
 			if call == nil {
 				// no such call was pending; either the sequence number was invalid or
 				// the request partially failed upon sending
+				log.Printf("WARN: receiver: no pending call for seq=%d", seq)
 				continue
 			}
 			// get the actual response body
@@ -152,30 +160,30 @@ func (m *Messaging) receiver() {
 			}
 
 		}
-		// when we got here, there was an error, so terminate any pending calls
-		m.txLock.Lock()
-		m.pendingLock.Lock()
-		m.stopping = true
-		if err == io.EOF {
-			if m.closing {
-				err = ErrClosedTransport
-			} else {
-				// TODO: probably makes more sense to have m.err instead of two bools for this case
-				err = io.ErrUnexpectedEOF
-				m.transport.Close()
-				m.closing = true
-			}
-		}
-		for _, call := range m.pending {
-			call.Error = err
-			call.done()
-		}
-		m.pendingLock.Unlock()
-		m.txLock.Unlock()
 	}
+	// when we got here, there was an error, so terminate any pending calls
+	m.txLock.Lock()
+	m.pendingLock.Lock()
+	m.stopping = true
+	if err == io.EOF {
+		if m.closing {
+			err = ErrClosedTransport
+		} else {
+			// TODO: probably makes more sense to have m.err instead of two bools for this case
+			err = io.ErrUnexpectedEOF
+			m.transport.Close()
+			m.closing = true
+		}
+	}
+	for _, call := range m.pending {
+		call.Error = err
+		call.done()
+	}
+	m.pendingLock.Unlock()
+	m.txLock.Unlock()
 }
 
-func (m *Messaging) send(message *pb.Envelope) error {
+func (m *Messenger) send(message *pb.Envelope) error {
 	//? TODO: does mutex make sense here, or move up to Event/Request?
 	m.txLock.Lock()
 	defer m.txLock.Unlock()
@@ -185,7 +193,7 @@ func (m *Messaging) send(message *pb.Envelope) error {
 	return nil
 }
 
-func (m *Messaging) SendEvent(event *pb.Event) error {
+func (m *Messenger) SendEvent(event *pb.Event) error {
 
 	// get next sequence number
 	seq := m.eventSequence.Add(1)
@@ -199,11 +207,11 @@ func (m *Messaging) SendEvent(event *pb.Event) error {
 	return m.send(letter)
 }
 
-func (m *Messaging) SendRaw(envelope *pb.Envelope) error {
+func (m *Messenger) SendRaw(envelope *pb.Envelope) error {
 	return m.send(envelope)
 }
 
-func (m *Messaging) SendRequest(request *pb.Request, done chan *Call) (call *Call) {
+func (m *Messenger) SendRequest(request *pb.Request, done chan *Call) (call *Call) {
 
 	// ensure we have a buffered completion channel
 	if done == nil {
@@ -250,9 +258,10 @@ func (m *Messaging) SendRequest(request *pb.Request, done chan *Call) (call *Cal
 	return
 }
 
-func (m *Messaging) RequestSync(request *pb.Request) (*pb.Response, error) {
+func (m *Messenger) RequestSync(request *pb.Request) (*pb.Response, error) {
 	// async call with a single-element channel and return its error directly
 	call := <-m.SendRequest(request, make(chan *Call, 1)).Done
+	log.Printf("DEBUG RequestSync: err=%v, call=%#v", call.Error, call)
 	return call.Response, call.Error
 }
 

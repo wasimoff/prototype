@@ -9,7 +9,7 @@ type File struct {
 	Name   string   `msgpack:"filename"`
 	Hash   [32]byte `msgpack:"hash"`
 	Bytes  []byte   `msgpack:"bytes,omitempty"`
-	Length int      `msgpack:"length"`
+	Length uint64   `msgpack:"length"`
 	Epoch  int64    `msgpack:"epoch"`
 }
 
@@ -33,7 +33,7 @@ func NewFile(name string, buf []byte) *File {
 		Name:   name,
 		Hash:   filehash(buf),
 		Bytes:  buf,
-		Length: len(buf),
+		Length: uint64(len(buf)),
 		Epoch:  time.Now().UnixMilli(),
 	}
 }

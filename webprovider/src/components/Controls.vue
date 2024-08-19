@@ -26,11 +26,11 @@ const conn = useConnection();
 // ---------- TRANSPORT ---------- //
 
 // the webtransport URL to connect
-let transportConfig = ref(conf.configpath);
+let transportConfig = ref(conf.transport);
 
 async function connect() {
   try {
-    await conf.fetchConfig(transportConfig.value);
+    // await conf.fetchConfig(transportConfig.value);
     await conn.connect(conf.transport, conf.certhash);
   } catch (err) { terminal.error(String(err)); }
 }

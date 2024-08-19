@@ -4,100 +4,112 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"wasimoff/broker/net/pb"
 	"wasimoff/broker/storage"
-	"wasimoff/broker/tracer"
+
+	"google.golang.org/protobuf/proto"
 )
 
 // --------------- functions for the RPC client ---------------
 // the client itself is provided by net/rpc using wasimoff/broker/msgprpc codec
 
-// ----- Misc. -----
-
-// Ping sends a simple "ping" and expects a "pong" back
-func (p *Provider) Ping() error {
-	var reply string
-	err := p.rpc.Call("ping", "ping", &reply)
-	if err != nil {
-		return fmt.Errorf("rpc call failed: %w", err)
-	}
-	if reply != "pong" {
-		return fmt.Errorf("received wrong reply: %s", reply)
-	}
-	return nil
-}
-
 // ----- WASM -----
 
 // run is the internal detail, which calls the RPC on the Provider
-func (p *Provider) run(run *WasmRequest, result *WasmResponse) (err error) {
-	log.Printf("RUN %s on %q", run.Id, p.Addr)
-	err = p.rpc.Call("run", run, result)
-	log.Printf("RESULT %s from %q: %#v", run.Id, p.Addr, result)
+func (p *Provider) run(run *pb.ExecuteWasiArgs) (result *pb.ExecuteWasiResult, err error) {
+	log.Printf("RUN %s on %q", *run.Task.Id, p.Addr)
+	response, err := p.messenger.RequestSync(&pb.Request{Request: &pb.Request_ExecuteWasiArgs{
+		ExecuteWasiArgs: run,
+	}})
+	if err != nil {
+		return nil, err
+	}
+	result = response.GetExecuteWasiResult()
+	log.Printf("RESULT %s from %q: %#v", *run.Task.Id, p.Addr, result)
 	return
 }
 
 // Run will run a task on a Provider synchronously
-func (p *Provider) Run(run *WasmRequest) (result WasmResponse, err error) {
+func (p *Provider) Run(run *pb.ExecuteWasiArgs) (result *pb.ExecuteWasiResult, err error) {
 	p.limiter.Acquire(context.TODO(), 1)
 	defer p.limiter.Release(1)
-	err = p.run(run, &result)
+	result, err = p.run(run)
 	return
 }
 
 // TryRun will attempt to run a task on the Provider but fails when there is no capacity
-func (p *Provider) TryRun(run *WasmRequest) (result WasmResponse, err error) {
+func (p *Provider) TryRun(run *pb.ExecuteWasiArgs) (result *pb.ExecuteWasiResult, err error) {
 	if ok := p.limiter.TryAcquire(1); !ok {
 		err = fmt.Errorf("no free capacity")
 		return
 	}
 	defer p.limiter.Release(1)
-	err = p.run(run, &result)
+	result, err = p.run(run)
 	return
-}
-
-type WasmRequest struct {
-	Id       string   `msgpack:"id"`
-	Binary   string   `msgpack:"binary"`
-	Args     []string `msgpack:"args"`
-	Envs     []string `msgpack:"envs"`
-	Stdin    string   `msgpack:"stdin,omitempty"`
-	Loadfs   []string `msgpack:"loadfs,omitempty"`
-	Datafile string   `msgpack:"datafile,omitempty"`
-	Trace    bool     `msgpack:"trace,omitempty"`
-}
-
-type WasmResponse struct {
-	Status   int            `msgpack:"exitcode"`
-	Stdout   string         `msgpack:"stdout"`
-	Stderr   string         `msgpack:"stderr"`
-	Datafile []byte         `msgpack:"datafile"`
-	Trace    []tracer.Event `msgpack:"trace"`
 }
 
 // ----- Filesystem -----
 
+// wrap around a RequestSync and check response before handing it back
+func (p *Provider) checkedrequest(request *pb.Request) (*pb.Response, error) {
+	response, err := p.messenger.RequestSync(request)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil && *response.Error != "" {
+		return nil, fmt.Errorf("%s", *response.Error)
+	}
+	return response, nil
+}
+
 // ListFiles will ask the Provider to list their files in storage
 func (p *Provider) ListFiles() error {
-	// fetch list of files
-	var hasfiles []*storage.File
-	err := p.rpc.Call("fs:list", nil, &hasfiles)
+	response, err := p.checkedrequest(&pb.Request{Request: &pb.Request_FileListingArgs{
+		FileListingArgs: &pb.FileListingArgs{},
+	}})
 	if err != nil {
-		return fmt.Errorf("rpc call failed: %w", err)
+		return fmt.Errorf("FileListing RPC failed: %w", err)
 	}
-	// clear provider info and set known files to received list
+	r := response.GetFileListingResult()
+	if r == nil {
+		return fmt.Errorf("FileListing RPC got an empty response")
+	}
+	// (re)set known files from received list
 	for k := range p.files {
 		delete(p.files, k)
 	}
-	for _, file := range hasfiles {
-		p.files[file.Name] = file
+	for _, file := range r.Files {
+		p.files[*file.Filename] = &storage.File{
+			Name:   *file.Filename,
+			Hash:   [32]byte(file.Hash),
+			Length: uint64(*file.Length),
+			Epoch:  int64(*file.Epoch),
+		}
 	}
 	return nil
 }
 
 // ProbeFile sends a name and hash to check if the Provider *has* a file
 func (p *Provider) ProbeFile(file *storage.File) (has bool, err error) {
-	err = p.rpc.Call("fs:probe", file.CloneWithoutBytes(), &has)
-	return
+	// TODO: previously used file.CloneWithoutBytes() here, needed?
+	response, err := p.checkedrequest(&pb.Request{Request: &pb.Request_FileProbeArgs{
+		FileProbeArgs: &pb.FileProbeArgs{
+			File: &pb.FileStat{
+				Filename: &file.Name,
+				Length:   proto.Uint64(file.Length),
+				Epoch:    proto.Int64(file.Epoch),
+				Hash:     file.Hash[:],
+			},
+		},
+	}})
+	if err != nil {
+		return false, fmt.Errorf("FileProbe RPC failed: %w", err)
+	}
+	r := response.GetFileProbeResult()
+	if r == nil {
+		return false, fmt.Errorf("FileProbe RPC got an empty response")
+	}
+	return r.GetOk(), nil
 }
 
 // Upload uploads a file to this Provider
@@ -117,10 +129,27 @@ func (p *Provider) Upload(file *storage.File) (err error) {
 	if has {
 		return // provider has this exact file already
 	}
-	var ok bool
-	err = p.rpc.Call("fs:upload", file, &ok)
-	if err == nil && !ok {
-		err = fmt.Errorf("upload request returned 'false'")
+	// otherwise upload it
+	response, err := p.checkedrequest(&pb.Request{Request: &pb.Request_FileUploadArgs{
+		FileUploadArgs: &pb.FileUploadArgs{
+			Stat: &pb.FileStat{
+				Filename: &file.Name,
+				Length:   proto.Uint64(file.Length),
+				Epoch:    proto.Int64(file.Epoch),
+				Hash:     file.Hash[:],
+			},
+			File: file.Bytes,
+		},
+	}})
+	if err != nil {
+		return fmt.Errorf("FileUpload RPC failed: %w", err)
+	}
+	r := response.GetFileUploadResult()
+	if r == nil {
+		return fmt.Errorf("FileUpload RPC got an empty response")
+	}
+	if !r.GetOk() {
+		return fmt.Errorf("FileUpload was not successful")
 	}
 	return
 }

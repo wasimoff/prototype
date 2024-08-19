@@ -1,102 +1,80 @@
 package provider
 
 import (
-	"context"
 	"fmt"
 	"log"
-	netrpc "net/rpc"
-	"sync"
-	"wasimoff/broker/msgprpc"
+	"net/http"
+	"wasimoff/broker/net/pb"
+	"wasimoff/broker/net/transport"
 	"wasimoff/broker/storage"
 
 	"github.com/marusama/semaphore/v2"
-	"github.com/quic-go/webtransport-go"
 )
 
-// Provider is a single connection initiated by a computing provier, i.e. a browser window
-type Provider struct {
-	// basic webtransport state
-	session *webtransport.Session
-	closing bool
+// TODO: orphaned logging
+// log.Printf("[%s] Updated Info: { platform: %q, useragent: %q }", p.Addr, p.Info.Platform, p.Info.UserAgent)
+// log.Printf("[%s] Workers: { pool: %d / %d }", p.Addr, pool, max)
 
-	// wrapped bidi streams for rpc and messages
-	rpc     *netrpc.Client
-	msgchan *MessageChannel
+// --------------- types of expected messages ---------------
+
+type providerInfo struct {
+	Name      string // logging-friendly name
+	Platform  string // like `navigator.platform` in the browser
+	UserAgent string // like `navigator.useragent` in the browser
+}
+
+// Provider is a single connection initiated by a computing provider
+type Provider struct {
+
+	// messenger connection
+	messenger *transport.Messenger
+	request   *http.Request
+	closing   bool
 
 	// unbuffered channel to submit tasks; can be `nil` if nobody's listening
-	Submit chan *WasmCall
+	Submit chan *ExecuteWasiCall
 
 	// resizeable semaphore to limit number of concurrent tasks
 	limiter semaphore.Semaphore
 
 	// Information about the provider. Be a good citizen and don't change it from outside.
-	Info  ProviderInfo
+	// TODO: implement with a getter to enforce
+	Info  providerInfo
 	Addr  string
 	files map[string]*storage.File
 }
 
-// ProviderInfo holds meta information about the provider, like platform and pool capacity
-type ProviderInfo struct {
-	// mutex for general locking while updating string fields
-	mutex sync.RWMutex
-	// miscellaneous information
-	providerInfoMessage
-	// worker pool information received from provider
-	providerPoolInfoMessage
-}
-
-// Setup a new Provider instance from a WebTransport session
-func NewProvider(session *webtransport.Session, useQueue bool) (*Provider, error) {
-
-	// accept a bidirectional stream for messages
-	msgstream, err := session.AcceptStream(session.Context())
-	if err != nil {
-		return nil, fmt.Errorf("failed waiting for message stream: %v", err)
-	}
-	msgchan := NewMessageChannel(msgstream)
-
-	// open a channel of our own for rpc requests
-	rpcstream, err := session.OpenStream()
-	if err != nil {
-		return nil, fmt.Errorf("failed to open rpc stream: %v", err)
-	}
-	// instantiate net/rpc messagepack codec on it
-	rpcclient := netrpc.NewClientWithCodec(msgprpc.NewCodec(rpcstream))
+// Setup a new Provider instance from a given Messenger
+func NewProvider(m *transport.Messenger, req *http.Request) *Provider {
 
 	// construct the provider
 	p := &Provider{
-		session, // webtransport
-		false,   // closed
+		messenger: m,
+		request:   req,
+		closing:   false,
 
-		rpcclient, // netrpc
-		msgchan,   // messages
+		Submit:  nil,              // must be setup by acceptTasks
+		limiter: semaphore.New(0), // pool semaphore
 
-		nil,              // must be setup by acceptTasks
-		semaphore.New(0), // pool semaphore
-
-		ProviderInfo{},                 // abstract info
-		session.RemoteAddr().String(),  // remote address
-		make(map[string]*storage.File), // known filesystem
+		Info:  providerInfo{},                 // abstract info
+		Addr:  req.RemoteAddr,                 // remote address
+		files: make(map[string]*storage.File), // known filesystem
 	}
 
 	// start listening on task channel
-	if useQueue {
-		go p.acceptTasks()
-	}
+	go p.acceptTasks()
 
-	return p, nil
+	return p
 }
 
-// Close resets the streams and closes the entire WebTransport session to this provider
-func (p *Provider) Close() error {
+// Close closes the underlying messenger connection to this provider
+func (p *Provider) Close() {
 	if p.closing {
-		return nil
+		// TODO: not concurrent-safe, does it need to be?
+		return
 	}
 	p.closing = true
-	p.msgchan.Close()
-	p.rpc.Close()
-	// close(p.Submit) // doc says the receiver shouldn't close
-	return p.session.CloseWithError(0, "closing connection")
+	p.messenger.Close()
 }
 
 // Get the currently running tasks according to the semaphore
@@ -109,26 +87,26 @@ func (p *Provider) CurrentLimit() int {
 	return p.limiter.GetLimit()
 }
 
-// WasmCall represents an active WebAssembly task, similarly to the rpc.Call struct
-type WasmCall struct {
-	Provider *Provider      // the Provider this task is running on
-	Request  *WasmRequest   // Run arguments to the RPC call
-	Reply    *WasmResponse  // Received *Reply from the Provider
-	Error    error          // error encountered during the call
-	Done     chan *WasmCall // receives itself when request completes
+// ExecuteWasiCall represents an active WebAssembly task, similarly to the net/rpc.Call struct
+type ExecuteWasiCall struct {
+	Provider *Provider             // the Provider this task is running on
+	Request  *pb.ExecuteWasiArgs   // arguments to the RPC call
+	Result   *pb.ExecuteWasiResult // response from the Provider
+	Error    error                 // error encountered during the call
+	Done     chan *ExecuteWasiCall // receives itself when request completes
 }
 
-// NewWasmTask creates a new task struct with just enough to hand off to the TaskQueue
-func NewWasmTask(run *WasmRequest) (task *WasmCall) {
-	return &WasmCall{
+// NewExecuteWasiCall creates a new call struct for the Submit chan
+func NewExecuteWasiCall(run *pb.ExecuteWasiArgs) (task *ExecuteWasiCall) {
+	return &ExecuteWasiCall{
 		Request: run,
-		Done:    make(chan *WasmCall, 1),
+		Done:    make(chan *ExecuteWasiCall, 1),
 	}
 }
 
 func (p *Provider) acceptTasks() {
 	if p.Submit == nil {
-		p.Submit = make(chan *WasmCall)
+		p.Submit = make(chan *ExecuteWasiCall) // unbuffered!
 	}
 	// close Provider connection when the listener dies
 	defer p.Close()
@@ -137,15 +115,15 @@ func (p *Provider) acceptTasks() {
 		// acquire a semaphore before accepting a task
 		//? possibly off-by-one because we acquire and hold a semaphore before we even get a task
 		//? what if we acquire and then the pool gets shrinked before we receive a task ..
-		_ = p.limiter.Acquire(context.TODO(), 1) // no context, no err for now
+		_ = p.limiter.Acquire(p.request.Context(), 1) // no context, no err for now
 
 		// get the call details from channel
 		call := <-p.Submit
 
 		// the Done channel MUST NOT be nil
 		if call.Done == nil {
-			call.Error = fmt.Errorf("call.Done for %s is nil, nobody is listening for this result", call.Request.Id)
-			log.Println(call.Error)
+			call.Error = fmt.Errorf("call.Done is nil, nobody is listening for this result")
+			log.Println(call.Provider.Addr, call.Error)
 			p.limiter.Release(1)
 			return
 		}
@@ -154,17 +132,20 @@ func (p *Provider) acceptTasks() {
 		if call.Request == nil {
 			call.Error = fmt.Errorf("call.Request is nil")
 			call.Done <- call
+			// TODO: Release and continue? don't stop here?
 			return
 		}
 
 		// fill in the fields in WasmCall before handing off to RPC
 		call.Provider = p
 		call.Error = nil
-		call.Reply = new(WasmResponse)
+		// call.Reply = new(WasmResponse)
 
 		// call the RPC in a goroutine to wait for completion and release the semaphore
 		go func() {
-			call.Error = p.run(call.Request, call.Reply)
+			result, err := p.run(call.Request)
+			call.Error = err
+			call.Result = result
 			p.limiter.Release(1)
 			call.Done <- call
 		}()

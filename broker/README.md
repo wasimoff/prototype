@@ -4,6 +4,8 @@ This is the Broker component of the WebAssembly-based computation offloading
 project wasimoff. It is written in Go and provides the necessary WebTransport
 socket for Providers to connect and receive tasks.
 
+**TODO:** this document is outdated due to the migration to WebSockets + Protobuf.
+
 ### Run, watch and build
 
 In the simplest case, you can just run with the defaults locally, which will start

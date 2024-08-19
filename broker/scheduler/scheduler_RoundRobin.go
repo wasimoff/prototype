@@ -53,7 +53,7 @@ func (s *RoundRobinSelector) selectCandidates(task *Task) (candidates []*provide
 	return
 }
 
-func (s *RoundRobinSelector) Schedule(ctx context.Context, task *Task) (call *provider.WasmCall, err error) {
+func (s *RoundRobinSelector) Schedule(ctx context.Context, task *Task) (call *provider.ExecuteWasiCall, err error) {
 
 	providers, err := s.selectCandidates(task)
 	if err != nil {

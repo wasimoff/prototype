@@ -77,7 +77,7 @@ func (cr *CertReloader) reload() (err error) {
 		return fmt.Errorf("either none or both of (certPath, keyPath) must be set")
 	} else {
 		// none given, create a selfsigned certificate
-		xcert, privkey, err := EphemeralWebTransportCert()
+		xcert, privkey, err := EphemeralTransportCert()
 		if err != nil {
 			return fmt.Errorf("failed generating keypair: %w", err)
 		}
@@ -100,7 +100,7 @@ func (cr *CertReloader) IsSelfsigned() bool {
 	return cr.keyPath == "" && cr.certPath == ""
 }
 
-// Certhash returns the hex-encoded sha256 hash of the certificate for use with the WebTransport constructor
+// Certhash returns the hex-encoded sha256 hash of the certificate (e.g. for use with the WebTransport constructor)
 func (cr *CertReloader) Certhash() string {
 	sum := sha256.Sum256(cr.cert.Leaf.Raw)
 	return hex.EncodeToString(sum[:])

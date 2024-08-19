@@ -11,8 +11,11 @@ import (
 	"time"
 )
 
-// generate a short-lived self-signed certificate for use with the webtransport socket
-func EphemeralWebTransportCert() (*x509.Certificate, *ecdsa.PrivateKey, error) {
+// EphemeralTransportCert generates a short-lived self-signed certificate for use with the
+// transport socket. It uses the requirements from the WebTransport specification because
+// it originally needed to be compatible with this transport only. However, there isn't
+// anything limiting its use to WebTransport.
+func EphemeralTransportCert() (*x509.Certificate, *ecdsa.PrivateKey, error) {
 
 	// #######################################################################################
 	// #                                                                                     #
@@ -56,7 +59,7 @@ func EphemeralWebTransportCert() (*x509.Certificate, *ecdsa.PrivateKey, error) {
 		// generic project-related subject
 		Subject: pkix.Name{
 			Organization: []string{"project: wasimoff"},
-			CommonName:   "wasimoff webtransport socket",
+			CommonName:   "wasimoff transport socket",
 		},
 		// only for use as server certificate
 		KeyUsage:              x509.KeyUsageDigitalSignature, // only RSA should have KeyEncipherment

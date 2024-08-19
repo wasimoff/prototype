@@ -2,9 +2,9 @@ package scheduler
 
 import (
 	"context"
-	"fmt"
-	"wasimoff/broker/provider"
-	"wasimoff/broker/tracer"
+	"wasimoff/broker/net/pb"
+
+	"google.golang.org/protobuf/proto"
 )
 
 // The Dispatcher takes a task queue and a provider selector strategy and then
@@ -28,16 +28,17 @@ func Dispatcher(queue chan *Task, selector Scheduler) {
 			<-call.Done
 			err = call.Error
 			if task.trace != nil {
-				now := tracer.Now("broker: task rpc completed")
-				// concatenate broker and provider traces
-				for _, ev := range call.Reply.Trace {
-					ev.Label = "provider: " + ev.Label
-					task.trace.Events = append(task.trace.Events, ev)
-				}
-				task.trace.Events = append(task.trace.Events, now)
-				call.Reply.Trace = task.trace.Events
+				// TODO
+				// now := tracer.Now("broker: task rpc completed")
+				// // concatenate broker and provider traces
+				// for _, ev := range call.Result.Trace {
+				// 	ev.Label = "provider: " + ev.Label
+				// 	task.trace.Events = append(task.trace.Events, ev)
+				// }
+				// task.trace.Events = append(task.trace.Events, now)
+				// call.Result.Trace = task.trace.Events
 			}
-			task.Result = FormatResult(call.Reply, err)
+			task.Result = FormatResult(call.Result, err)
 			task.Done()
 
 		}(task)
@@ -45,29 +46,36 @@ func Dispatcher(queue chan *Task, selector Scheduler) {
 }
 
 // TODO: why? apart from Id being a string the type is identical
-func requestFromTask(task *Task) *provider.WasmRequest {
-	return &provider.WasmRequest{
-		Id:       fmt.Sprintf("%s/%04d", task.Run.RunID.String(), task.Index),
-		Binary:   task.Binary,
+func requestFromTask(task *Task) *pb.ExecuteWasiArgs {
+	return &pb.ExecuteWasiArgs{
+		Task: &pb.TaskMetadata{
+			Id:    proto.String(task.Run.RunID.String()),
+			Index: proto.Uint64(uint64(task.Index)),
+		},
+		Binary: &pb.Executable{Binary: &pb.Executable_Reference{
+			Reference: task.Binary,
+		}},
 		Args:     task.Args,
 		Envs:     task.Envs,
-		Stdin:    task.Stdin,
+		Stdin:    []byte(task.Stdin),
 		Loadfs:   task.LoadFs,
-		Datafile: task.Datafile,
-		Trace:    task.Trace,
+		Datafile: &task.Datafile,
+		Trace:    &task.Trace,
 	}
 }
 
-func FormatResult(reply *provider.WasmResponse, err error) *TaskResult {
+func FormatResult(result *pb.ExecuteWasiResult, err error) *TaskResult {
 	if err != nil {
-		return &TaskResult{Err: err}
+		return &TaskResult{
+			Err: err,
+		}
 	} else {
 		return &TaskResult{
-			Status:   reply.Status,
-			Stdout:   reply.Stdout,
-			Stderr:   reply.Stderr,
-			Datafile: reply.Datafile,
-			Trace:    reply.Trace,
+			Status:   int(result.GetStatus()),
+			Stdout:   string(result.GetStdout()),
+			Stderr:   string(result.GetStderr()),
+			Datafile: result.GetDatafile(),
+			Trace:    nil, // TODO
 		}
 	}
 }

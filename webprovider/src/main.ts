@@ -9,9 +9,8 @@ import "@/assets/main.css";
 import "bulma/css/bulma.css";
 
 // check prerequisites before we do anything else
-import { checkPrerequisites } from "@/fn/prerequisites";
-try { checkPrerequisites() }
-// TODO: completely stop execution?
+import { CheckFeatures } from "@/fn/featuredetection";
+try { CheckFeatures() }
 catch (err) { alert(err); }
 
 // create the Vue app instance

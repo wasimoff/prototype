@@ -14,11 +14,12 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file messages.proto.
  */
 export const file_messages: GenFile = /*@__PURE__*/
-  fileDesc("Cg5tZXNzYWdlcy5wcm90byJ8CghFbnZlbG9wZRIQCghzZXF1ZW5jZRgBIAEoBBIbCgdyZXF1ZXN0GAogASgLMgguUmVxdWVzdEgAEh0KCHJlc3BvbnNlGAsgASgLMgkuUmVzcG9uc2VIABIXCgVldmVudBgMIAEoCzIGLkV2ZW50SABCCQoHbWVzc2FnZSK/AQoLRW52ZWxvcGVBbnkSEAoIc2VxdWVuY2UYASABKAQSJgoEdHlwZRgCIAEoDjIYLkVudmVsb3BlQW55Lk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADIu8BCgdSZXF1ZXN0EisKD2V4ZWN1dGVXYXNpQXJncxgKIAEoCzIQLkV4ZWN1dGVXYXNpQXJnc0gAEisKD2V4ZWN1dGVXYXNtQXJncxgLIAEoCzIQLkV4ZWN1dGVXYXNtQXJnc0gAEisKD2ZpbGVMaXN0aW5nQXJncxgMIAEoCzIQLkZpbGVMaXN0aW5nQXJnc0gAEicKDWZpbGVQcm9iZUFyZ3MYDSABKAsyDi5GaWxlUHJvYmVBcmdzSAASKQoOZmlsZVVwbG9hZEFyZ3MYDiABKAsyDy5GaWxlVXBsb2FkQXJnc0gAQgkKB3JlcXVlc3QilAIKCFJlc3BvbnNlEg0KBWVycm9yGAEgASgJEi8KEWV4ZWN1dGVXYXNpUmVzdWx0GAogASgLMhIuRXhlY3V0ZVdhc2lSZXN1bHRIABIvChFleGVjdXRlV2FzbVJlc3VsdBgLIAEoCzISLkV4ZWN1dGVXYXNtUmVzdWx0SAASLwoRZmlsZUxpc3RpbmdSZXN1bHQYDCABKAsyEi5GaWxlTGlzdGluZ1Jlc3VsdEgAEisKD2ZpbGVQcm9iZVJlc3VsdBgNIAEoCzIQLkZpbGVQcm9iZVJlc3VsdEgAEi0KEGZpbGVVcGxvYWRSZXN1bHQYDiABKAsyES5GaWxlVXBsb2FkUmVzdWx0SABCCgoIcmVzcG9uc2UiaAoFRXZlbnQSJQoMcHJvdmlkZXJJbmZvGAogASgLMg0uUHJvdmlkZXJJbmZvSAASLwoRcHJvdmlkZXJSZXNvdXJjZXMYCyABKAsyEi5Qcm92aWRlclJlc291cmNlc0gAQgcKBWV2ZW50InUKBFBpbmcSIgoJZGlyZWN0aW9uGAEgASgOMg8uUGluZy5EaXJlY3Rpb24SKAoEdGltZRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiHwoJRGlyZWN0aW9uEggKBFBpbmcQABIICgRQb25nEAEiOQoMVGFza01ldGFkYXRhEgoKAmlkGAEgASgJEg4KBmNsaWVudBgCIAEoCRINCgVpbmRleBgDIAEoBCI6CgpFeGVjdXRhYmxlEhMKCXJlZmVyZW5jZRgBIAEoCUgAEg0KA3JhdxgCIAEoDEgAQggKBmJpbmFyeSKGAQoPRXhlY3V0ZVdhc2lBcmdzEhsKBHRhc2sYASABKAsyDS5UYXNrTWV0YWRhdGESGwoGYmluYXJ5GAIgASgLMgsuRXhlY3V0YWJsZRIMCgRhcmdzGAMgAygJEgwKBGVudnMYBCADKAkSDQoFc3RkaW4YBSABKAwSDgoGbG9hZGZzGAYgAygJIhMKEUV4ZWN1dGVXYXNpUmVzdWx0IlsKD0V4ZWN1dGVXYXNtQXJncxIbCgR0YXNrGAEgASgLMg0uVGFza01ldGFkYXRhEhsKBmJpbmFyeRgCIAEoCzILLkV4ZWN1dGFibGUSDgoGbWV0aG9kGAMgASgJIhMKEUV4ZWN1dGVXYXNtUmVzdWx0Il4KCEZpbGVTdGF0EhAKCGZpbGVuYW1lGAEgASgJEhMKC2NvbnRlbnR0eXBlGAIgASgJEg4KBmxlbmd0aBgDIAEoBBINCgVlcG9jaBgFIAEoBBIMCgRoYXNoGAQgASgMIhEKD0ZpbGVMaXN0aW5nQXJncyItChFGaWxlTGlzdGluZ1Jlc3VsdBIYCgVmaWxlcxgBIAMoCzIJLkZpbGVTdGF0IikKDUZpbGVQcm9iZUFyZ3MSGAoFZmlsZXMYASADKAsyCS5GaWxlU3RhdCIdCg9GaWxlUHJvYmVSZXN1bHQSCgoCb2sYASADKAgiNwoORmlsZVVwbG9hZEFyZ3MSFwoEc3RhdBgBIAEoCzIJLkZpbGVTdGF0EgwKBGZpbGUYAiABKAwiHgoQRmlsZVVwbG9hZFJlc3VsdBIKCgJvaxgBIAEoCCJjCgxQcm92aWRlckluZm8SDAoEbmFtZRgBIAEoCRIQCghwbGF0Zm9ybRgCIAEoCRIRCgl1c2VyYWdlbnQYAyABKAkSIAoEcG9vbBgEIAEoCzISLlByb3ZpZGVyUmVzb3VyY2VzIjAKEVByb3ZpZGVyUmVzb3VyY2VzEgwKBG5tYXgYASABKA0SDQoFdGFza3MYAiABKA0qXAoLU3VicHJvdG9jb2wSCwoHVU5LTk9XThAAEiEKHXdhc2ltb2ZmX3Byb3ZpZGVyX3YxX3Byb3RvYnVmEAESHQoZd2FzaW1vZmZfcHJvdmlkZXJfdjFfanNvbhACMooCCghQcm92aWRlchIzCgtFeGVjdXRlV2FzaRIQLkV4ZWN1dGVXYXNpQXJncxoSLkV4ZWN1dGVXYXNpUmVzdWx0EjMKC0V4ZWN1dGVXYXNtEhAuRXhlY3V0ZVdhc21BcmdzGhIuRXhlY3V0ZVdhc21SZXN1bHQSMwoLRmlsZUxpc3RpbmcSEC5GaWxlTGlzdGluZ0FyZ3MaEi5GaWxlTGlzdGluZ1Jlc3VsdBItCglGaWxlUHJvYmUSDi5GaWxlUHJvYmVBcmdzGhAuRmlsZVByb2JlUmVzdWx0EjAKCkZpbGVVcGxvYWQSDy5GaWxlVXBsb2FkQXJncxoRLkZpbGVVcGxvYWRSZXN1bHRiCGVkaXRpb25zcOgH", [file_google_protobuf_any, file_google_protobuf_timestamp]);
+  fileDesc("Cg5tZXNzYWdlcy5wcm90byJ8CghFbnZlbG9wZRIQCghzZXF1ZW5jZRgBIAEoBBIbCgdyZXF1ZXN0GAogASgLMgguUmVxdWVzdEgAEh0KCHJlc3BvbnNlGAsgASgLMgkuUmVzcG9uc2VIABIXCgVldmVudBgMIAEoCzIGLkV2ZW50SABCCQoHbWVzc2FnZSK/AQoLRW52ZWxvcGVBbnkSEAoIc2VxdWVuY2UYASABKAQSJgoEdHlwZRgCIAEoDjIYLkVudmVsb3BlQW55Lk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADIu8BCgdSZXF1ZXN0EisKD2V4ZWN1dGVXYXNpQXJncxgKIAEoCzIQLkV4ZWN1dGVXYXNpQXJnc0gAEisKD2V4ZWN1dGVXYXNtQXJncxgLIAEoCzIQLkV4ZWN1dGVXYXNtQXJnc0gAEisKD2ZpbGVMaXN0aW5nQXJncxgMIAEoCzIQLkZpbGVMaXN0aW5nQXJnc0gAEicKDWZpbGVQcm9iZUFyZ3MYDSABKAsyDi5GaWxlUHJvYmVBcmdzSAASKQoOZmlsZVVwbG9hZEFyZ3MYDiABKAsyDy5GaWxlVXBsb2FkQXJnc0gAQgkKB3JlcXVlc3QilAIKCFJlc3BvbnNlEg0KBWVycm9yGAEgASgJEi8KEWV4ZWN1dGVXYXNpUmVzdWx0GAogASgLMhIuRXhlY3V0ZVdhc2lSZXN1bHRIABIvChFleGVjdXRlV2FzbVJlc3VsdBgLIAEoCzISLkV4ZWN1dGVXYXNtUmVzdWx0SAASLwoRZmlsZUxpc3RpbmdSZXN1bHQYDCABKAsyEi5GaWxlTGlzdGluZ1Jlc3VsdEgAEisKD2ZpbGVQcm9iZVJlc3VsdBgNIAEoCzIQLkZpbGVQcm9iZVJlc3VsdEgAEi0KEGZpbGVVcGxvYWRSZXN1bHQYDiABKAsyES5GaWxlVXBsb2FkUmVzdWx0SABCCgoIcmVzcG9uc2UihQEKBUV2ZW50EhsKB2dlbmVyaWMYCiABKAsyCC5HZW5lcmljSAASJQoMcHJvdmlkZXJJbmZvGAsgASgLMg0uUHJvdmlkZXJJbmZvSAASLwoRcHJvdmlkZXJSZXNvdXJjZXMYDCABKAsyEi5Qcm92aWRlclJlc291cmNlc0gAQgcKBWV2ZW50InUKBFBpbmcSIgoJZGlyZWN0aW9uGAEgASgOMg8uUGluZy5EaXJlY3Rpb24SKAoEdGltZRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiHwoJRGlyZWN0aW9uEggKBFBpbmcQABIICgRQb25nEAEiOQoMVGFza01ldGFkYXRhEgoKAmlkGAEgASgJEg4KBmNsaWVudBgCIAEoCRINCgVpbmRleBgDIAEoBCI6CgpFeGVjdXRhYmxlEhMKCXJlZmVyZW5jZRgBIAEoCUgAEg0KA3JhdxgCIAEoDEgAQggKBmJpbmFyeSKnAQoPRXhlY3V0ZVdhc2lBcmdzEhsKBHRhc2sYASABKAsyDS5UYXNrTWV0YWRhdGESGwoGYmluYXJ5GAIgASgLMgsuRXhlY3V0YWJsZRIMCgRhcmdzGAMgAygJEgwKBGVudnMYBCADKAkSDQoFc3RkaW4YBSABKAwSDgoGbG9hZGZzGAYgAygJEhAKCGRhdGFmaWxlGAcgASgJEg0KBXRyYWNlGAggASgIInUKEUV4ZWN1dGVXYXNpUmVzdWx0Eg4KBnN0YXR1cxgBIAEoBRIOCgZzdGRvdXQYAiABKAwSDgoGc3RkZXJyGAMgASgMEhAKCGRhdGFmaWxlGAQgASgMEh4KBXRyYWNlGAUgASgLMg8uRXhlY3V0aW9uVHJhY2UiEAoORXhlY3V0aW9uVHJhY2UiWwoPRXhlY3V0ZVdhc21BcmdzEhsKBHRhc2sYASABKAsyDS5UYXNrTWV0YWRhdGESGwoGYmluYXJ5GAIgASgLMgsuRXhlY3V0YWJsZRIOCgZtZXRob2QYAyABKAkiEwoRRXhlY3V0ZVdhc21SZXN1bHQiXgoIRmlsZVN0YXQSEAoIZmlsZW5hbWUYASABKAkSEwoLY29udGVudHR5cGUYAiABKAkSDgoGbGVuZ3RoGAMgASgEEg0KBWVwb2NoGAUgASgDEgwKBGhhc2gYBCABKAwiEQoPRmlsZUxpc3RpbmdBcmdzIi0KEUZpbGVMaXN0aW5nUmVzdWx0EhgKBWZpbGVzGAEgAygLMgkuRmlsZVN0YXQiKAoNRmlsZVByb2JlQXJncxIXCgRmaWxlGAEgASgLMgkuRmlsZVN0YXQiHQoPRmlsZVByb2JlUmVzdWx0EgoKAm9rGAEgASgIIjcKDkZpbGVVcGxvYWRBcmdzEhcKBHN0YXQYASABKAsyCS5GaWxlU3RhdBIMCgRmaWxlGAIgASgMIh4KEEZpbGVVcGxvYWRSZXN1bHQSCgoCb2sYASABKAgiGgoHR2VuZXJpYxIPCgdtZXNzYWdlGAEgASgJImMKDFByb3ZpZGVySW5mbxIMCgRuYW1lGAEgASgJEhAKCHBsYXRmb3JtGAIgASgJEhEKCXVzZXJhZ2VudBgDIAEoCRIgCgRwb29sGAQgASgLMhIuUHJvdmlkZXJSZXNvdXJjZXMiNwoRUHJvdmlkZXJSZXNvdXJjZXMSEwoLY29uY3VycmVuY3kYASABKA0SDQoFdGFza3MYAiABKA0qXAoLU3VicHJvdG9jb2wSCwoHVU5LTk9XThAAEiEKHXdhc2ltb2ZmX3Byb3ZpZGVyX3YxX3Byb3RvYnVmEAESHQoZd2FzaW1vZmZfcHJvdmlkZXJfdjFfanNvbhACMooCCghQcm92aWRlchIzCgtFeGVjdXRlV2FzaRIQLkV4ZWN1dGVXYXNpQXJncxoSLkV4ZWN1dGVXYXNpUmVzdWx0EjMKC0V4ZWN1dGVXYXNtEhAuRXhlY3V0ZVdhc21BcmdzGhIuRXhlY3V0ZVdhc21SZXN1bHQSMwoLRmlsZUxpc3RpbmcSEC5GaWxlTGlzdGluZ0FyZ3MaEi5GaWxlTGlzdGluZ1Jlc3VsdBItCglGaWxlUHJvYmUSDi5GaWxlUHJvYmVBcmdzGhAuRmlsZVByb2JlUmVzdWx0EjAKCkZpbGVVcGxvYWQSDy5GaWxlVXBsb2FkQXJncxoRLkZpbGVVcGxvYWRSZXN1bHRiCGVkaXRpb25zcOgH", [file_google_protobuf_any, file_google_protobuf_timestamp]);
 
 /**
  * Envelope contains one of [ Request | Response | Event ]. The sequence counter
  * counts independently between Request and Event.
+ * Envelope is the message wrapper that contains one of [ Request | Response | Event ].
  *
  * @generated from message Envelope
  */
@@ -87,7 +88,6 @@ export const EnvelopeSchema: GenMessage<Envelope, EnvelopeJson> = /*@__PURE__*/
 /**
  * EnvelopeAny is an alternative approach with an Any at the top level to reduce
  * indirection and pointer allocation in Go. DO NOT USE. This was added for a benchmark.
- * TODO: remove
  *
  * @generated from message EnvelopeAny
  */
@@ -366,13 +366,19 @@ export type Event = Message<"Event"> & {
    */
   event: {
     /**
-     * @generated from field: ProviderInfo providerInfo = 10;
+     * @generated from field: Generic generic = 10;
+     */
+    value: Generic;
+    case: "generic";
+  } | {
+    /**
+     * @generated from field: ProviderInfo providerInfo = 11;
      */
     value: ProviderInfo;
     case: "providerInfo";
   } | {
     /**
-     * @generated from field: ProviderResources providerResources = 11;
+     * @generated from field: ProviderResources providerResources = 12;
      */
     value: ProviderResources;
     case: "providerResources";
@@ -384,12 +390,17 @@ export type Event = Message<"Event"> & {
  */
 export type EventJson = {
   /**
-   * @generated from field: ProviderInfo providerInfo = 10;
+   * @generated from field: Generic generic = 10;
+   */
+  generic?: GenericJson;
+
+  /**
+   * @generated from field: ProviderInfo providerInfo = 11;
    */
   providerInfo?: ProviderInfoJson;
 
   /**
-   * @generated from field: ProviderResources providerResources = 11;
+   * @generated from field: ProviderResources providerResources = 12;
    */
   providerResources?: ProviderResourcesJson;
 };
@@ -603,6 +614,16 @@ export type ExecuteWasiArgs = Message<"ExecuteWasiArgs"> & {
    * @generated from field: repeated string loadfs = 6;
    */
   loadfs: string[];
+
+  /**
+   * @generated from field: string datafile = 7;
+   */
+  datafile: string;
+
+  /**
+   * @generated from field: bool trace = 8;
+   */
+  trace: boolean;
 };
 
 /**
@@ -638,6 +659,16 @@ export type ExecuteWasiArgsJson = {
    * @generated from field: repeated string loadfs = 6;
    */
   loadfs?: string[];
+
+  /**
+   * @generated from field: string datafile = 7;
+   */
+  datafile?: string;
+
+  /**
+   * @generated from field: bool trace = 8;
+   */
+  trace?: boolean;
 };
 
 /**
@@ -648,17 +679,63 @@ export const ExecuteWasiArgsSchema: GenMessage<ExecuteWasiArgs, ExecuteWasiArgsJ
   messageDesc(file_messages, 8);
 
 /**
- * TODO
- *
  * @generated from message ExecuteWasiResult
  */
 export type ExecuteWasiResult = Message<"ExecuteWasiResult"> & {
+  /**
+   * @generated from field: int32 status = 1;
+   */
+  status: number;
+
+  /**
+   * @generated from field: bytes stdout = 2;
+   */
+  stdout: Uint8Array;
+
+  /**
+   * @generated from field: bytes stderr = 3;
+   */
+  stderr: Uint8Array;
+
+  /**
+   * @generated from field: bytes datafile = 4;
+   */
+  datafile: Uint8Array;
+
+  /**
+   * @generated from field: ExecutionTrace trace = 5;
+   */
+  trace?: ExecutionTrace;
 };
 
 /**
  * JSON type for the message ExecuteWasiResult.
  */
 export type ExecuteWasiResultJson = {
+  /**
+   * @generated from field: int32 status = 1;
+   */
+  status?: number;
+
+  /**
+   * @generated from field: bytes stdout = 2;
+   */
+  stdout?: string;
+
+  /**
+   * @generated from field: bytes stderr = 3;
+   */
+  stderr?: string;
+
+  /**
+   * @generated from field: bytes datafile = 4;
+   */
+  datafile?: string;
+
+  /**
+   * @generated from field: ExecutionTrace trace = 5;
+   */
+  trace?: ExecutionTraceJson;
 };
 
 /**
@@ -667,6 +744,27 @@ export type ExecuteWasiResultJson = {
  */
 export const ExecuteWasiResultSchema: GenMessage<ExecuteWasiResult, ExecuteWasiResultJson> = /*@__PURE__*/
   messageDesc(file_messages, 9);
+
+/**
+ * TODO
+ *
+ * @generated from message ExecutionTrace
+ */
+export type ExecutionTrace = Message<"ExecutionTrace"> & {
+};
+
+/**
+ * JSON type for the message ExecutionTrace.
+ */
+export type ExecutionTraceJson = {
+};
+
+/**
+ * Describes the message ExecutionTrace.
+ * Use `create(ExecutionTraceSchema)` to create a new message.
+ */
+export const ExecutionTraceSchema: GenMessage<ExecutionTrace, ExecutionTraceJson> = /*@__PURE__*/
+  messageDesc(file_messages, 10);
 
 /**
  * ExecuteWasm runs a webassembly/plain binary on the Provider
@@ -717,7 +815,7 @@ export type ExecuteWasmArgsJson = {
  * Use `create(ExecuteWasmArgsSchema)` to create a new message.
  */
 export const ExecuteWasmArgsSchema: GenMessage<ExecuteWasmArgs, ExecuteWasmArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 10);
+  messageDesc(file_messages, 11);
 
 /**
  * TODO
@@ -738,7 +836,7 @@ export type ExecuteWasmResultJson = {
  * Use `create(ExecuteWasmResultSchema)` to create a new message.
  */
 export const ExecuteWasmResultSchema: GenMessage<ExecuteWasmResult, ExecuteWasmResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 11);
+  messageDesc(file_messages, 12);
 
 /**
  * FileStat contains metadata about a file for identification in other messages
@@ -762,7 +860,7 @@ export type FileStat = Message<"FileStat"> & {
   length: bigint;
 
   /**
-   * @generated from field: uint64 epoch = 5;
+   * @generated from field: int64 epoch = 5;
    */
   epoch: bigint;
 
@@ -792,7 +890,7 @@ export type FileStatJson = {
   length?: string;
 
   /**
-   * @generated from field: uint64 epoch = 5;
+   * @generated from field: int64 epoch = 5;
    */
   epoch?: string;
 
@@ -807,7 +905,7 @@ export type FileStatJson = {
  * Use `create(FileStatSchema)` to create a new message.
  */
 export const FileStatSchema: GenMessage<FileStat, FileStatJson> = /*@__PURE__*/
-  messageDesc(file_messages, 12);
+  messageDesc(file_messages, 13);
 
 /**
  * FileListing asks for a listing of all available files on Provider
@@ -830,7 +928,7 @@ export type FileListingArgsJson = {
  * Use `create(FileListingArgsSchema)` to create a new message.
  */
 export const FileListingArgsSchema: GenMessage<FileListingArgs, FileListingArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 13);
+  messageDesc(file_messages, 14);
 
 /**
  * @generated from message FileListingResult
@@ -857,7 +955,7 @@ export type FileListingResultJson = {
  * Use `create(FileListingResultSchema)` to create a new message.
  */
 export const FileListingResultSchema: GenMessage<FileListingResult, FileListingResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 14);
+  messageDesc(file_messages, 15);
 
 /**
  * FileProbe checks if a certain file exists on provider
@@ -866,9 +964,9 @@ export const FileListingResultSchema: GenMessage<FileListingResult, FileListingR
  */
 export type FileProbeArgs = Message<"FileProbeArgs"> & {
   /**
-   * @generated from field: repeated FileStat files = 1;
+   * @generated from field: FileStat file = 1;
    */
-  files: FileStat[];
+  file?: FileStat;
 };
 
 /**
@@ -876,9 +974,9 @@ export type FileProbeArgs = Message<"FileProbeArgs"> & {
  */
 export type FileProbeArgsJson = {
   /**
-   * @generated from field: repeated FileStat files = 1;
+   * @generated from field: FileStat file = 1;
    */
-  files?: FileStatJson[];
+  file?: FileStatJson;
 };
 
 /**
@@ -886,16 +984,16 @@ export type FileProbeArgsJson = {
  * Use `create(FileProbeArgsSchema)` to create a new message.
  */
 export const FileProbeArgsSchema: GenMessage<FileProbeArgs, FileProbeArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 15);
+  messageDesc(file_messages, 16);
 
 /**
  * @generated from message FileProbeResult
  */
 export type FileProbeResult = Message<"FileProbeResult"> & {
   /**
-   * @generated from field: repeated bool ok = 1;
+   * @generated from field: bool ok = 1;
    */
-  ok: boolean[];
+  ok: boolean;
 };
 
 /**
@@ -903,9 +1001,9 @@ export type FileProbeResult = Message<"FileProbeResult"> & {
  */
 export type FileProbeResultJson = {
   /**
-   * @generated from field: repeated bool ok = 1;
+   * @generated from field: bool ok = 1;
    */
-  ok?: boolean[];
+  ok?: boolean;
 };
 
 /**
@@ -913,7 +1011,7 @@ export type FileProbeResultJson = {
  * Use `create(FileProbeResultSchema)` to create a new message.
  */
 export const FileProbeResultSchema: GenMessage<FileProbeResult, FileProbeResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 16);
+  messageDesc(file_messages, 17);
 
 /**
  * FileUpload pushes a file to the Provider.
@@ -953,7 +1051,7 @@ export type FileUploadArgsJson = {
  * Use `create(FileUploadArgsSchema)` to create a new message.
  */
 export const FileUploadArgsSchema: GenMessage<FileUploadArgs, FileUploadArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 17);
+  messageDesc(file_messages, 18);
 
 /**
  * @generated from message FileUploadResult
@@ -980,7 +1078,36 @@ export type FileUploadResultJson = {
  * Use `create(FileUploadResultSchema)` to create a new message.
  */
 export const FileUploadResultSchema: GenMessage<FileUploadResult, FileUploadResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 18);
+  messageDesc(file_messages, 19);
+
+/**
+ * Generic is just a generic piece of text for debugging
+ *
+ * @generated from message Generic
+ */
+export type Generic = Message<"Generic"> & {
+  /**
+   * @generated from field: string message = 1;
+   */
+  message: string;
+};
+
+/**
+ * JSON type for the message Generic.
+ */
+export type GenericJson = {
+  /**
+   * @generated from field: string message = 1;
+   */
+  message?: string;
+};
+
+/**
+ * Describes the message Generic.
+ * Use `create(GenericSchema)` to create a new message.
+ */
+export const GenericSchema: GenMessage<Generic, GenericJson> = /*@__PURE__*/
+  messageDesc(file_messages, 20);
 
 /**
  * ProviderInfo is sent once at the beginning to identify the Provider
@@ -989,16 +1116,22 @@ export const FileUploadResultSchema: GenMessage<FileUploadResult, FileUploadResu
  */
 export type ProviderInfo = Message<"ProviderInfo"> & {
   /**
+   * a logging-friendly name of the provider // TODO: make a persistent ID?
+   *
    * @generated from field: string name = 1;
    */
   name: string;
 
   /**
+   * like the navigator.platform in browser
+   *
    * @generated from field: string platform = 2;
    */
   platform: string;
 
   /**
+   * like the navigator.useragent in browser
+   *
    * @generated from field: string useragent = 3;
    */
   useragent: string;
@@ -1039,7 +1172,7 @@ export type ProviderInfoJson = {
  * Use `create(ProviderInfoSchema)` to create a new message.
  */
 export const ProviderInfoSchema: GenMessage<ProviderInfo, ProviderInfoJson> = /*@__PURE__*/
-  messageDesc(file_messages, 19);
+  messageDesc(file_messages, 21);
 
 /**
  * ProviderResources is information about the available resources in Worker pool
@@ -1048,14 +1181,14 @@ export const ProviderInfoSchema: GenMessage<ProviderInfo, ProviderInfoJson> = /*
  */
 export type ProviderResources = Message<"ProviderResources"> & {
   /**
-   * maximum available
+   * maximum possible concurrency
    *
-   * @generated from field: uint32 nmax = 1;
+   * @generated from field: uint32 concurrency = 1;
    */
-  nmax: number;
+  concurrency: number;
 
   /**
-   * currently active
+   * currently active tasks
    *
    * @generated from field: uint32 tasks = 2;
    */
@@ -1067,9 +1200,9 @@ export type ProviderResources = Message<"ProviderResources"> & {
  */
 export type ProviderResourcesJson = {
   /**
-   * @generated from field: uint32 nmax = 1;
+   * @generated from field: uint32 concurrency = 1;
    */
-  nmax?: number;
+  concurrency?: number;
 
   /**
    * @generated from field: uint32 tasks = 2;
@@ -1082,7 +1215,7 @@ export type ProviderResourcesJson = {
  * Use `create(ProviderResourcesSchema)` to create a new message.
  */
 export const ProviderResourcesSchema: GenMessage<ProviderResources, ProviderResourcesJson> = /*@__PURE__*/
-  messageDesc(file_messages, 20);
+  messageDesc(file_messages, 22);
 
 /**
  * Subprotocol is used to identify the concrete encoding on the wire.

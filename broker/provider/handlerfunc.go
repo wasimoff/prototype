@@ -3,36 +3,33 @@ package provider
 import (
 	"log"
 	"net/http"
+	"wasimoff/broker/net/pb"
 	"wasimoff/broker/net/server"
+	"wasimoff/broker/net/transport"
 )
 
-func WebTransportHandler(server *server.Server, store *ProviderStore) http.HandlerFunc {
+func WebSocketHandler(server *server.Server, store *ProviderStore, origins []string) http.HandlerFunc {
+
+	// warn about wildcard origin pattern
+	if len(origins) == 1 && origins[0] == "*" {
+		log.Println("WARNING: you're using the wildcard pattern in allowed origins!")
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		// connection upgrade
-		log.Printf("[%s] New QUIC connection", r.RemoteAddr)
-		session, err := server.Quic.Upgrade(w, r)
+		// upgrade the transport
+		log.Printf("[%s] New WebSocket Provider connection", r.RemoteAddr)
+		m, err := transport.WrapMessengerInterface(transport.UpgradeToWebSocketTransport(w, r, origins))
 		if err != nil {
-			log.Printf("connection upgrade from %v failed: %s", r.RemoteAddr, err)
-			w.WriteHeader(500)
+			log.Printf("[%s] connection upgrade failed: %s", r.RemoteAddr, err)
+			http.Error(w, "upgrade failed", http.StatusBadRequest)
 			return
 		}
-		log.Printf("[%s] Successfully upgraded to WebTransport", r.RemoteAddr)
 
 		// setup the provider instance
-		provider, err := NewProvider(session, true)
-		if err != nil {
-			log.Printf("[%s] Provider init failed: %v", r.RemoteAddr, err)
-			session.CloseWithError(0, "Provider init failed")
-			return
-		}
+		provider := NewProvider(m, r)
 		defer provider.Close()
 		log.Printf("[%s] Initialized Provider struct", provider.Addr)
-
-		// send a simple ping-pong to make sure the rpc stream is open
-		if err = provider.Ping(); err != nil {
-			log.Printf("[%s] Ping failed: %s", provider.Addr, err)
-		}
 
 		// get the list of available files on provider
 		if err = provider.ListFiles(); err != nil {
@@ -59,11 +56,55 @@ func WebTransportHandler(server *server.Server, store *ProviderStore) http.Handl
 		defer store.Remove(provider)
 		log.Printf("[%s] Added to ProviderStore", provider.Addr)
 
-		// handle incoming messages
-		go provider.RunMessageHandler()
+		// handle incoming event messages
+		go provider.RunEventHandler()
 
 		// wait until the session ends to defer cleanup
-		<-session.Context().Done()
+		<-r.Context().Done()
 		log.Printf("[%s] Session has died\n", provider.Addr)
+
 	}
+}
+
+func (p *Provider) RunEventHandler() {
+	for event := range p.messenger.IncomingEvents() {
+		switch event.Event.(type) {
+
+		case *pb.Event_Generic:
+			log.Printf("[%s] says: %s", p.Addr, event.GetGeneric().GetMessage())
+
+		case *pb.Event_ProviderInfo:
+			info := event.GetProviderInfo()
+			log.Printf("[%s] new info: %#v", p.Addr, info)
+			if v := info.GetName(); v != "" {
+				p.Info.Name = v
+			}
+			if v := info.GetPlatform(); v != "" {
+				p.Info.Platform = v
+			}
+			if v := info.GetUseragent(); v != "" {
+				p.Info.UserAgent = v
+			}
+			pool := info.GetPool()
+			if pool != nil && pool.Concurrency != nil {
+				p.limiter.SetLimit(int(*pool.Concurrency))
+			}
+			// TODO: tasks ..
+
+		case *pb.Event_ProviderResources:
+			info := event.GetProviderResources()
+			log.Printf("[%s] new info: %#v", p.Addr, info)
+			if info.Concurrency != nil {
+				p.limiter.SetLimit(int(*info.Concurrency))
+			}
+			// TODO: problem is that you can't really "set" a semaphore
+			// possibly I need to switch to a selfmanager atomic, when providers
+			// are allowed to receive tasks from multiple sources
+
+		default:
+			log.Printf("[%s] unknown event received! %#v", p.Addr, event)
+
+		}
+	}
+
 }

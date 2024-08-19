@@ -29,10 +29,10 @@ func UpgradeToWebSocketTransport(w http.ResponseWriter, r *http.Request, origins
 
 	// subprotocols in order of preference, upgrade will pick first
 	protocols := []string{provider_v1_protobuf, provider_v1_json}
+
 	// upgrade the connection to create a socket
 	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
-		Subprotocols: protocols,
-		// TODO: check if slices.Contains(origins, "*") and prevent in production
+		Subprotocols:   protocols,
 		OriginPatterns: origins,
 	})
 	if err != nil {

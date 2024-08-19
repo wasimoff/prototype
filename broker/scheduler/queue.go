@@ -6,6 +6,11 @@ import (
 	"wasimoff/broker/tracer"
 )
 
+// TODO: the client-facing API should also use Protobuf definitions and then
+// it will probably use the same messages as the Provider API, so they can
+// be passed around. Otherwise, at least use (compatible) pointer types, so
+// you can get away with just one allocation when "converting" structs.
+
 // A single Task struct that is parametrized from the run configuration's Exec array.
 type Task struct {
 	// A reference to the initiating run configuration.

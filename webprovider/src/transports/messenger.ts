@@ -138,45 +138,48 @@ export class Messenger implements MessengerInterface {
 
 }
 
+/** -------------------- USAGE EXAMPLE: --------------------
+
 import { WebSocketTransport } from "./websocket";
 import { EventSchema, RequestSchema } from "@/proto/messages_pb";
-try {
 
-  let wst = WebSocketTransport.connect("ws://localhost:4080/messagesock");
-  let msg = new Messenger(wst);
+let wst = WebSocketTransport.connect("ws://localhost:4080/messagesock");
+let msg = new Messenger(wst);
+(async () => {
+
+  // send an event
+  await msg.sendEvent(create(EventSchema, { event: {
+    case: "providerResources",
+    value: {
+      concurrency: navigator.hardwareConcurrency,
+      tasks: 0,
+    },
+  }}));
+
+  // log incoming events
   (async () => {
-    
-    // send an event
-    await msg.sendEvent(create(EventSchema, { event: {
-      case: "providerResources",
-      value: {
-        nmax: navigator.hardwareConcurrency,
-        tasks: 0,
-      },
-    }}));
+    for await (let event of messenger.events) {
+      console.log("Message: " + JSON.stringify(event.event));
+    };
+  })());
 
-    try {
-      let response = await msg.sendRequest(create(RequestSchema, {
-      request: {
-        case: "fileListingArgs",
-        value: { },
-      },
-    }));
-    console.log("broker response:", response);
-  } catch (err) {
-    console.warn("broker request error:", err);
-  };
-  
-  for await (let rpc of msg.requests) {
-    rpc(async request => {
-      return create(ResponseSchema, {
-        error: `not implemented yet: ${request.request.case}`
+  // send a request and wait for the reply
+  let response = await msg.sendRequest(create(RequestSchema, { request: {
+    case: "fileListingArgs",
+    value: { },
+  }}));
+  console.log("broker response:", response);
+
+  // handle incoming requests
+  (async () => {
+    for await (let rpc of msg.requests) {
+      rpc(async request => {
+        // you would actually switch on the request.case here and handle it
+        return create(ResponseSchema, { error: `not implemented yet: ${request.request.case}` });
       });
-    });
-  };
+    };
+  })());
   
 })();
 
-} catch (err) {
-  console.log("oops:", err);
-}
+------------------------------------------------------------ */
