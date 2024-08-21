@@ -1,7 +1,8 @@
-import { EnvelopeSchema, ResponseSchema, type Event, type Request, type Response } from "@/proto/messages_pb";
-import { create } from "@bufbuild/protobuf";
+import { Envelope_MessageType as MessageType, EnvelopeSchema, type Envelope, file_messages } from "@/proto/messages_pb";
+import { create, createRegistry, type Message } from "@bufbuild/protobuf";
 import { type Transport } from ".";
 import { PushableAsyncIterable } from "@/fn/pushableasynciterable";
+import { anyPack, anyUnpack, type Any } from "@bufbuild/protobuf/wkt";
 
 
 /** This interface is not technically needed. It's just there to
@@ -10,11 +11,11 @@ interface MessengerInterface {
 
   // remote procedure calls
   requests: AsyncIterable<RemoteProcedureCall>;
-  sendRequest: (r: Request) => Promise<Response>;
+  sendRequest: (r: Message) => Promise<Result>;
 
   // event messages
-  events: AsyncIterable<Event>;
-  sendEvent: (event: Event) => Promise<void>;
+  events: AsyncIterable<Message>;
+  sendEvent: (event: Message) => Promise<void>;
 
   // signal a closed transport
   closed: AbortSignal;
@@ -25,7 +26,7 @@ interface MessengerInterface {
 /** A remote procedure call is emitted by the AsyncIterator and must be called with an async handler,
  * which receives the Request object and produces a Result. If the handler throws, the caught error is
  * sent back to the caller automatically. */
-export type RemoteProcedureCall = (handler: (request: Request) => Promise<Response>) => Promise<void>;
+export type RemoteProcedureCall = (handler: (request: Message) => Promise<Message>) => Promise<void>;
 
 
 /** MessengerInterface wraps around some Transport, which could be a WebSocket,
@@ -40,44 +41,55 @@ export class Messenger implements MessengerInterface {
     this.switchboard();
   }
 
-  private async switchboard() {
-    for await (const { sequence, message } of this.transport.messages) {
-      switch (message.case) {
+  private readonly registry = createRegistry(file_messages);
 
-        case "request":
+  private async switchboard() {
+    for await (const m of this.transport.messages) {
+      switch (m.type) {
+
+        case MessageType.Request:
           // construct a RemoteProcedureCall that will send a response when it's done
           //? careful not to await the call itself here, otherwise stream is blocked
           this.requests.push(async (handler) => {
-            // prepoluate the response with an error if everything fails
-            let response = create(ResponseSchema, { error: "failed to execute rpc handler" });
+            // prepare a response envelope
+            let r = create(EnvelopeSchema, { type: MessageType.Response, sequence: m.sequence });
             try {
-              // happy path: encode the result
-              response = await handler(message.value);
+              // unpack the any payload
+              let request = this.unpack(m.payload);
+              // call the handler and marshal the result
+              let result = await handler(request);
+              r.payload = this.pack(result);
             } catch (err) {
               // oops: report the error to the client
-              response = create(ResponseSchema, { error: String(err) });
+              r.error = String(err)
+              r.payload = undefined
             } finally {
               // send whatever we could gather back
-              await this.transport.send(create(EnvelopeSchema, {
-                sequence, message: { case: "response", value: response },
-              }));
+              await this.transport.send(r);
             };
           });
           break;
 
-        case "response":
+        case MessageType.Response:
           // find a pending request and resolve it; cleanup is done in sendRequest
-          this.pending.get(sequence)?.(message.value);
+          let pending = this.pending.get(m.sequence);
+          if (m.error) {
+            pending?.(new Error(m.error));
+          } else {
+            let response = this.unpack(m.payload);
+            pending?.(response);
+          };
           break;
 
-        case "event":
+        case MessageType.Event:
           // push the event to the iterable
-          this.events.push(message.value);
+          let e = anyUnpack(m.payload!, this.registry);
+          this.events.push(e!);
           break;
       
         default:
           // empty message or unknown type
-          console.warn("received a malformed letter:", sequence, message);
+          console.warn("received a malformed letter:", m.sequence, m.type);
           break;
 
       }; // switch
@@ -90,17 +102,17 @@ export class Messenger implements MessengerInterface {
   requests = new PushableAsyncIterable<RemoteProcedureCall>;
 
   private requestSequence = 0n;
-  private pending = new Map<BigInt, (r: Response | PromiseLike<Response>) => void>();
-  async sendRequest(request: Request): Promise<Response> {
+  private pending = new Map<BigInt, (r: Result) => void>();
+  async sendRequest(request: Message): Promise<Result> {
     // TODO: caution, Provider->Broker requests are not properly tested yet
     // get the next sequence number
     let sequence = this.requestSequence++;
     //create and register a promise for the pending request
-    const result = new Promise<Response>(r => this.pending.set(sequence, r));
+    const result = new Promise<Result>(r => this.pending.set(sequence, r));
     try {
       // actually envelope the request and send it off
       await this.transport.send(create(EnvelopeSchema, {
-        sequence, message: { case: "request", value: request },
+        sequence, type: MessageType.Request, payload: this.pack(request),
       }));
       // await the result, so the finally doesn't run until it's done
       return await result;
@@ -110,14 +122,15 @@ export class Messenger implements MessengerInterface {
     }
   };
 
-  events = new PushableAsyncIterable<Event>;
+  events = new PushableAsyncIterable<Message>;
 
   private eventSequence = 0n;
-  async sendEvent(event: Event): Promise<void> {
+  async sendEvent(event: Message): Promise<void> {
     // envelope the event and send it off
     return this.transport.send(create(EnvelopeSchema, {
       sequence: this.eventSequence++,
-      message: { case: "event", value: event },
+      type: MessageType.Event,
+      payload: this.pack(event),
     }));
   };
 
@@ -130,56 +143,26 @@ export class Messenger implements MessengerInterface {
     this.events.close();
     this.requests.close();
     // cancel pending requests
-    this.pending.forEach(r => r(Promise.reject(reason)));
+    this.pending.forEach(r => r(Promise.reject(reason) as any)); // TODO: type error
     this.pending.clear();
     // abort the controller
     this.controller.abort(reason);
   };
 
+
+  private pack(m: Message): Any {
+    let schema = this.registry.getMessage(m.$typeName);
+    if (schema === undefined) throw "unknown message type";
+    return anyPack(schema, m);
+  };
+
+  private unpack(p: Any | undefined): Message {
+    if (p === undefined) throw "cannot unpack empty payload";
+    let message = anyUnpack(p, this.registry);
+    if (message === undefined) throw "unknown payload type";
+    return message;
+  };
+
 }
 
-/** -------------------- USAGE EXAMPLE: --------------------
-
-import { WebSocketTransport } from "./websocket";
-import { EventSchema, RequestSchema } from "@/proto/messages_pb";
-
-let wst = WebSocketTransport.connect("ws://localhost:4080/messagesock");
-let msg = new Messenger(wst);
-(async () => {
-
-  // send an event
-  await msg.sendEvent(create(EventSchema, { event: {
-    case: "providerResources",
-    value: {
-      concurrency: navigator.hardwareConcurrency,
-      tasks: 0,
-    },
-  }}));
-
-  // log incoming events
-  (async () => {
-    for await (let event of messenger.events) {
-      console.log("Message: " + JSON.stringify(event.event));
-    };
-  })());
-
-  // send a request and wait for the reply
-  let response = await msg.sendRequest(create(RequestSchema, { request: {
-    case: "fileListingArgs",
-    value: { },
-  }}));
-  console.log("broker response:", response);
-
-  // handle incoming requests
-  (async () => {
-    for await (let rpc of msg.requests) {
-      rpc(async request => {
-        // you would actually switch on the request.case here and handle it
-        return create(ResponseSchema, { error: `not implemented yet: ${request.request.case}` });
-      });
-    };
-  })());
-  
-})();
-
------------------------------------------------------------- */
+export type Result = Error | PromiseLike<Error> | Message | PromiseLike<Message>;

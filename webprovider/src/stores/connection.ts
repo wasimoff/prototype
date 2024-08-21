@@ -7,8 +7,9 @@ import { OPFSDirectory } from "@/filesystem/opfs";
 import type { WasiTaskExecution, WasiTaskResult } from "@/workerpool/wasiworker";
 import { Trace } from "@/fn/trace";
 import { proxy } from "comlink";
-import { EventSchema, FileStatSchema, RequestSchema, ResponseSchema, type Event, type FileStat, type Request, type Response } from "@/proto/messages_pb";
-import { create, type MessageInitShape } from "@bufbuild/protobuf";
+import { ExecuteWasiArgsSchema, ExecuteWasiResultSchema, FileListingArgsSchema, FileListingResultSchema, FileProbeArgsSchema, FileProbeResultSchema, FileUploadArgsSchema, FileUploadResultSchema, Provider, ProviderInfoSchema, ProviderResourcesSchema, type ExecuteWasiArgs, type ExecuteWasiResult, type FileListingArgs, type FileListingResult, type FileProbeArgs, type FileProbeResult, type FileStat, type FileUploadArgs, type FileUploadResult } from "@/proto/messages_pb";
+import { create, isMessage, type Message, type MessageInitShape } from "@bufbuild/protobuf";
+import type { GenMessage } from "@bufbuild/protobuf/codegenv1";
 
 // TODO, check out these additions / alternatives:
 // - CompressionStream could reduce the size on the wire
@@ -32,7 +33,7 @@ export const useConnection = defineStore("Connection", () => {
   const connected = computed(() => transport.value !== null);
 
   // send events
-  async function send(event: Event) {
+  async function send(event: Message) {
     if (transport.value === null) throw "transport is null";
     return transport.value.sendEvent(event);
   };
@@ -70,7 +71,7 @@ export const useConnection = defineStore("Connection", () => {
     // log received messages
     (async () => {
       for await (let event of messenger.events) {
-        terminal.info("Message: " + JSON.stringify(event.event));
+        terminal.info("Message: " + JSON.stringify(event));
       }
       console.error(...prefix, "Event stream ended.");
     })();
@@ -99,42 +100,34 @@ export const useConnection = defineStore("Connection", () => {
 
   /** Send information about this Provider to the Broker. */
   async function providerInfo() {
-    return send(create(EventSchema, { event: {
-      case: "providerInfo",
-      value: {
-        name: "unknown webprovider",
-        platform: navigator.platform,
-        useragent: navigator.userAgent,
-      },
-    }}));
+    return send(create(ProviderInfoSchema, {
+      name: "unknown webprovider",
+      platform: navigator.platform,
+      useragent: navigator.userAgent,
+    }));
   };
 
   /** Send updates on worker pool capacity to the Broker. */
   async function poolInfo() {
-    return send(create(EventSchema, { event: {
-      case: "providerResources",
-      value: {
-        concurrency: pool.count,
-        // tasks: pool.count,
-      }
-    }}));
+    return send(create(ProviderResourcesSchema, {
+      concurrency: pool.count,
+      // tasks: pool.count,
+    }));
   };
 
+  async function rpchandler(r: Message): Promise<Message> {
+    switch (true) {
 
-  async function rpchandler(request: Request): Promise<Response> {
-    let r = request.request;
-    switch (r.case) {
-
-      case "executeWasiArgs": return (async () => {
-        let v = r.value;
-        let id = v.task !== undefined ? `${v.task.id}/${v.task.index}` : "unknown";
-        if (v.binary === undefined || v.binary.binary.case === "raw" || v.binary.binary.value === undefined) {
-          return create(ResponseSchema, { error: `raw binary not implemented yet` });
+      // execute wasi binary
+      case isMessage(r, ExecuteWasiArgsSchema): return <Promise<ExecuteWasiResult>>(async () => {
+        let id = r.task !== undefined ? `${r.task.id}/${r.task.index}` : "unknown";
+        if (r.binary === undefined || r.binary.binary.case === "raw" || r.binary.binary.value === undefined) {
+          throw "raw binary not implemented yet";
         }
-        let binary = v.binary.binary.value!;
+        let binary = r.binary.binary.value!;
         // maybe start a trace
         let tracer: Trace | undefined;
-        if (v.trace === true) tracer = new Trace("rpc: function top");
+        if (r.trace === true) tracer = new Trace("rpc: function top");
         // assembly advanced options
         // let options: AdvancedExecutionOptions = {};
         // // preload files under exactly their names in OPFS storage, as a simplification
@@ -142,26 +135,20 @@ export const useConnection = defineStore("Connection", () => {
         // if (datafile) options.datafile = datafile;
         // if (stdin) options.stdin = stdin;
         tracer?.now("rpc: parsed options");
-        let run = await pool.run(id, { wasm: binary, argv: v.args, envs: v.envs, stdin: v.stdin });
-        return create(ResponseSchema, { response: {
-          case: "executeWasiResult",
-          value: {
-            status: run.returncode,
-            stdout: new TextEncoder().encode(run.stdout), // TODO: we've just decoded in run!
-            stderr: new TextEncoder().encode(run.stderr),
-          },
-        }});
+        let run = await pool.run(id, { wasm: binary, argv: r.args, envs: r.envs, stdin: r.stdin });
+        return create(ExecuteWasiResultSchema, {
+          status: run.returncode,
+          stdout: new TextEncoder().encode(run.stdout), // TODO: we've just decoded in run!
+          stderr: new TextEncoder().encode(run.stderr),
+        });
         // return await pool.exec(async worker => {
         //   tracer?.now("rpc: pool.exec got a worker");
         //   return await worker.run(id, binary, [binary, ...args], envs, options, trace ? proxy(tracer!) : undefined);
         // }, next);
       })();
 
-      case "executeWasmArgs": // TODO: plain wasm
-        return create(ResponseSchema, { error: `not implemented yet: ${request.request.case}` });
-
       // list files in OPFS
-      case "fileListingArgs": return (async () => {
+      case isMessage(r, FileListingArgsSchema): return <Promise<FileListingResult>>(async () => {
         let files = await Promise.all((await filesystem.lsf()).map(async file => ({
           filename: file.name,
           contenttype: file.type,
@@ -170,17 +157,14 @@ export const useConnection = defineStore("Connection", () => {
           hash: await digest(file),
         })));
         terminal.info("Sent list of available files to Broker.");
-        return create(ResponseSchema, { response: {
-          case: "fileListingResult",
-          value: { files },
-        }});
+        return create(FileListingResultSchema, { files });
       })();
 
       // probe for a specific file in OPFS
-      case "fileProbeArgs": return (async () => {
+      case isMessage(r, FileProbeArgsSchema): return <Promise<FileProbeResult>>(async () => {
         let ok = await (async () => {
           // expect a normal file sans the bytes
-          const { filename, hash, length } = r.value.file!;
+          const { filename, hash, length } = r.stat!;
           // find the file by filename
           let file = (await filesystem.lsf()).find(f => f.name === filename);
           if (file === undefined) return false;
@@ -195,29 +179,24 @@ export const useConnection = defineStore("Connection", () => {
           // file exists and hashes match
           return true;
         })();
-        return create(ResponseSchema, { response: {
-          case: "fileProbeResult",
-          value: { ok },
-        }});
+        return create(FileProbeResultSchema, { ok });
       })();
 
       // binaries uploaded from the broker inside an rpc
-      case "fileUploadArgs": return (async () => {
-        const { filename, hash, epoch } = r.value.stat!;
-        const length = r.value.file.byteLength;
+      case isMessage(r, FileUploadArgsSchema): return <Promise<FileUploadResult>>(async () => {
+        const { filename, hash, epoch } = r.stat!;
+        const length = r.file.byteLength;
         console.log(...prefix, `UPLOAD '${filename}', ${length} bytes`);
-        await filesystem.store(r.value.file, filename);
+        await filesystem.store(r.file, filename);
         terminal.success(`Uploaded new file: '${filename}', ${length} bytes`);
-        return create(ResponseSchema, { response: {
-          case: "fileUploadResult",
-          value: { ok: true },
-        }});
+        return create(FileUploadResultSchema, { ok: true });
       })();
 
     };
+
     // everything else is an error / not implemented yet
-    return create(ResponseSchema, { error: `not implemented yet: ${request.request.case}` });
-  }
+    throw `not implemented yet: ${(r as Message).$typeName}`;
+  };
 
   return { transport, connected, connect };
 });

@@ -10,80 +10,58 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// --------------- functions for the RPC client ---------------
-// the client itself is provided by net/rpc using wasimoff/broker/msgprpc codec
+// ----- execute -----
 
-// ----- WASM -----
-
-// run is the internal detail, which calls the RPC on the Provider
-func (p *Provider) run(run *pb.ExecuteWasiArgs) (result *pb.ExecuteWasiResult, err error) {
-	log.Printf("RUN %s on %q", *run.Task.Id, p.Addr)
-	response, err := p.messenger.RequestSync(&pb.Request{Request: &pb.Request_ExecuteWasiArgs{
-		ExecuteWasiArgs: run,
-	}})
-	if err != nil {
-		return nil, err
+// run is the internal detail, which executes a WASI binary on the Provider without semaphore guards
+func (p *Provider) run(args *pb.ExecuteWasiArgs, result *pb.ExecuteWasiResult) (err error) {
+	task := fmt.Sprintf("%s/%d", *args.Task.Id, *args.Task.Index)
+	log.Printf("scheduled >> %s >> %s", task, p.Addr)
+	if err := p.messenger.RequestSync(args, result); err != nil {
+		log.Printf("ERROR!    << %s << %s", task, p.Addr)
+		return fmt.Errorf("provider.run failed: %w", err)
 	}
-	result = response.GetExecuteWasiResult()
-	log.Printf("RESULT %s from %q: %#v", *run.Task.Id, p.Addr, result)
+	log.Printf("finished  << %s << %s", task, p.Addr)
 	return
 }
 
-// Run will run a task on a Provider synchronously
-func (p *Provider) Run(run *pb.ExecuteWasiArgs) (result *pb.ExecuteWasiResult, err error) {
+// Run will run a task on a Provider synchronously, respecting limiter.
+func (p *Provider) Run(args *pb.ExecuteWasiArgs, result *pb.ExecuteWasiResult) error {
 	p.limiter.Acquire(context.TODO(), 1)
 	defer p.limiter.Release(1)
-	result, err = p.run(run)
-	return
+	return p.run(args, result)
 }
 
-// TryRun will attempt to run a task on the Provider but fails when there is no capacity
-func (p *Provider) TryRun(run *pb.ExecuteWasiArgs) (result *pb.ExecuteWasiResult, err error) {
+// TryRun will attempt to run a task on the Provider but fails when there is no capacity.
+func (p *Provider) TryRun(args *pb.ExecuteWasiArgs, result *pb.ExecuteWasiResult) error {
 	if ok := p.limiter.TryAcquire(1); !ok {
-		err = fmt.Errorf("no free capacity")
-		return
+		return fmt.Errorf("no free capacity")
 	}
 	defer p.limiter.Release(1)
-	result, err = p.run(run)
-	return
+	return p.run(args, result)
 }
 
-// ----- Filesystem -----
+// ----- filesystem -----
 
-// wrap around a RequestSync and check response before handing it back
-func (p *Provider) checkedrequest(request *pb.Request) (*pb.Response, error) {
-	response, err := p.messenger.RequestSync(request)
-	if err != nil {
-		return nil, err
-	}
-	if response.Error != nil && *response.Error != "" {
-		return nil, fmt.Errorf("%s", *response.Error)
-	}
-	return response, nil
-}
-
-// ListFiles will ask the Provider to list their files in storage
+// ListFiles asks the Provider to list their files in storage
 func (p *Provider) ListFiles() error {
-	response, err := p.checkedrequest(&pb.Request{Request: &pb.Request_FileListingArgs{
-		FileListingArgs: &pb.FileListingArgs{},
-	}})
-	if err != nil {
-		return fmt.Errorf("FileListing RPC failed: %w", err)
-	}
-	r := response.GetFileListingResult()
-	if r == nil {
-		return fmt.Errorf("FileListing RPC got an empty response")
+	// receive listing into a new struct
+	files := new(pb.FileListingResult)
+	if err := p.messenger.RequestSync(&pb.FileListingArgs{}, files); err != nil {
+		return fmt.Errorf("provider.ListFiles failed: %w", err)
 	}
 	// (re)set known files from received list
 	for k := range p.files {
 		delete(p.files, k)
 	}
-	for _, file := range r.Files {
+	for _, file := range files.Files {
+		if file == nil || file.Filename == nil {
+			break // oops
+		}
 		p.files[*file.Filename] = &storage.File{
 			Name:   *file.Filename,
-			Hash:   [32]byte(file.Hash),
-			Length: uint64(*file.Length),
-			Epoch:  int64(*file.Epoch),
+			Hash:   [32]byte(file.GetHash()),
+			Length: uint64(file.GetLength()),
+			Epoch:  int64(file.GetEpoch()),
 		}
 	}
 	return nil
@@ -91,65 +69,48 @@ func (p *Provider) ListFiles() error {
 
 // ProbeFile sends a name and hash to check if the Provider *has* a file
 func (p *Provider) ProbeFile(file *storage.File) (has bool, err error) {
-	// TODO: previously used file.CloneWithoutBytes() here, needed?
-	response, err := p.checkedrequest(&pb.Request{Request: &pb.Request_FileProbeArgs{
-		FileProbeArgs: &pb.FileProbeArgs{
-			File: &pb.FileStat{
-				Filename: &file.Name,
-				Length:   proto.Uint64(file.Length),
-				Epoch:    proto.Int64(file.Epoch),
-				Hash:     file.Hash[:],
-			},
-		},
-	}})
-	if err != nil {
-		return false, fmt.Errorf("FileProbe RPC failed: %w", err)
+	// receive response bool into a new struct
+	result := new(pb.FileProbeResult)
+	if err := p.messenger.RequestSync(&pb.FileProbeArgs{Stat: &pb.FileStat{
+		Filename: &file.Name,
+		Length:   proto.Uint64(file.Length),
+		Epoch:    proto.Int64(file.Epoch),
+		Hash:     file.Hash[:],
+	}}, result); err != nil {
+		return false, fmt.Errorf("provider.ProbeFile failed: %w", err)
 	}
-	r := response.GetFileProbeResult()
-	if r == nil {
-		return false, fmt.Errorf("FileProbe RPC got an empty response")
-	}
-	return r.GetOk(), nil
+	return result.GetOk(), nil
 }
 
-// Upload uploads a file to this Provider
+// Upload a file to this Provider
 func (p *Provider) Upload(file *storage.File) (err error) {
 	defer func() {
-		// when func returns without an error, add the file to provider's map
+		// when returning without an error, add the file to provider's map
 		if err == nil {
 			p.files[file.Name] = file
-			fmt.Printf("Added file to Provider[%v]: %#v\n", p.Addr, p.files)
 		}
 	}()
 	// always probe for file first
-	has, err := p.ProbeFile(file)
-	if err != nil {
-		return fmt.Errorf("failed to probe for existence of file: %w", err)
-	}
-	if has {
-		return // provider has this exact file already
+	if has, err := p.ProbeFile(file); err != nil {
+		return fmt.Errorf("provider.Upload failed probe before upload: %w", err)
+	} else if has {
+		return nil // NOP, provider has this exact file already
 	}
 	// otherwise upload it
-	response, err := p.checkedrequest(&pb.Request{Request: &pb.Request_FileUploadArgs{
-		FileUploadArgs: &pb.FileUploadArgs{
-			Stat: &pb.FileStat{
-				Filename: &file.Name,
-				Length:   proto.Uint64(file.Length),
-				Epoch:    proto.Int64(file.Epoch),
-				Hash:     file.Hash[:],
-			},
-			File: file.Bytes,
+	result := new(pb.FileUploadResult)
+	if err := p.messenger.RequestSync(&pb.FileUploadArgs{
+		Stat: &pb.FileStat{
+			Filename: &file.Name,
+			Length:   proto.Uint64(file.Length),
+			Epoch:    proto.Int64(file.Epoch),
+			Hash:     file.Hash[:],
 		},
-	}})
-	if err != nil {
-		return fmt.Errorf("FileUpload RPC failed: %w", err)
+		File: file.Bytes,
+	}, result); err != nil {
+		return fmt.Errorf("provider.Upload %q failed: %w", file.Name, err)
 	}
-	r := response.GetFileUploadResult()
-	if r == nil {
-		return fmt.Errorf("FileUpload RPC got an empty response")
-	}
-	if !r.GetOk() {
-		return fmt.Errorf("FileUpload was not successful")
+	if !result.GetOk() {
+		return fmt.Errorf("provider.Upload %q failed at Provider", file.Name)
 	}
 	return
 }

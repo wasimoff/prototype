@@ -1,24 +1,20 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"wasimoff/broker/net/server"
 	"wasimoff/broker/provider"
 	"wasimoff/broker/scheduler"
-
-	"github.com/kelseyhightower/envconfig"
 )
 
-// common broker/v1 API prefix
-const apiPrefix = "/api/broker/v1"
-
 func main() {
+	fmt.Print("\033[H\033[2J") // TODO: clears terminal for easier development with gow
 	banner()
 
 	// use configuration from environment variables
-	var conf Configuration
-	envconfig.MustProcess("wasimoff", &conf)
+	conf := GetConfiguration()
 	log.Printf("%#v", &conf)
 
 	// create a new broker with default http handler
@@ -43,7 +39,9 @@ func main() {
 	http.HandleFunc(apiPrefix+"/upload", scheduler.UploadHandler(&store))
 
 	// provider transports
-	http.HandleFunc("/websocket/provider", provider.WebSocketHandler(broker, &store, conf.AllowedOrigins))
+	providerSocket := "/websocket/provider"
+	http.HandleFunc(providerSocket, provider.WebSocketHandler(broker, &store, conf.AllowedOrigins))
+	log.Println("Provider socket registered on", providerSocket)
 
 	// serve static files for frontend
 	http.Handle("/", http.FileServer(http.Dir(conf.StaticFiles)))

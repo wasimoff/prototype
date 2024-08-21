@@ -2,7 +2,6 @@
 edition = "2023";
 
 import "google/protobuf/any.proto";
-import "google/protobuf/timestamp.proto";
 
 
 // ---------- identifiers for codecs on the wire ---------- //
@@ -17,100 +16,69 @@ enum Subprotocol {
 
 // ---------- "topmost" wrapped message format ---------- //
 
-// Envelope contains one of [ Request | Response | Event ]. The sequence counter
-// counts independently between Request and Event.
+// Envelope is a generic message wrapper with a sequence counter and message type.
+// The payload contains a { Request, Response, Event }.
 message Envelope {
-  uint64 sequence = 1;
-  oneof message {
-    Request   request   = 10;
-    Response  response  = 11;
-    Event     event     = 12;
-  };
-}
 
-// EnvelopeAny is an alternative approach with an Any at the top level to reduce
-// indirection and pointer allocation in Go. DO NOT USE. This was added for a benchmark.
-message EnvelopeAny {
-  enum MessageType { UNKNOWN = 0; Request = 1; Response = 2; Event = 3; }
+  // The sequence number is incremented for each message but Request and Event
+  // count independently. Responses must always reuse the Request's sequence
+  // number so they can be routed to the caller correctly.
   uint64 sequence = 1;
+
+  // The message type indicates the payload contents: { Request, Response, Event }.
   MessageType type = 2;
+  enum MessageType { UNKNOWN = 0; Request = 1; Response = 2; Event = 3; }
+
+  // The presence of an error indicates that something went wrong with the call
+  // in general (like a server "oops"). Otherwise, the called function should
+  // encode specific errors within the payload.
   string error = 3;
+
+  // The payload itself. Needs to be (un)packed with `anypb`.
   google.protobuf.Any payload = 4;
-}
 
-// Request is an RPC request with some payload. The sequence number is used
-// in responses, so the caller can correctly route the pending response.
-message Request {
-  oneof request {
-    ExecuteWasiArgs executeWasiArgs   = 10;
-    ExecuteWasmArgs executeWasmArgs   = 11;
-    FileListingArgs fileListingArgs   = 12;
-    FileProbeArgs   fileProbeArgs     = 13;
-    FileUploadArgs  fileUploadArgs    = 14;
-  }
 }
-
-// Response is the reply to an RPC request with the same sequence number.
-// The presence of an error indicates that something went wrong with the call
-// in general (like a server "oops"). Otherwise, the called function may encode
-// its own error within the payload.
-message Response {
-  string error = 1; // nil => ok
-  oneof response {
-    ExecuteWasiResult executeWasiResult   = 10;
-    ExecuteWasmResult executeWasmResult   = 11;
-    FileListingResult fileListingResult   = 12;
-    FileProbeResult   fileProbeResult     = 13;
-    FileUploadResult  fileUploadResult    = 14;
-  }
-}
-
-// Event is a simple informative message that expects no reply.
-message Event {
-  oneof event {
-    Generic generic = 10;
-    ProviderInfo providerInfo = 11;
-    ProviderResources providerResources = 12;
-  }
-}
-
-// TODO: using google.protobuf.Any is ergonomically simpler because you don't need
-// to explicitly list all possible types in the message and at least in Go it's much
-// nicer to use when creating objects (oneof leads to a *lot* of nesting). But maybe
-// the oneof performance is better in the long run because Any effectively double-
-// encodes an arbitrary message as bytes within another message.
 
 // Ping stub, if the transport does not provide them. WebSocket does have its
 // own mechanism. On WebTransport, you should use a separate stream to avoid re-
-// introducing head-of-line blocking with the other RPC requests; so Ping is
-// *not* in the Evelope oneof above.
+// introducing head-of-line blocking with the other RPC requests.
 message Ping {
   enum Direction { Ping = 0; Pong = 1; }
   Direction direction = 1;
-  google.protobuf.Timestamp time = 2;
 }
 
 
 // ---------- individual message definitions ---------- //
 
-// we're not using gRPC but we can codify the expected request-response pairs anyway
+// The Any payload can take literally any message and there is no Protobuf-enforced
+// typing between the MessageType and the payload. Therefore you should make sure
+// to name the Request and Result pairs absolutely clearly. Avoid using a generic
+// response message for different requests, even if their fields are identical.
+
+// We aren't using gRPC (yet) but we can codify the expected message pairs anyway.
+// This service lists the requests that a Broker can send to the Provider, i.e. the
+// Provider (the browser) takes the role of a server here!
 service Provider {
+
   // execute
   rpc ExecuteWasi (ExecuteWasiArgs) returns (ExecuteWasiResult);
-  rpc ExecuteWasm (ExecuteWasmArgs) returns (ExecuteWasmResult);
+  // rpc ExecuteWasm (ExecuteWasmArgs) returns (ExecuteWasmResult); // TODO
+
   // filesystem
-  rpc FileListing (FileListingArgs) returns (FileListingResult);
   rpc FileProbe (FileProbeArgs) returns (FileProbeResult);
+  rpc FileListing (FileListingArgs) returns (FileListingResult);
   rpc FileUpload (FileUploadArgs) returns (FileUploadResult);
+
 }
+
 
 // ---> execute
 
 // TaskMetadata contains some information about the originating task for logging
 message TaskMetadata {
-  string id = 1;
-  string client = 2;
-  uint64 index = 3; // within a job with multiple tasks
+  string id = 1; // overall job ID
+  string client = 2; // info about the requesting client
+  uint64 index = 3; // index within a job with multiple tasks
 }
 
 // Executable can be either a string reference or the raw binary itself
@@ -128,7 +96,7 @@ message ExecuteWasiArgs {
   repeated string args = 3;
   repeated string envs = 4;
   bytes stdin = 5;
-  repeated string loadfs = 6; // TODO: replace with complete rootfs archive
+  repeated string loadfs = 6;
   string datafile = 7;
   bool trace = 8;
 }
@@ -140,17 +108,6 @@ message ExecuteWasiResult {
   ExecutionTrace trace = 5;
 }
 message ExecutionTrace {
-  // TODO
-}
-
-// ExecuteWasm runs a webassembly/plain binary on the Provider
-message ExecuteWasmArgs {
-  TaskMetadata task = 1;
-  Executable binary = 2;
-  string method = 3;
-  // TODO: how to encode plain parameters?
-}
-message ExecuteWasmResult {
   // TODO
 }
 
@@ -176,14 +133,13 @@ message FileListingResult {
 
 // FileProbe checks if a certain file exists on provider
 message FileProbeArgs {
-  FileStat file = 1;
+  FileStat stat = 1;
 }
 message FileProbeResult {
   bool ok = 1;
 }
 
 // FileUpload pushes a file to the Provider.
-// TODO: to be replaced with on-demand client-side fetch
 message FileUploadArgs {
   FileStat stat = 1;
   bytes file = 2;
@@ -196,7 +152,7 @@ message FileUploadResult {
 // ---> events, sent by Provider
 
 // Generic is just a generic piece of text for debugging
-message Generic {
+message GenericEvent {
   string message = 1;
 }
 

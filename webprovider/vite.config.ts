@@ -11,7 +11,7 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
-  build: { target: "firefox114" },
+  build: { target: "esnext" },
   worker: { format: "es" },
   server: {
     headers: {
@@ -20,8 +20,13 @@ export default defineConfig({
       "Cross-Origin-Opener-Policy": "same-origin",
     },
     proxy: {
-      // forward requests to the broker
-      "/api/broker": "http://localhost:4080",
+      // forward API requests to the broker
+      "^/api/broker": "http://localhost:4080",
+      // forward the websockets
+      "^/websocket/.*": {
+        target: "http://localhost:4080",
+        ws: true,
+      }
     }
   },
 })

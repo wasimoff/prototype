@@ -45,7 +45,6 @@ func Dispatcher(queue chan *Task, selector Scheduler) {
 	}
 }
 
-// TODO: why? apart from Id being a string the type is identical
 func requestFromTask(task *Task) *pb.ExecuteWasiArgs {
 	return &pb.ExecuteWasiArgs{
 		Task: &pb.TaskMetadata{

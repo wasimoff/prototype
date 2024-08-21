@@ -104,9 +104,9 @@ func ExecHandler(selector Scheduler) http.HandlerFunc {
 
 		// compute all the tasks of a request
 		tasks := DispatchTasks(run, trace, queue)
-		for i, task := range tasks {
-			log.Printf("task[%d]: %v, result: %v", i, task, task.Result)
-		}
+		// for i, task := range tasks {
+		// 	log.Printf("task[%d]: %v, result: %v", i, task, task.Result)
+		// }
 
 		// send the result back
 		w.Header().Set("content-type", "application/json")

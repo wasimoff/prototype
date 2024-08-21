@@ -1,5 +1,5 @@
 import { toBinary, fromBinary, toJsonString, fromJsonString } from "@bufbuild/protobuf";
-import { EnvelopeSchema, Subprotocol, type Envelope } from "@/proto/messages_pb";
+import { EnvelopeSchema, Subprotocol, type Envelope, Envelope_MessageType } from "@/proto/messages_pb";
 import { type Transport } from "./";
 import { PushableAsyncIterable } from "@/fn/pushableasynciterable";
 import { Signal } from "@/fn/utilities";
@@ -39,7 +39,7 @@ export class WebSocketTransport implements Transport {
     this.ws.addEventListener("message", ({ data }) => {
       try {
         let envelope = this.unmarshal(data);
-        if (debugging) console.debug(...prefixRx, envelope.sequence, envelope.message);
+        if (debugging) console.debug(...prefixRx, envelope.sequence, Envelope_MessageType[envelope.type], envelope.payload, envelope.error);
         this.messages.push(envelope);
       } catch (err) {
         console.error(...prefixErr, err);
@@ -56,7 +56,7 @@ export class WebSocketTransport implements Transport {
   public async send(envelope: Envelope): Promise<void> {
     this.closed.throwIfAborted();
     await this.ready.promise;
-    if (debugging) console.debug(...prefixTx, envelope.sequence, envelope.message);
+    if (debugging) console.debug(...prefixTx, envelope.sequence, Envelope_MessageType[envelope.type], envelope.payload, envelope.error);
     switch (this.ws.protocol) {
 
       case WebSocketTransport.provider_v1_protobuf:
@@ -150,7 +150,7 @@ export namespace WebSocketTransport {
 };
 
 // enable console.logs in the "hot" path (tx/rx)?
-const debugging = false;
+const debugging = true;
 
 // pretty console logging prefixes
 const prefixOpen = [ "%c WebSocketTransport %c open ", "background: #333; color: white;", "background: greenyellow;" ];

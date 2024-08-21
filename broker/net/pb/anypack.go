@@ -9,7 +9,7 @@ import (
 // URL prefix used in google.protobuf.Any messages packed with `Any`
 const AnyTypeURLPrefix = "wasimoff/"
 
-// helper to marshal a google.protobuf.Any message using custom type URL prefix
+// Helper to marshal a google.protobuf.Any message using the custom AnyTypeURLPrefix.
 func Any(src proto.Message) (*anypb.Any, error) {
 	if src == nil {
 		// use the same error as anypb.MarshalFrom

@@ -6,51 +6,54 @@
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv1";
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv1";
-import type { Any, AnyJson, Timestamp, TimestampJson } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_any, file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
+import type { Any, AnyJson } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_any } from "@bufbuild/protobuf/wkt";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file messages.proto.
  */
 export const file_messages: GenFile = /*@__PURE__*/
-  fileDesc("Cg5tZXNzYWdlcy5wcm90byJ8CghFbnZlbG9wZRIQCghzZXF1ZW5jZRgBIAEoBBIbCgdyZXF1ZXN0GAogASgLMgguUmVxdWVzdEgAEh0KCHJlc3BvbnNlGAsgASgLMgkuUmVzcG9uc2VIABIXCgVldmVudBgMIAEoCzIGLkV2ZW50SABCCQoHbWVzc2FnZSK/AQoLRW52ZWxvcGVBbnkSEAoIc2VxdWVuY2UYASABKAQSJgoEdHlwZRgCIAEoDjIYLkVudmVsb3BlQW55Lk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADIu8BCgdSZXF1ZXN0EisKD2V4ZWN1dGVXYXNpQXJncxgKIAEoCzIQLkV4ZWN1dGVXYXNpQXJnc0gAEisKD2V4ZWN1dGVXYXNtQXJncxgLIAEoCzIQLkV4ZWN1dGVXYXNtQXJnc0gAEisKD2ZpbGVMaXN0aW5nQXJncxgMIAEoCzIQLkZpbGVMaXN0aW5nQXJnc0gAEicKDWZpbGVQcm9iZUFyZ3MYDSABKAsyDi5GaWxlUHJvYmVBcmdzSAASKQoOZmlsZVVwbG9hZEFyZ3MYDiABKAsyDy5GaWxlVXBsb2FkQXJnc0gAQgkKB3JlcXVlc3QilAIKCFJlc3BvbnNlEg0KBWVycm9yGAEgASgJEi8KEWV4ZWN1dGVXYXNpUmVzdWx0GAogASgLMhIuRXhlY3V0ZVdhc2lSZXN1bHRIABIvChFleGVjdXRlV2FzbVJlc3VsdBgLIAEoCzISLkV4ZWN1dGVXYXNtUmVzdWx0SAASLwoRZmlsZUxpc3RpbmdSZXN1bHQYDCABKAsyEi5GaWxlTGlzdGluZ1Jlc3VsdEgAEisKD2ZpbGVQcm9iZVJlc3VsdBgNIAEoCzIQLkZpbGVQcm9iZVJlc3VsdEgAEi0KEGZpbGVVcGxvYWRSZXN1bHQYDiABKAsyES5GaWxlVXBsb2FkUmVzdWx0SABCCgoIcmVzcG9uc2UihQEKBUV2ZW50EhsKB2dlbmVyaWMYCiABKAsyCC5HZW5lcmljSAASJQoMcHJvdmlkZXJJbmZvGAsgASgLMg0uUHJvdmlkZXJJbmZvSAASLwoRcHJvdmlkZXJSZXNvdXJjZXMYDCABKAsyEi5Qcm92aWRlclJlc291cmNlc0gAQgcKBWV2ZW50InUKBFBpbmcSIgoJZGlyZWN0aW9uGAEgASgOMg8uUGluZy5EaXJlY3Rpb24SKAoEdGltZRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiHwoJRGlyZWN0aW9uEggKBFBpbmcQABIICgRQb25nEAEiOQoMVGFza01ldGFkYXRhEgoKAmlkGAEgASgJEg4KBmNsaWVudBgCIAEoCRINCgVpbmRleBgDIAEoBCI6CgpFeGVjdXRhYmxlEhMKCXJlZmVyZW5jZRgBIAEoCUgAEg0KA3JhdxgCIAEoDEgAQggKBmJpbmFyeSKnAQoPRXhlY3V0ZVdhc2lBcmdzEhsKBHRhc2sYASABKAsyDS5UYXNrTWV0YWRhdGESGwoGYmluYXJ5GAIgASgLMgsuRXhlY3V0YWJsZRIMCgRhcmdzGAMgAygJEgwKBGVudnMYBCADKAkSDQoFc3RkaW4YBSABKAwSDgoGbG9hZGZzGAYgAygJEhAKCGRhdGFmaWxlGAcgASgJEg0KBXRyYWNlGAggASgIInUKEUV4ZWN1dGVXYXNpUmVzdWx0Eg4KBnN0YXR1cxgBIAEoBRIOCgZzdGRvdXQYAiABKAwSDgoGc3RkZXJyGAMgASgMEhAKCGRhdGFmaWxlGAQgASgMEh4KBXRyYWNlGAUgASgLMg8uRXhlY3V0aW9uVHJhY2UiEAoORXhlY3V0aW9uVHJhY2UiWwoPRXhlY3V0ZVdhc21BcmdzEhsKBHRhc2sYASABKAsyDS5UYXNrTWV0YWRhdGESGwoGYmluYXJ5GAIgASgLMgsuRXhlY3V0YWJsZRIOCgZtZXRob2QYAyABKAkiEwoRRXhlY3V0ZVdhc21SZXN1bHQiXgoIRmlsZVN0YXQSEAoIZmlsZW5hbWUYASABKAkSEwoLY29udGVudHR5cGUYAiABKAkSDgoGbGVuZ3RoGAMgASgEEg0KBWVwb2NoGAUgASgDEgwKBGhhc2gYBCABKAwiEQoPRmlsZUxpc3RpbmdBcmdzIi0KEUZpbGVMaXN0aW5nUmVzdWx0EhgKBWZpbGVzGAEgAygLMgkuRmlsZVN0YXQiKAoNRmlsZVByb2JlQXJncxIXCgRmaWxlGAEgASgLMgkuRmlsZVN0YXQiHQoPRmlsZVByb2JlUmVzdWx0EgoKAm9rGAEgASgIIjcKDkZpbGVVcGxvYWRBcmdzEhcKBHN0YXQYASABKAsyCS5GaWxlU3RhdBIMCgRmaWxlGAIgASgMIh4KEEZpbGVVcGxvYWRSZXN1bHQSCgoCb2sYASABKAgiGgoHR2VuZXJpYxIPCgdtZXNzYWdlGAEgASgJImMKDFByb3ZpZGVySW5mbxIMCgRuYW1lGAEgASgJEhAKCHBsYXRmb3JtGAIgASgJEhEKCXVzZXJhZ2VudBgDIAEoCRIgCgRwb29sGAQgASgLMhIuUHJvdmlkZXJSZXNvdXJjZXMiNwoRUHJvdmlkZXJSZXNvdXJjZXMSEwoLY29uY3VycmVuY3kYASABKA0SDQoFdGFza3MYAiABKA0qXAoLU3VicHJvdG9jb2wSCwoHVU5LTk9XThAAEiEKHXdhc2ltb2ZmX3Byb3ZpZGVyX3YxX3Byb3RvYnVmEAESHQoZd2FzaW1vZmZfcHJvdmlkZXJfdjFfanNvbhACMooCCghQcm92aWRlchIzCgtFeGVjdXRlV2FzaRIQLkV4ZWN1dGVXYXNpQXJncxoSLkV4ZWN1dGVXYXNpUmVzdWx0EjMKC0V4ZWN1dGVXYXNtEhAuRXhlY3V0ZVdhc21BcmdzGhIuRXhlY3V0ZVdhc21SZXN1bHQSMwoLRmlsZUxpc3RpbmcSEC5GaWxlTGlzdGluZ0FyZ3MaEi5GaWxlTGlzdGluZ1Jlc3VsdBItCglGaWxlUHJvYmUSDi5GaWxlUHJvYmVBcmdzGhAuRmlsZVByb2JlUmVzdWx0EjAKCkZpbGVVcGxvYWQSDy5GaWxlVXBsb2FkQXJncxoRLkZpbGVVcGxvYWRSZXN1bHRiCGVkaXRpb25zcOgH", [file_google_protobuf_any, file_google_protobuf_timestamp]);
+  fileDesc("Cg5tZXNzYWdlcy5wcm90byK5AQoIRW52ZWxvcGUSEAoIc2VxdWVuY2UYASABKAQSIwoEdHlwZRgCIAEoDjIVLkVudmVsb3BlLk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADIksKBFBpbmcSIgoJZGlyZWN0aW9uGAEgASgOMg8uUGluZy5EaXJlY3Rpb24iHwoJRGlyZWN0aW9uEggKBFBpbmcQABIICgRQb25nEAEiOQoMVGFza01ldGFkYXRhEgoKAmlkGAEgASgJEg4KBmNsaWVudBgCIAEoCRINCgVpbmRleBgDIAEoBCI6CgpFeGVjdXRhYmxlEhMKCXJlZmVyZW5jZRgBIAEoCUgAEg0KA3JhdxgCIAEoDEgAQggKBmJpbmFyeSKnAQoPRXhlY3V0ZVdhc2lBcmdzEhsKBHRhc2sYASABKAsyDS5UYXNrTWV0YWRhdGESGwoGYmluYXJ5GAIgASgLMgsuRXhlY3V0YWJsZRIMCgRhcmdzGAMgAygJEgwKBGVudnMYBCADKAkSDQoFc3RkaW4YBSABKAwSDgoGbG9hZGZzGAYgAygJEhAKCGRhdGFmaWxlGAcgASgJEg0KBXRyYWNlGAggASgIInUKEUV4ZWN1dGVXYXNpUmVzdWx0Eg4KBnN0YXR1cxgBIAEoBRIOCgZzdGRvdXQYAiABKAwSDgoGc3RkZXJyGAMgASgMEhAKCGRhdGFmaWxlGAQgASgMEh4KBXRyYWNlGAUgASgLMg8uRXhlY3V0aW9uVHJhY2UiEAoORXhlY3V0aW9uVHJhY2UiXgoIRmlsZVN0YXQSEAoIZmlsZW5hbWUYASABKAkSEwoLY29udGVudHR5cGUYAiABKAkSDgoGbGVuZ3RoGAMgASgEEg0KBWVwb2NoGAUgASgDEgwKBGhhc2gYBCABKAwiEQoPRmlsZUxpc3RpbmdBcmdzIi0KEUZpbGVMaXN0aW5nUmVzdWx0EhgKBWZpbGVzGAEgAygLMgkuRmlsZVN0YXQiKAoNRmlsZVByb2JlQXJncxIXCgRzdGF0GAEgASgLMgkuRmlsZVN0YXQiHQoPRmlsZVByb2JlUmVzdWx0EgoKAm9rGAEgASgIIjcKDkZpbGVVcGxvYWRBcmdzEhcKBHN0YXQYASABKAsyCS5GaWxlU3RhdBIMCgRmaWxlGAIgASgMIh4KEEZpbGVVcGxvYWRSZXN1bHQSCgoCb2sYASABKAgiHwoMR2VuZXJpY0V2ZW50Eg8KB21lc3NhZ2UYASABKAkiYwoMUHJvdmlkZXJJbmZvEgwKBG5hbWUYASABKAkSEAoIcGxhdGZvcm0YAiABKAkSEQoJdXNlcmFnZW50GAMgASgJEiAKBHBvb2wYBCABKAsyEi5Qcm92aWRlclJlc291cmNlcyI3ChFQcm92aWRlclJlc291cmNlcxITCgtjb25jdXJyZW5jeRgBIAEoDRINCgV0YXNrcxgCIAEoDSpcCgtTdWJwcm90b2NvbBILCgdVTktOT1dOEAASIQodd2FzaW1vZmZfcHJvdmlkZXJfdjFfcHJvdG9idWYQARIdChl3YXNpbW9mZl9wcm92aWRlcl92MV9qc29uEAIy1QEKCFByb3ZpZGVyEjMKC0V4ZWN1dGVXYXNpEhAuRXhlY3V0ZVdhc2lBcmdzGhIuRXhlY3V0ZVdhc2lSZXN1bHQSLQoJRmlsZVByb2JlEg4uRmlsZVByb2JlQXJncxoQLkZpbGVQcm9iZVJlc3VsdBIzCgtGaWxlTGlzdGluZxIQLkZpbGVMaXN0aW5nQXJncxoSLkZpbGVMaXN0aW5nUmVzdWx0EjAKCkZpbGVVcGxvYWQSDy5GaWxlVXBsb2FkQXJncxoRLkZpbGVVcGxvYWRSZXN1bHRiCGVkaXRpb25zcOgH", [file_google_protobuf_any]);
 
 /**
- * Envelope contains one of [ Request | Response | Event ]. The sequence counter
- * counts independently between Request and Event.
- * Envelope is the message wrapper that contains one of [ Request | Response | Event ].
+ * Envelope is a generic message wrapper with a sequence counter and message type.
+ * The payload contains a { Request, Response, Event }.
  *
  * @generated from message Envelope
  */
 export type Envelope = Message<"Envelope"> & {
   /**
+   * The sequence number is incremented for each message but Request and Event
+   * count independently. Responses must always reuse the Request's sequence
+   * number so they can be routed to the caller correctly.
+   *
    * @generated from field: uint64 sequence = 1;
    */
   sequence: bigint;
 
   /**
-   * @generated from oneof Envelope.message
+   * The message type indicates the payload contents: { Request, Response, Event }.
+   *
+   * @generated from field: Envelope.MessageType type = 2;
    */
-  message: {
-    /**
-     * @generated from field: Request request = 10;
-     */
-    value: Request;
-    case: "request";
-  } | {
-    /**
-     * @generated from field: Response response = 11;
-     */
-    value: Response;
-    case: "response";
-  } | {
-    /**
-     * @generated from field: Event event = 12;
-     */
-    value: Event;
-    case: "event";
-  } | { case: undefined; value?: undefined };
+  type: Envelope_MessageType;
+
+  /**
+   * The presence of an error indicates that something went wrong with the call
+   * in general (like a server "oops"). Otherwise, the called function should
+   * encode specific errors within the payload.
+   *
+   * @generated from field: string error = 3;
+   */
+  error: string;
+
+  /**
+   * The payload itself. Needs to be (un)packed with `anypb`.
+   *
+   * @generated from field: google.protobuf.Any payload = 4;
+   */
+  payload?: Any;
 };
 
 /**
@@ -63,69 +66,9 @@ export type EnvelopeJson = {
   sequence?: string;
 
   /**
-   * @generated from field: Request request = 10;
+   * @generated from field: Envelope.MessageType type = 2;
    */
-  request?: RequestJson;
-
-  /**
-   * @generated from field: Response response = 11;
-   */
-  response?: ResponseJson;
-
-  /**
-   * @generated from field: Event event = 12;
-   */
-  event?: EventJson;
-};
-
-/**
- * Describes the message Envelope.
- * Use `create(EnvelopeSchema)` to create a new message.
- */
-export const EnvelopeSchema: GenMessage<Envelope, EnvelopeJson> = /*@__PURE__*/
-  messageDesc(file_messages, 0);
-
-/**
- * EnvelopeAny is an alternative approach with an Any at the top level to reduce
- * indirection and pointer allocation in Go. DO NOT USE. This was added for a benchmark.
- *
- * @generated from message EnvelopeAny
- */
-export type EnvelopeAny = Message<"EnvelopeAny"> & {
-  /**
-   * @generated from field: uint64 sequence = 1;
-   */
-  sequence: bigint;
-
-  /**
-   * @generated from field: EnvelopeAny.MessageType type = 2;
-   */
-  type: EnvelopeAny_MessageType;
-
-  /**
-   * @generated from field: string error = 3;
-   */
-  error: string;
-
-  /**
-   * @generated from field: google.protobuf.Any payload = 4;
-   */
-  payload?: Any;
-};
-
-/**
- * JSON type for the message EnvelopeAny.
- */
-export type EnvelopeAnyJson = {
-  /**
-   * @generated from field: uint64 sequence = 1;
-   */
-  sequence?: string;
-
-  /**
-   * @generated from field: EnvelopeAny.MessageType type = 2;
-   */
-  type?: EnvelopeAny_MessageTypeJson;
+  type?: Envelope_MessageTypeJson;
 
   /**
    * @generated from field: string error = 3;
@@ -139,16 +82,16 @@ export type EnvelopeAnyJson = {
 };
 
 /**
- * Describes the message EnvelopeAny.
- * Use `create(EnvelopeAnySchema)` to create a new message.
+ * Describes the message Envelope.
+ * Use `create(EnvelopeSchema)` to create a new message.
  */
-export const EnvelopeAnySchema: GenMessage<EnvelopeAny, EnvelopeAnyJson> = /*@__PURE__*/
-  messageDesc(file_messages, 1);
+export const EnvelopeSchema: GenMessage<Envelope, EnvelopeJson> = /*@__PURE__*/
+  messageDesc(file_messages, 0);
 
 /**
- * @generated from enum EnvelopeAny.MessageType
+ * @generated from enum Envelope.MessageType
  */
-export enum EnvelopeAny_MessageType {
+export enum Envelope_MessageType {
   /**
    * @generated from enum value: UNKNOWN = 0;
    */
@@ -171,252 +114,20 @@ export enum EnvelopeAny_MessageType {
 }
 
 /**
- * JSON type for the enum EnvelopeAny.MessageType.
+ * JSON type for the enum Envelope.MessageType.
  */
-export type EnvelopeAny_MessageTypeJson = "UNKNOWN" | "Request" | "Response" | "Event";
+export type Envelope_MessageTypeJson = "UNKNOWN" | "Request" | "Response" | "Event";
 
 /**
- * Describes the enum EnvelopeAny.MessageType.
+ * Describes the enum Envelope.MessageType.
  */
-export const EnvelopeAny_MessageTypeSchema: GenEnum<EnvelopeAny_MessageType, EnvelopeAny_MessageTypeJson> = /*@__PURE__*/
-  enumDesc(file_messages, 1, 0);
-
-/**
- * Request is an RPC request with some payload. The sequence number is used
- * in responses, so the caller can correctly route the pending response.
- *
- * @generated from message Request
- */
-export type Request = Message<"Request"> & {
-  /**
-   * @generated from oneof Request.request
-   */
-  request: {
-    /**
-     * @generated from field: ExecuteWasiArgs executeWasiArgs = 10;
-     */
-    value: ExecuteWasiArgs;
-    case: "executeWasiArgs";
-  } | {
-    /**
-     * @generated from field: ExecuteWasmArgs executeWasmArgs = 11;
-     */
-    value: ExecuteWasmArgs;
-    case: "executeWasmArgs";
-  } | {
-    /**
-     * @generated from field: FileListingArgs fileListingArgs = 12;
-     */
-    value: FileListingArgs;
-    case: "fileListingArgs";
-  } | {
-    /**
-     * @generated from field: FileProbeArgs fileProbeArgs = 13;
-     */
-    value: FileProbeArgs;
-    case: "fileProbeArgs";
-  } | {
-    /**
-     * @generated from field: FileUploadArgs fileUploadArgs = 14;
-     */
-    value: FileUploadArgs;
-    case: "fileUploadArgs";
-  } | { case: undefined; value?: undefined };
-};
-
-/**
- * JSON type for the message Request.
- */
-export type RequestJson = {
-  /**
-   * @generated from field: ExecuteWasiArgs executeWasiArgs = 10;
-   */
-  executeWasiArgs?: ExecuteWasiArgsJson;
-
-  /**
-   * @generated from field: ExecuteWasmArgs executeWasmArgs = 11;
-   */
-  executeWasmArgs?: ExecuteWasmArgsJson;
-
-  /**
-   * @generated from field: FileListingArgs fileListingArgs = 12;
-   */
-  fileListingArgs?: FileListingArgsJson;
-
-  /**
-   * @generated from field: FileProbeArgs fileProbeArgs = 13;
-   */
-  fileProbeArgs?: FileProbeArgsJson;
-
-  /**
-   * @generated from field: FileUploadArgs fileUploadArgs = 14;
-   */
-  fileUploadArgs?: FileUploadArgsJson;
-};
-
-/**
- * Describes the message Request.
- * Use `create(RequestSchema)` to create a new message.
- */
-export const RequestSchema: GenMessage<Request, RequestJson> = /*@__PURE__*/
-  messageDesc(file_messages, 2);
-
-/**
- * Response is the reply to an RPC request with the same sequence number.
- * The presence of an error indicates that something went wrong with the call
- * in general (like a server "oops"). Otherwise, the called function may encode
- * its own error within the payload.
- *
- * @generated from message Response
- */
-export type Response = Message<"Response"> & {
-  /**
-   * nil => ok
-   *
-   * @generated from field: string error = 1;
-   */
-  error: string;
-
-  /**
-   * @generated from oneof Response.response
-   */
-  response: {
-    /**
-     * @generated from field: ExecuteWasiResult executeWasiResult = 10;
-     */
-    value: ExecuteWasiResult;
-    case: "executeWasiResult";
-  } | {
-    /**
-     * @generated from field: ExecuteWasmResult executeWasmResult = 11;
-     */
-    value: ExecuteWasmResult;
-    case: "executeWasmResult";
-  } | {
-    /**
-     * @generated from field: FileListingResult fileListingResult = 12;
-     */
-    value: FileListingResult;
-    case: "fileListingResult";
-  } | {
-    /**
-     * @generated from field: FileProbeResult fileProbeResult = 13;
-     */
-    value: FileProbeResult;
-    case: "fileProbeResult";
-  } | {
-    /**
-     * @generated from field: FileUploadResult fileUploadResult = 14;
-     */
-    value: FileUploadResult;
-    case: "fileUploadResult";
-  } | { case: undefined; value?: undefined };
-};
-
-/**
- * JSON type for the message Response.
- */
-export type ResponseJson = {
-  /**
-   * @generated from field: string error = 1;
-   */
-  error?: string;
-
-  /**
-   * @generated from field: ExecuteWasiResult executeWasiResult = 10;
-   */
-  executeWasiResult?: ExecuteWasiResultJson;
-
-  /**
-   * @generated from field: ExecuteWasmResult executeWasmResult = 11;
-   */
-  executeWasmResult?: ExecuteWasmResultJson;
-
-  /**
-   * @generated from field: FileListingResult fileListingResult = 12;
-   */
-  fileListingResult?: FileListingResultJson;
-
-  /**
-   * @generated from field: FileProbeResult fileProbeResult = 13;
-   */
-  fileProbeResult?: FileProbeResultJson;
-
-  /**
-   * @generated from field: FileUploadResult fileUploadResult = 14;
-   */
-  fileUploadResult?: FileUploadResultJson;
-};
-
-/**
- * Describes the message Response.
- * Use `create(ResponseSchema)` to create a new message.
- */
-export const ResponseSchema: GenMessage<Response, ResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 3);
-
-/**
- * Event is a simple informative message that expects no reply.
- *
- * @generated from message Event
- */
-export type Event = Message<"Event"> & {
-  /**
-   * @generated from oneof Event.event
-   */
-  event: {
-    /**
-     * @generated from field: Generic generic = 10;
-     */
-    value: Generic;
-    case: "generic";
-  } | {
-    /**
-     * @generated from field: ProviderInfo providerInfo = 11;
-     */
-    value: ProviderInfo;
-    case: "providerInfo";
-  } | {
-    /**
-     * @generated from field: ProviderResources providerResources = 12;
-     */
-    value: ProviderResources;
-    case: "providerResources";
-  } | { case: undefined; value?: undefined };
-};
-
-/**
- * JSON type for the message Event.
- */
-export type EventJson = {
-  /**
-   * @generated from field: Generic generic = 10;
-   */
-  generic?: GenericJson;
-
-  /**
-   * @generated from field: ProviderInfo providerInfo = 11;
-   */
-  providerInfo?: ProviderInfoJson;
-
-  /**
-   * @generated from field: ProviderResources providerResources = 12;
-   */
-  providerResources?: ProviderResourcesJson;
-};
-
-/**
- * Describes the message Event.
- * Use `create(EventSchema)` to create a new message.
- */
-export const EventSchema: GenMessage<Event, EventJson> = /*@__PURE__*/
-  messageDesc(file_messages, 4);
+export const Envelope_MessageTypeSchema: GenEnum<Envelope_MessageType, Envelope_MessageTypeJson> = /*@__PURE__*/
+  enumDesc(file_messages, 0, 0);
 
 /**
  * Ping stub, if the transport does not provide them. WebSocket does have its
  * own mechanism. On WebTransport, you should use a separate stream to avoid re-
- * introducing head-of-line blocking with the other RPC requests; so Ping is
- * *not* in the Evelope oneof above.
+ * introducing head-of-line blocking with the other RPC requests.
  *
  * @generated from message Ping
  */
@@ -425,11 +136,6 @@ export type Ping = Message<"Ping"> & {
    * @generated from field: Ping.Direction direction = 1;
    */
   direction: Ping_Direction;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp time = 2;
-   */
-  time?: Timestamp;
 };
 
 /**
@@ -440,11 +146,6 @@ export type PingJson = {
    * @generated from field: Ping.Direction direction = 1;
    */
   direction?: Ping_DirectionJson;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp time = 2;
-   */
-  time?: TimestampJson;
 };
 
 /**
@@ -452,7 +153,7 @@ export type PingJson = {
  * Use `create(PingSchema)` to create a new message.
  */
 export const PingSchema: GenMessage<Ping, PingJson> = /*@__PURE__*/
-  messageDesc(file_messages, 5);
+  messageDesc(file_messages, 1);
 
 /**
  * @generated from enum Ping.Direction
@@ -478,7 +179,7 @@ export type Ping_DirectionJson = "Ping" | "Pong";
  * Describes the enum Ping.Direction.
  */
 export const Ping_DirectionSchema: GenEnum<Ping_Direction, Ping_DirectionJson> = /*@__PURE__*/
-  enumDesc(file_messages, 5, 0);
+  enumDesc(file_messages, 1, 0);
 
 /**
  * TaskMetadata contains some information about the originating task for logging
@@ -487,17 +188,21 @@ export const Ping_DirectionSchema: GenEnum<Ping_Direction, Ping_DirectionJson> =
  */
 export type TaskMetadata = Message<"TaskMetadata"> & {
   /**
+   * overall job ID
+   *
    * @generated from field: string id = 1;
    */
   id: string;
 
   /**
+   * info about the requesting client
+   *
    * @generated from field: string client = 2;
    */
   client: string;
 
   /**
-   * within a job with multiple tasks
+   * index within a job with multiple tasks
    *
    * @generated from field: uint64 index = 3;
    */
@@ -529,7 +234,7 @@ export type TaskMetadataJson = {
  * Use `create(TaskMetadataSchema)` to create a new message.
  */
 export const TaskMetadataSchema: GenMessage<TaskMetadata, TaskMetadataJson> = /*@__PURE__*/
-  messageDesc(file_messages, 6);
+  messageDesc(file_messages, 2);
 
 /**
  * Executable can be either a string reference or the raw binary itself
@@ -575,7 +280,7 @@ export type ExecutableJson = {
  * Use `create(ExecutableSchema)` to create a new message.
  */
 export const ExecutableSchema: GenMessage<Executable, ExecutableJson> = /*@__PURE__*/
-  messageDesc(file_messages, 7);
+  messageDesc(file_messages, 3);
 
 /**
  * ExecuteWasi runs a webassembly/wasi binary on the Provider
@@ -609,8 +314,6 @@ export type ExecuteWasiArgs = Message<"ExecuteWasiArgs"> & {
   stdin: Uint8Array;
 
   /**
-   * TODO: replace with complete rootfs archive
-   *
    * @generated from field: repeated string loadfs = 6;
    */
   loadfs: string[];
@@ -676,7 +379,7 @@ export type ExecuteWasiArgsJson = {
  * Use `create(ExecuteWasiArgsSchema)` to create a new message.
  */
 export const ExecuteWasiArgsSchema: GenMessage<ExecuteWasiArgs, ExecuteWasiArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 8);
+  messageDesc(file_messages, 4);
 
 /**
  * @generated from message ExecuteWasiResult
@@ -743,7 +446,7 @@ export type ExecuteWasiResultJson = {
  * Use `create(ExecuteWasiResultSchema)` to create a new message.
  */
 export const ExecuteWasiResultSchema: GenMessage<ExecuteWasiResult, ExecuteWasiResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 9);
+  messageDesc(file_messages, 5);
 
 /**
  * TODO
@@ -764,79 +467,7 @@ export type ExecutionTraceJson = {
  * Use `create(ExecutionTraceSchema)` to create a new message.
  */
 export const ExecutionTraceSchema: GenMessage<ExecutionTrace, ExecutionTraceJson> = /*@__PURE__*/
-  messageDesc(file_messages, 10);
-
-/**
- * ExecuteWasm runs a webassembly/plain binary on the Provider
- *
- * @generated from message ExecuteWasmArgs
- */
-export type ExecuteWasmArgs = Message<"ExecuteWasmArgs"> & {
-  /**
-   * @generated from field: TaskMetadata task = 1;
-   */
-  task?: TaskMetadata;
-
-  /**
-   * @generated from field: Executable binary = 2;
-   */
-  binary?: Executable;
-
-  /**
-   * TODO: how to encode plain parameters?
-   *
-   * @generated from field: string method = 3;
-   */
-  method: string;
-};
-
-/**
- * JSON type for the message ExecuteWasmArgs.
- */
-export type ExecuteWasmArgsJson = {
-  /**
-   * @generated from field: TaskMetadata task = 1;
-   */
-  task?: TaskMetadataJson;
-
-  /**
-   * @generated from field: Executable binary = 2;
-   */
-  binary?: ExecutableJson;
-
-  /**
-   * @generated from field: string method = 3;
-   */
-  method?: string;
-};
-
-/**
- * Describes the message ExecuteWasmArgs.
- * Use `create(ExecuteWasmArgsSchema)` to create a new message.
- */
-export const ExecuteWasmArgsSchema: GenMessage<ExecuteWasmArgs, ExecuteWasmArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 11);
-
-/**
- * TODO
- *
- * @generated from message ExecuteWasmResult
- */
-export type ExecuteWasmResult = Message<"ExecuteWasmResult"> & {
-};
-
-/**
- * JSON type for the message ExecuteWasmResult.
- */
-export type ExecuteWasmResultJson = {
-};
-
-/**
- * Describes the message ExecuteWasmResult.
- * Use `create(ExecuteWasmResultSchema)` to create a new message.
- */
-export const ExecuteWasmResultSchema: GenMessage<ExecuteWasmResult, ExecuteWasmResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 12);
+  messageDesc(file_messages, 6);
 
 /**
  * FileStat contains metadata about a file for identification in other messages
@@ -905,7 +536,7 @@ export type FileStatJson = {
  * Use `create(FileStatSchema)` to create a new message.
  */
 export const FileStatSchema: GenMessage<FileStat, FileStatJson> = /*@__PURE__*/
-  messageDesc(file_messages, 13);
+  messageDesc(file_messages, 7);
 
 /**
  * FileListing asks for a listing of all available files on Provider
@@ -928,7 +559,7 @@ export type FileListingArgsJson = {
  * Use `create(FileListingArgsSchema)` to create a new message.
  */
 export const FileListingArgsSchema: GenMessage<FileListingArgs, FileListingArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 14);
+  messageDesc(file_messages, 8);
 
 /**
  * @generated from message FileListingResult
@@ -955,7 +586,7 @@ export type FileListingResultJson = {
  * Use `create(FileListingResultSchema)` to create a new message.
  */
 export const FileListingResultSchema: GenMessage<FileListingResult, FileListingResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 15);
+  messageDesc(file_messages, 9);
 
 /**
  * FileProbe checks if a certain file exists on provider
@@ -964,9 +595,9 @@ export const FileListingResultSchema: GenMessage<FileListingResult, FileListingR
  */
 export type FileProbeArgs = Message<"FileProbeArgs"> & {
   /**
-   * @generated from field: FileStat file = 1;
+   * @generated from field: FileStat stat = 1;
    */
-  file?: FileStat;
+  stat?: FileStat;
 };
 
 /**
@@ -974,9 +605,9 @@ export type FileProbeArgs = Message<"FileProbeArgs"> & {
  */
 export type FileProbeArgsJson = {
   /**
-   * @generated from field: FileStat file = 1;
+   * @generated from field: FileStat stat = 1;
    */
-  file?: FileStatJson;
+  stat?: FileStatJson;
 };
 
 /**
@@ -984,7 +615,7 @@ export type FileProbeArgsJson = {
  * Use `create(FileProbeArgsSchema)` to create a new message.
  */
 export const FileProbeArgsSchema: GenMessage<FileProbeArgs, FileProbeArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 16);
+  messageDesc(file_messages, 10);
 
 /**
  * @generated from message FileProbeResult
@@ -1011,11 +642,10 @@ export type FileProbeResultJson = {
  * Use `create(FileProbeResultSchema)` to create a new message.
  */
 export const FileProbeResultSchema: GenMessage<FileProbeResult, FileProbeResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 17);
+  messageDesc(file_messages, 11);
 
 /**
  * FileUpload pushes a file to the Provider.
- * TODO: to be replaced with on-demand client-side fetch
  *
  * @generated from message FileUploadArgs
  */
@@ -1051,7 +681,7 @@ export type FileUploadArgsJson = {
  * Use `create(FileUploadArgsSchema)` to create a new message.
  */
 export const FileUploadArgsSchema: GenMessage<FileUploadArgs, FileUploadArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 18);
+  messageDesc(file_messages, 12);
 
 /**
  * @generated from message FileUploadResult
@@ -1078,14 +708,14 @@ export type FileUploadResultJson = {
  * Use `create(FileUploadResultSchema)` to create a new message.
  */
 export const FileUploadResultSchema: GenMessage<FileUploadResult, FileUploadResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 19);
+  messageDesc(file_messages, 13);
 
 /**
  * Generic is just a generic piece of text for debugging
  *
- * @generated from message Generic
+ * @generated from message GenericEvent
  */
-export type Generic = Message<"Generic"> & {
+export type GenericEvent = Message<"GenericEvent"> & {
   /**
    * @generated from field: string message = 1;
    */
@@ -1093,9 +723,9 @@ export type Generic = Message<"Generic"> & {
 };
 
 /**
- * JSON type for the message Generic.
+ * JSON type for the message GenericEvent.
  */
-export type GenericJson = {
+export type GenericEventJson = {
   /**
    * @generated from field: string message = 1;
    */
@@ -1103,11 +733,11 @@ export type GenericJson = {
 };
 
 /**
- * Describes the message Generic.
- * Use `create(GenericSchema)` to create a new message.
+ * Describes the message GenericEvent.
+ * Use `create(GenericEventSchema)` to create a new message.
  */
-export const GenericSchema: GenMessage<Generic, GenericJson> = /*@__PURE__*/
-  messageDesc(file_messages, 20);
+export const GenericEventSchema: GenMessage<GenericEvent, GenericEventJson> = /*@__PURE__*/
+  messageDesc(file_messages, 14);
 
 /**
  * ProviderInfo is sent once at the beginning to identify the Provider
@@ -1172,7 +802,7 @@ export type ProviderInfoJson = {
  * Use `create(ProviderInfoSchema)` to create a new message.
  */
 export const ProviderInfoSchema: GenMessage<ProviderInfo, ProviderInfoJson> = /*@__PURE__*/
-  messageDesc(file_messages, 21);
+  messageDesc(file_messages, 15);
 
 /**
  * ProviderResources is information about the available resources in Worker pool
@@ -1215,7 +845,7 @@ export type ProviderResourcesJson = {
  * Use `create(ProviderResourcesSchema)` to create a new message.
  */
 export const ProviderResourcesSchema: GenMessage<ProviderResources, ProviderResourcesJson> = /*@__PURE__*/
-  messageDesc(file_messages, 22);
+  messageDesc(file_messages, 16);
 
 /**
  * Subprotocol is used to identify the concrete encoding on the wire.
@@ -1255,13 +885,17 @@ export const SubprotocolSchema: GenEnum<Subprotocol, SubprotocolJson> = /*@__PUR
   enumDesc(file_messages, 0);
 
 /**
- * we're not using gRPC but we can codify the expected request-response pairs anyway
+ * We aren't using gRPC (yet) but we can codify the expected message pairs anyway.
+ * This service lists the requests that a Broker can send to the Provider, i.e. the
+ * Provider (the browser) takes the role of a server here!
  *
  * @generated from service Provider
  */
 export const Provider: GenService<{
   /**
    * execute
+   *
+   * rpc ExecuteWasm (ExecuteWasmArgs) returns (ExecuteWasmResult); // TODO
    *
    * @generated from rpc Provider.ExecuteWasi
    */
@@ -1271,30 +905,22 @@ export const Provider: GenService<{
     output: typeof ExecuteWasiResultSchema;
   },
   /**
-   * @generated from rpc Provider.ExecuteWasm
-   */
-  executeWasm: {
-    methodKind: "unary";
-    input: typeof ExecuteWasmArgsSchema;
-    output: typeof ExecuteWasmResultSchema;
-  },
-  /**
    * filesystem
    *
-   * @generated from rpc Provider.FileListing
-   */
-  fileListing: {
-    methodKind: "unary";
-    input: typeof FileListingArgsSchema;
-    output: typeof FileListingResultSchema;
-  },
-  /**
    * @generated from rpc Provider.FileProbe
    */
   fileProbe: {
     methodKind: "unary";
     input: typeof FileProbeArgsSchema;
     output: typeof FileProbeResultSchema;
+  },
+  /**
+   * @generated from rpc Provider.FileListing
+   */
+  fileListing: {
+    methodKind: "unary";
+    input: typeof FileListingArgsSchema;
+    output: typeof FileListingResultSchema;
   },
   /**
    * @generated from rpc Provider.FileUpload

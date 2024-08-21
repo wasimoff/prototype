@@ -1,5 +1,5 @@
-# ffmpeg binary
-ffmpeg.wasm
+# ffmpeg binaries
+ff*.wasm
 
 # movie files
 *.mp4

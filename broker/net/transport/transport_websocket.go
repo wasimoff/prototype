@@ -82,7 +82,7 @@ func (ws *WebSocketTransport) WriteMessage(message *pb.Envelope) (err error) {
 	return
 }
 
-// WriteMessage will read the next message from the WebSocket connection and unmarshal
+// ReadMessage will read the next message from the WebSocket connection and unmarshal
 // the message using the negotiated subprotocol codec. NOT safe for concurrent reads,
 // so you need to synchronize yourself or limit to a single reader.
 func (ws *WebSocketTransport) ReadMessage(message *pb.Envelope) (err error) {
@@ -94,6 +94,7 @@ func (ws *WebSocketTransport) ReadMessage(message *pb.Envelope) (err error) {
 		return fmt.Errorf("websocket: %w", err)
 	}
 
+	// lambda to expect a certain message type depending on the protocol
 	expectFormat := func(expected websocket.MessageType) error {
 		if mt != expected {
 			e := fmt.Sprintf("sent %s to a %s transport", mt, ws.conn.Subprotocol())
@@ -127,6 +128,11 @@ func (ws *WebSocketTransport) ReadMessage(message *pb.Envelope) (err error) {
 		err = fmt.Errorf("unmarshal: %s", err)
 	}
 	return
+}
+
+// Return the remote Addr from initial http.Request
+func (ws *WebSocketTransport) Addr() string {
+	return ws.req.RemoteAddr
 }
 
 // Close the WebSocket connection with an orderly handshake

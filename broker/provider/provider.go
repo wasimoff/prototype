@@ -100,13 +100,14 @@ type ExecuteWasiCall struct {
 func NewExecuteWasiCall(run *pb.ExecuteWasiArgs) (task *ExecuteWasiCall) {
 	return &ExecuteWasiCall{
 		Request: run,
+		Result:  new(pb.ExecuteWasiResult),
 		Done:    make(chan *ExecuteWasiCall, 1),
 	}
 }
 
 func (p *Provider) acceptTasks() {
 	if p.Submit == nil {
-		p.Submit = make(chan *ExecuteWasiCall) // unbuffered!
+		p.Submit = make(chan *ExecuteWasiCall) // unbuffered by design
 	}
 	// close Provider connection when the listener dies
 	defer p.Close()
@@ -117,7 +118,7 @@ func (p *Provider) acceptTasks() {
 		//? what if we acquire and then the pool gets shrinked before we receive a task ..
 		_ = p.limiter.Acquire(p.request.Context(), 1) // no context, no err for now
 
-		// get the call details from channel
+		// receive call details from channel
 		call := <-p.Submit
 
 		// the Done channel MUST NOT be nil
@@ -132,20 +133,25 @@ func (p *Provider) acceptTasks() {
 		if call.Request == nil {
 			call.Error = fmt.Errorf("call.Request is nil")
 			call.Done <- call
-			// TODO: Release and continue? don't stop here?
-			return
+			p.limiter.Release(1)
+			continue
+		}
+
+		// the Result must be allocated, too
+		if call.Result == nil {
+			call.Error = fmt.Errorf("call.Result is nil")
+			call.Done <- call
+			p.limiter.Release(1)
+			continue
 		}
 
 		// fill in the fields in WasmCall before handing off to RPC
 		call.Provider = p
 		call.Error = nil
-		// call.Reply = new(WasmResponse)
 
 		// call the RPC in a goroutine to wait for completion and release the semaphore
 		go func() {
-			result, err := p.run(call.Request)
-			call.Error = err
-			call.Result = result
+			call.Error = p.run(call.Request, call.Result)
 			p.limiter.Release(1)
 			call.Done <- call
 		}()
