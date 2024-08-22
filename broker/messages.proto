@@ -158,7 +158,7 @@ message GenericEvent {
 
 // ProviderInfo is sent once at the beginning to identify the Provider
 message ProviderInfo {
-  string name = 1; // a logging-friendly name of the provider // TODO: make a persistent ID?
+  string name = 1; // a logging-friendly name of the provider
   string platform = 2;  // like the navigator.platform in browser
   string useragent = 3; // like the navigator.useragent in browser
   ProviderResources pool = 4;

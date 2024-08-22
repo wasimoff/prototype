@@ -1087,7 +1087,7 @@ type ProviderInfo struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Name      *string            `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`           // a logging-friendly name of the provider // TODO: make a persistent ID?
+	Name      *string            `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`           // a logging-friendly name of the provider
 	Platform  *string            `protobuf:"bytes,2,opt,name=platform" json:"platform,omitempty"`   // like the navigator.platform in browser
 	Useragent *string            `protobuf:"bytes,3,opt,name=useragent" json:"useragent,omitempty"` // like the navigator.useragent in browser
 	Pool      *ProviderResources `protobuf:"bytes,4,opt,name=pool" json:"pool,omitempty"`

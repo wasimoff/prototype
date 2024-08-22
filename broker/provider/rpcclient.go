@@ -6,8 +6,6 @@ import (
 	"log"
 	"wasimoff/broker/net/pb"
 	"wasimoff/broker/storage"
-
-	"google.golang.org/protobuf/proto"
 )
 
 // ----- execute -----
@@ -73,8 +71,8 @@ func (p *Provider) ProbeFile(file *storage.File) (has bool, err error) {
 	result := new(pb.FileProbeResult)
 	if err := p.messenger.RequestSync(&pb.FileProbeArgs{Stat: &pb.FileStat{
 		Filename: &file.Name,
-		Length:   proto.Uint64(file.Length),
-		Epoch:    proto.Int64(file.Epoch),
+		Length:   &file.Length,
+		Epoch:    &file.Epoch,
 		Hash:     file.Hash[:],
 	}}, result); err != nil {
 		return false, fmt.Errorf("provider.ProbeFile failed: %w", err)
@@ -101,8 +99,8 @@ func (p *Provider) Upload(file *storage.File) (err error) {
 	if err := p.messenger.RequestSync(&pb.FileUploadArgs{
 		Stat: &pb.FileStat{
 			Filename: &file.Name,
-			Length:   proto.Uint64(file.Length),
-			Epoch:    proto.Int64(file.Epoch),
+			Length:   &file.Length,
+			Epoch:    &file.Epoch,
 			Hash:     file.Hash[:],
 		},
 		File: file.Bytes,

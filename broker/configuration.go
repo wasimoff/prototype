@@ -12,19 +12,24 @@ import (
 // Configuration via environment variables with github.com/kelseyhightower/envconfig.
 type Configuration struct {
 
-	// HttpListen is the listening address for the HTTP server
+	// HttpListen is the listening address for the HTTP server.
 	HttpListen string `split_words:"true" default:":4080" desc:"Listening Addr for HTTP server"`
 
-	// HttpCert and HttpKey are paths to a TLS keypair to optionally use for the HTTP server
+	// HttpCert and HttpKey are paths to a TLS keypair to optionally use for the HTTP server.
+	// If none are given, a plaintext server is started. Reload keys with SIGHUP.
 	HttpCert string `split_words:"true" desc:"Path to TLS certificate to use"`
 	HttpKey  string `split_words:"true" desc:"Path to TLS key to use"`
 
-	// AllowedOrigins is a list of allowed Origin headers for transport connections
+	// AllowedOrigins is a list of allowed Origin headers for transport connections.
 	AllowedOrigins []string `split_words:"true" desc:"List of allowed Origins for WebSocket"`
 
-	// StaticFiles is the path to the directory with the webprovider frontend dist
+	// StaticFiles is a path with static files to serve; usually the webprovider frontend dist.
 	StaticFiles string `split_words:"true" default:"../webprovider/dist/" desc:"Serve static files on \"/\" from here"`
 }
+
+//
+//
+//
 
 // GetConfiguration checks if user requested help (-h/--help) and prints usage information
 // or returns the configuration parsed from environment variables.

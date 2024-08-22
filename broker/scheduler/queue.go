@@ -1,7 +1,6 @@
 package scheduler
 
 import (
-	"log"
 	"sync"
 	"wasimoff/broker/tracer"
 )
@@ -79,7 +78,6 @@ func DispatchTasks(cfg *RunConfiguration, trace *tracer.Trace, ch chan *Task) []
 		tasks = append(tasks, &task)
 
 		// queue it
-		log.Printf("Queue task: %v", task)
 		wg.Add(1)
 		ch <- &task
 		if trace != nil {

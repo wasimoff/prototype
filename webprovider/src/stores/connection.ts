@@ -51,7 +51,7 @@ export const useConnection = defineStore("Connection", () => {
     let messenger = new Messenger(wst);
     transport.value = messenger;
     console.log(...prefix, "established", messenger);
-    terminal.info("WebTransport connection established.");
+    terminal.info("Broker connection established.");
 
     // handle connection failures
     let toStr = (o: any) => (typeof o === "object") ? JSON.stringify(o) : String(o);

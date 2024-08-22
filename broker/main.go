@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"wasimoff/broker/net/server"
@@ -10,7 +9,7 @@ import (
 )
 
 func main() {
-	fmt.Print("\033[H\033[2J") // TODO: clears terminal for easier development with gow
+	termclear()
 	banner()
 
 	// use configuration from environment variables
