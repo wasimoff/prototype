@@ -25,7 +25,6 @@ func WebSocketHandler(server *server.Server, store *ProviderStore, origins []str
 		wst, err := transport.UpgradeToWebSocketTransport(w, r, origins)
 		if err != nil {
 			log.Printf("[%s] New Provider: upgrade failed: %s", r.RemoteAddr, err)
-			http.Error(w, "upgrade failed", http.StatusBadRequest)
 			return
 		}
 		msg := transport.NewMessengerInterface(wst)
