@@ -35,7 +35,7 @@ func (s *AnyFreeSelector) selectCandidates(task *Task) (candidates []*provider.P
 	return s.store.Values(), nil
 }
 
-func (s *AnyFreeSelector) Schedule(ctx context.Context, task *Task) (call *provider.ExecuteWasiCall, err error) {
+func (s *AnyFreeSelector) Schedule(ctx context.Context, task *Task) (call *provider.PendingWasiCall, err error) {
 
 	providers, err := s.selectCandidates(task)
 	if err != nil {

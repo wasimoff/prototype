@@ -32,7 +32,7 @@ type Provider struct {
 	closing   bool
 
 	// unbuffered channel to submit tasks; can be `nil` if nobody's listening
-	Submit chan *ExecuteWasiCall
+	Submit chan *PendingWasiCall
 
 	// resizeable semaphore to limit number of concurrent tasks
 	limiter semaphore.Semaphore
@@ -87,27 +87,35 @@ func (p *Provider) CurrentLimit() int {
 	return p.limiter.GetLimit()
 }
 
-// ExecuteWasiCall represents an active WebAssembly task, similarly to the net/rpc.Call struct
-type ExecuteWasiCall struct {
-	Provider *Provider             // the Provider this task is running on
-	Request  *pb.ExecuteWasiArgs   // arguments to the RPC call
-	Result   *pb.ExecuteWasiResult // response from the Provider
-	Error    error                 // error encountered during the call
-	Done     chan *ExecuteWasiCall // receives itself when request completes
+// PendingWasiCall represents an asynchronous WebAssembly exec call
+type PendingWasiCall struct {
+	Request *pb.ExecuteWasiArgs   // arguments to the call
+	Result  *pb.ExecuteWasiResult // response from the Provider
+	Error   error                 // error encountered during the call
+	Done    chan *PendingWasiCall // receives itself when request completes
 }
 
-// NewExecuteWasiCall creates a new call struct for the Submit chan
-func NewExecuteWasiCall(run *pb.ExecuteWasiArgs) (task *ExecuteWasiCall) {
-	return &ExecuteWasiCall{
+// NewPendingWasiCall creates a new call struct for the Submit chan
+func NewPendingWasiCall(run *pb.ExecuteWasiArgs) *PendingWasiCall {
+	return &PendingWasiCall{
 		Request: run,
 		Result:  new(pb.ExecuteWasiResult),
-		Done:    make(chan *ExecuteWasiCall, 1),
+		Done:    make(chan *PendingWasiCall, 1),
 	}
+}
+
+// done signals on the channel that this call is complete
+func (call *PendingWasiCall) done() *PendingWasiCall {
+	select {
+	case call.Done <- call: // ok
+	default: // never block here
+	}
+	return call
 }
 
 func (p *Provider) acceptTasks() {
 	if p.Submit == nil {
-		p.Submit = make(chan *ExecuteWasiCall) // unbuffered by design
+		p.Submit = make(chan *PendingWasiCall) // unbuffered by design
 	}
 	// close Provider connection when the listener dies
 	defer p.Close()

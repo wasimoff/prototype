@@ -48,7 +48,7 @@ func Dispatcher(queue chan *Task, selector Scheduler) {
 func requestFromTask(task *Task) *pb.ExecuteWasiArgs {
 	return &pb.ExecuteWasiArgs{
 		Task: &pb.TaskMetadata{
-			Id:    proto.String(task.Run.RunID.String()),
+			Id:    proto.String(task.Run.RunID),
 			Index: proto.Uint64(uint64(task.Index)),
 		},
 		Binary: &pb.Executable{Binary: &pb.Executable_Reference{

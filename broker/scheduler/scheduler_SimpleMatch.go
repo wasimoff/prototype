@@ -60,7 +60,7 @@ func (s *SimpleMatchSelector) selectCandidates(task *Task) (candidates []*provid
 
 }
 
-func (s *SimpleMatchSelector) Schedule(ctx context.Context, task *Task) (call *provider.ExecuteWasiCall, err error) {
+func (s *SimpleMatchSelector) Schedule(ctx context.Context, task *Task) (call *provider.PendingWasiCall, err error) {
 	for {
 
 		providers, err := s.selectCandidates(task)

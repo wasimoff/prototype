@@ -10,12 +10,12 @@ import (
 	"mime"
 	"net/http"
 	"strings"
+	"sync/atomic"
 	"wasimoff/broker/provider"
 	"wasimoff/broker/storage"
 	"wasimoff/broker/tracer"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
 	"golang.org/x/exp/slices"
 )
 
@@ -32,7 +32,7 @@ func init() {
 // The overall RunConfiguration in a single request.
 type RunConfiguration struct {
 	// The run ID is generated internally for reference purposes.
-	RunID uuid.UUID `json:"-"`
+	RunID string `json:"-"`
 	// Metadata about the requestor.
 	Requestor *Requestor `json:"-"`
 	// The filename of the binary to use for all of these runs.
@@ -59,6 +59,9 @@ type ParametrizedRun struct {
 type Requestor struct {
 	RemoteAddr string
 }
+
+// TODO: temporarily use incrementing IDs for jobs
+var taskid atomic.Uint64
 
 // The ExecHandler returns a HTTP handler, which accepts run configurations for
 // existing WASM binaries and dispatches them to available providers. Upon task
@@ -93,7 +96,7 @@ func ExecHandler(selector Scheduler) http.HandlerFunc {
 		} else {
 			trace = nil
 		}
-		log.Printf("Offloading Request by %q: %v\n", run.Requestor.RemoteAddr, run)
+		log.Printf("Offloading Request by %q: %s, %s, %d\n", run.Requestor.RemoteAddr, run.RunID, run.Binary, len(run.Exec))
 
 		// early exit if there are no providers
 		err = selector.Ok()
@@ -139,7 +142,8 @@ func decodeRunConfiguration(contentType string, body io.ReadCloser) (*RunConfigu
 	}
 
 	// assign the uuid and return
-	run.RunID = uuid.New()
+	// run.RunID = uuid.NewString()
+	run.RunID = fmt.Sprintf("%05d", taskid.Add(1))
 	return &run, nil
 
 }
