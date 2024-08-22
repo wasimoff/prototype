@@ -1,5 +1,5 @@
-import { toBinary, fromBinary, toJsonString, fromJsonString } from "@bufbuild/protobuf";
-import { EnvelopeSchema, Subprotocol, type Envelope, Envelope_MessageType } from "@/proto/messages_pb";
+import { toBinary, fromBinary, toJsonString, fromJsonString, createRegistry } from "@bufbuild/protobuf";
+import { EnvelopeSchema, Subprotocol, type Envelope, Envelope_MessageType, file_messages } from "@/proto/messages_pb";
 import { type Transport } from "./";
 import { PushableAsyncIterable } from "@/fn/pushableasynciterable";
 import { Signal } from "@/fn/utilities";
@@ -49,6 +49,9 @@ export class WebSocketTransport implements Transport {
 
   };
 
+  /** explicit registry is needed for JSON marshal with custom type prefix */
+  private readonly registry = createRegistry(file_messages);
+
   /** messages is an iterable of all incoming, already unmarshalled to Envelopes */
   public messages = new PushableAsyncIterable<Envelope>();
 
@@ -63,7 +66,7 @@ export class WebSocketTransport implements Transport {
         return this.ws.send(toBinary(EnvelopeSchema, envelope));
 
       case WebSocketTransport.provider_v1_json:
-        return this.ws.send(toJsonString(EnvelopeSchema, envelope));
+        return this.ws.send(toJsonString(EnvelopeSchema, envelope, { registry: this.registry }));
 
       default: // oops?
         let err = WebSocketTransport.Err.ProtocolViolation.Negotiation(this.ws.protocol);
@@ -83,7 +86,7 @@ export class WebSocketTransport implements Transport {
 
       case WebSocketTransport.provider_v1_json:
         if (typeof data === "string")
-          return fromJsonString(EnvelopeSchema, data);
+          return fromJsonString(EnvelopeSchema, data, { registry: this.registry });
         else throw WebSocketTransport.Err.ProtocolViolation.MessageType("binary", this.ws.protocol);
 
       default: // oops?

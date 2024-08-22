@@ -1,8 +1,8 @@
-import { Envelope_MessageType as MessageType, EnvelopeSchema, type Envelope, file_messages } from "@/proto/messages_pb";
-import { create, createRegistry, type Message } from "@bufbuild/protobuf";
+import { Envelope_MessageType as MessageType, EnvelopeSchema, file_messages } from "@/proto/messages_pb";
+import { create, createRegistry, toBinary, type Message } from "@bufbuild/protobuf";
 import { type Transport } from ".";
 import { PushableAsyncIterable } from "@/fn/pushableasynciterable";
-import { anyPack, anyUnpack, type Any } from "@bufbuild/protobuf/wkt";
+import { AnySchema, anyUnpack, type Any } from "@bufbuild/protobuf/wkt";
 
 
 /** This interface is not technically needed. It's just there to
@@ -153,7 +153,11 @@ export class Messenger implements MessengerInterface {
   private pack(m: Message): Any {
     let schema = this.registry.getMessage(m.$typeName);
     if (schema === undefined) throw "unknown message type";
-    return anyPack(schema, m);
+    let into = create(AnySchema, {
+      typeUrl: `wasimoff/${m.$typeName}`,
+      value: toBinary(schema, m),
+    });
+    return into;
   };
 
   private unpack(p: Any | undefined): Message {
