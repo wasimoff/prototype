@@ -70,13 +70,13 @@ function filesize(bytes: number): string {
 async function killall() {
   await pool.killall();
   await new Promise(r => setTimeout(r, 100));
-  await conn.transport?.close();
+  await conn.transport?.close("kill");
   terminal.log("Transport closed!", LogType.Danger);
 };
 
 async function shutdown() {
   await pool.ensure(0);
-  await conn.transport?.close();
+  await conn.transport?.close("shutdown");
   terminal.log("Transport closed.", LogType.Warning);
 }
 

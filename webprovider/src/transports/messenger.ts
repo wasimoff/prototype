@@ -147,6 +147,8 @@ export class Messenger implements MessengerInterface {
     this.pending.clear();
     // abort the controller
     this.controller.abort(reason);
+    // finally, close the underlying transport as well
+    this.transport.close(String(reason));
   };
 
 

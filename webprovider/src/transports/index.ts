@@ -15,7 +15,7 @@ export interface Transport {
 
   // signal a closed connection with an AbortController internally
   closed: AbortSignal;
-  close: () => void;
+  close: (reason?: string) => void;
 
 }
 

@@ -33,7 +33,7 @@ export class WebSocketTransport implements Transport {
     this.ws.addEventListener("close", ({ code, reason, wasClean }) => {
       // TODO: implement reconnection handler without tearing everything down
       console.warn(...prefixWarn, `WebSocket connection closed:`, { code, reason, wasClean, url: this.ws.url });
-      this.close(code, reason, wasClean);
+      this.close(reason, wasClean);
     });
 
     this.ws.addEventListener("message", ({ data }) => {
@@ -70,7 +70,7 @@ export class WebSocketTransport implements Transport {
 
       default: // oops?
         let err = WebSocketTransport.Err.ProtocolViolation.Negotiation(this.ws.protocol);
-        this.close(1002, err.message);
+        this.close(err.message);
         throw err;
     };
   };
@@ -91,7 +91,7 @@ export class WebSocketTransport implements Transport {
 
       default: // oops?
         let err = WebSocketTransport.Err.ProtocolViolation.Negotiation(this.ws.protocol);
-        this.close(1002, err.message);
+        this.close(err.message);
         throw err;
     };
   }
@@ -103,11 +103,11 @@ export class WebSocketTransport implements Transport {
   private controller = new AbortController();
   public closed = this.controller.signal;
 
-  public close(code: number = 1000, reason: string = "closed by user", wasClean: boolean = true) {
+  public close(reason: string = "closed normally", wasClean: boolean = true) {
     // see https://www.rfc-editor.org/rfc/rfc6455.html#section-7.4 for defined status codes
-    // but ws.close(code) can only be [ 1000, 3000..4999 ], so leave it blank below
-    let err = new WebSocketTransport.Err.TransportClosed(code, reason, wasClean, this.ws.url);
-    this.ws.close(undefined, reason);
+    // but ws.close(code) can only be [ 1000, 3000..4999 ], so just use 1000 below
+    let err = new WebSocketTransport.Err.TransportClosed(1000, reason, wasClean, this.ws.url);
+    this.ws.close(1000, reason);
     this.messages.close();
     this.ready.reject(err);
     this.controller.abort(err);
@@ -153,7 +153,7 @@ export namespace WebSocketTransport {
 };
 
 // enable console.logs in the "hot" path (tx/rx)?
-const debugging = true;
+const debugging = false;
 
 // pretty console logging prefixes
 const prefixOpen = [ "%c WebSocketTransport %c open ", "background: #333; color: white;", "background: greenyellow;" ];
