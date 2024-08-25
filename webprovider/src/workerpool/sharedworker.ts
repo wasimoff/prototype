@@ -9,11 +9,11 @@ import { expose, workerReady } from "@/workerpool";
 
 
 // ---- initialize shared worker for wasimoff ---- //
-const logprefix = [ "%c wasimoff ", "background-color: violet;" ];
+const logprefix = [ "%c SharedWasimoff ", "background-color: violet;" ];
 
 // time of inception
 const spawned = new Date().toLocaleString();
-console.log(...logprefix, "spawned at", spawned);
+console.log(...logprefix, "booting", spawned);
 
 const pool = new WasiWorkerPool(16);
 

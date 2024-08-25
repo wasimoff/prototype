@@ -51,7 +51,7 @@ export const useWorkerPool = defineStore("WorkerPool", () => {
   /** Ensure that a certain number of runners is in the pool. */
   async function ensure(n: number | "max") {
     if (pool === undefined) throw "pool not connected yet";
-    return await pool.link.scale(n);
+    return count.value = await pool.link.scale(n);
   }
 
   /** Terminate a single Worker from the pool (oldest first). */
