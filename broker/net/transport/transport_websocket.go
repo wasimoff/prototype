@@ -149,7 +149,8 @@ func (ws *WebSocketTransport) Close(cause error) {
 	if cause == nil {
 		ws.conn.Close(websocket.StatusNormalClosure, "bye!")
 	} else {
-		ws.conn.Close(websocket.StatusInternalError, cause.Error()[:125])
+		err := cause.Error()
+		ws.conn.Close(websocket.StatusInternalError, err[:min(len(err), 125)])
 	}
 }
 
