@@ -1,9 +1,9 @@
 package provider
 
 import (
+	"context"
 	"fmt"
-	"log"
-	"net/http"
+	"sync"
 	"wasimoff/broker/net/pb"
 	"wasimoff/broker/net/transport"
 	"wasimoff/broker/storage"
@@ -11,25 +11,13 @@ import (
 	"github.com/marusama/semaphore/v2"
 )
 
-// TODO: orphaned logging
-// log.Printf("[%s] Updated Info: { platform: %q, useragent: %q }", p.Addr, p.Info.Platform, p.Info.UserAgent)
-// log.Printf("[%s] Workers: { pool: %d / %d }", p.Addr, pool, max)
-
-// --------------- types of expected messages ---------------
-
-type providerInfo struct {
-	Name      string // logging-friendly name
-	Platform  string // like `navigator.platform` in the browser
-	UserAgent string // like `navigator.useragent` in the browser
-}
-
 // Provider is a single connection initiated by a computing provider
 type Provider struct {
+	messenger *transport.Messenger // messenger connection to provider
 
-	// messenger connection
-	messenger *transport.Messenger
-	request   *http.Request
-	closing   bool
+	// cancellable lifetime context to signal closure upwards
+	lifetime  transport.Lifetime
+	closeOnce sync.Once
 
 	// unbuffered channel to submit tasks; can be `nil` if nobody's listening
 	Submit chan *PendingWasiCall
@@ -37,45 +25,74 @@ type Provider struct {
 	// resizeable semaphore to limit number of concurrent tasks
 	limiter semaphore.Semaphore
 
-	// Information about the provider. Be a good citizen and don't change it from outside.
-	// TODO: implement with a getter to enforce
-	Info  providerInfo
-	Addr  string
+	// information about the provider, to be accessed with Get()
+	info map[ProviderInfoKey]string
+
+	// list of files known on this provider
 	files map[string]*storage.File
 }
 
+type ProviderInfoKey string
+
+const (
+	Name      ProviderInfoKey = "name"      // a unique name for identification
+	Address   ProviderInfoKey = "address"   // remote address of transport conn
+	UserAgent ProviderInfoKey = "useragent" // software and architecture info
+)
+
 // Setup a new Provider instance from a given Messenger
-func NewProvider(m *transport.Messenger, req *http.Request) *Provider {
+func NewProvider(messenger *transport.Messenger) *Provider {
+	lifetime := transport.NewLifetime(context.TODO())
 
 	// construct the provider
-	p := &Provider{
-		messenger: m,
-		request:   req,
-		closing:   false,
-
-		Submit:  nil,              // must be setup by acceptTasks
-		limiter: semaphore.New(0), // pool semaphore
-
-		Info:  providerInfo{},                 // abstract info
-		Addr:  req.RemoteAddr,                 // remote address
-		files: make(map[string]*storage.File), // known filesystem
+	provider := &Provider{
+		messenger: messenger,
+		lifetime:  lifetime,
+		Submit:    nil, // must be setup by acceptTasks
+		limiter:   semaphore.New(0),
+		info:      make(map[ProviderInfoKey]string),
+		files:     make(map[string]*storage.File),
 	}
 
-	// start listening on task channel
-	go p.acceptTasks()
+	// set known information
+	provider.info[Name] = messenger.Addr()
+	provider.info[Address] = messenger.Addr()
+	provider.info[UserAgent] = "unknown"
 
-	return p
+	// start listening on task channel
+	go provider.acceptTasks()
+
+	return provider
+}
+
+func (p *Provider) Get(key ProviderInfoKey) string {
+	return p.info[key]
+}
+
+// -------------------- closure -------------------- >>
+
+// Returns the cause of the closure or nil if Provider isn't closed yet.
+func (p *Provider) Err() error {
+	return p.lifetime.Err()
+}
+
+// Returns a channel to listen for lifetime closure.
+func (p *Provider) Closing() <-chan struct{} {
+	return p.lifetime.Closing()
 }
 
 // Close closes the underlying messenger connection to this provider
-func (p *Provider) Close() {
-	if p.closing {
-		// TODO: not concurrent-safe, does it need to be?
-		return
+func (p *Provider) Close(reason error) {
+	if reason == nil {
+		reason = transport.ErrLifetimeEnded
 	}
-	p.closing = true
-	p.messenger.Close()
+	p.closeOnce.Do(func() {
+		p.messenger.Close(fmt.Errorf("closed from Provider: %w", reason))
+		p.lifetime.Cancel(reason)
+	})
 }
+
+// -------------------- limiter -------------------- >>
 
 // Get the currently running tasks according to the semaphore
 func (p *Provider) CurrentTasks() int {
@@ -86,6 +103,8 @@ func (p *Provider) CurrentTasks() int {
 func (p *Provider) CurrentLimit() int {
 	return p.limiter.GetLimit()
 }
+
+// -------------------- task channel -------------------- >>
 
 // PendingWasiCall represents an asynchronous WebAssembly exec call
 type PendingWasiCall struct {
@@ -113,56 +132,57 @@ func (call *PendingWasiCall) done() *PendingWasiCall {
 	return call
 }
 
-func (p *Provider) acceptTasks() {
+// Accept tasks on an unbuffered channel to submit to the Provider. Channels can
+// be used in a DynamicSubmit, so calls from many different sources can be efficiently
+// distributed to multiple Providers.
+func (p *Provider) acceptTasks() (err error) {
+
+	// initialize the channel
 	if p.Submit == nil {
 		p.Submit = make(chan *PendingWasiCall) // unbuffered by design
 	}
-	// close Provider connection when the listener dies
-	defer p.Close()
+
+	// close Provider if the loop exits
+	defer p.Close(err)
+
 	for {
 
 		// acquire a semaphore before accepting a task
-		//? possibly off-by-one because we acquire and hold a semaphore before we even get a task
-		//? what if we acquire and then the pool gets shrinked before we receive a task ..
-		_ = p.limiter.Acquire(p.request.Context(), 1) // no context, no err for now
+		//? off-by-one because we acquire and hold a semaphore before we even get a task
+		if err = p.limiter.Acquire(p.lifetime.Context, 1); err != nil {
+			// nobody to notify and nothing to free, just quit
+			return err
+		}
+
+		select {
+
+		// Provider is closing, quit the loop
+		case <-p.lifetime.Closing():
+			return p.Err()
 
 		// receive call details from channel
-		call := <-p.Submit
+		case call := <-p.Submit:
+			// the Done channel MUST NEVER be nil
+			if call.Done == nil {
+				panic("call.Done is nil, nobody is listening for this result")
+			}
+			// the Request and Result most not be nil
+			if call.Request == nil || call.Result == nil {
+				call.Error = fmt.Errorf("call.Request and call.Result must not be nil")
+				call.done()
+				p.limiter.Release(1)
+				continue
+			}
 
-		// the Done channel MUST NOT be nil
-		if call.Done == nil {
-			call.Error = fmt.Errorf("call.Done is nil, nobody is listening for this result")
-			log.Println(call.Provider.Addr, call.Error)
-			p.limiter.Release(1)
-			return
+			// run the Request in a goroutine asynchronously
+			// TODO: avoid gofunc by using a second listener on a `chan *PendingCall`
+			go func() {
+				call.Error = p.run(call.Request, call.Result)
+				call.done()
+				p.limiter.Release(1)
+			}()
+
 		}
-
-		// the Request MUST NOT be nil, of course
-		if call.Request == nil {
-			call.Error = fmt.Errorf("call.Request is nil")
-			call.Done <- call
-			p.limiter.Release(1)
-			continue
-		}
-
-		// the Result must be allocated, too
-		if call.Result == nil {
-			call.Error = fmt.Errorf("call.Result is nil")
-			call.Done <- call
-			p.limiter.Release(1)
-			continue
-		}
-
-		// fill in the fields in WasmCall before handing off to RPC
-		call.Provider = p
-		call.Error = nil
-
-		// call the RPC in a goroutine to wait for completion and release the semaphore
-		go func() {
-			call.Error = p.run(call.Request, call.Result)
-			p.limiter.Release(1)
-			call.Done <- call
-		}()
 
 	}
 }

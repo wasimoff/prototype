@@ -8,17 +8,26 @@ import (
 	"wasimoff/broker/storage"
 )
 
+const debuglog = false
+
+func printdbg(format string, v ...any) {
+	if debuglog {
+		log.Printf(format, v...)
+	}
+}
+
 // ----- execute -----
 
 // run is the internal detail, which executes a WASI binary on the Provider without semaphore guards
 func (p *Provider) run(args *pb.ExecuteWasiArgs, result *pb.ExecuteWasiResult) (err error) {
+	addr := p.Get(Address)
 	task := fmt.Sprintf("%s/%d", *args.Task.Id, *args.Task.Index)
-	log.Printf("scheduled >> %s >> %s", task, p.Addr)
-	if err := p.messenger.RequestSync(args, result); err != nil {
-		log.Printf("ERROR!    << %s << %s", task, p.Addr)
+	printdbg("scheduled >> %s >> %s", task, addr)
+	if err := p.messenger.RequestSync(context.TODO(), args, result); err != nil {
+		printdbg("ERROR!    << %s << %s", task, addr)
 		return fmt.Errorf("provider.run failed: %w", err)
 	}
-	log.Printf("finished  << %s << %s", task, p.Addr)
+	printdbg("finished  << %s << %s", task, addr)
 	return
 }
 
@@ -44,7 +53,7 @@ func (p *Provider) TryRun(args *pb.ExecuteWasiArgs, result *pb.ExecuteWasiResult
 func (p *Provider) ListFiles() error {
 	// receive listing into a new struct
 	files := new(pb.FileListingResult)
-	if err := p.messenger.RequestSync(&pb.FileListingArgs{}, files); err != nil {
+	if err := p.messenger.RequestSync(context.TODO(), &pb.FileListingArgs{}, files); err != nil {
 		return fmt.Errorf("provider.ListFiles failed: %w", err)
 	}
 	// (re)set known files from received list
@@ -69,12 +78,13 @@ func (p *Provider) ListFiles() error {
 func (p *Provider) ProbeFile(file *storage.File) (has bool, err error) {
 	// receive response bool into a new struct
 	result := new(pb.FileProbeResult)
-	if err := p.messenger.RequestSync(&pb.FileProbeArgs{Stat: &pb.FileStat{
-		Filename: &file.Name,
-		Length:   &file.Length,
-		Epoch:    &file.Epoch,
-		Hash:     file.Hash[:],
-	}}, result); err != nil {
+	if err := p.messenger.RequestSync(context.TODO(),
+		&pb.FileProbeArgs{Stat: &pb.FileStat{
+			Filename: &file.Name,
+			Length:   &file.Length,
+			Epoch:    &file.Epoch,
+			Hash:     file.Hash[:],
+		}}, result); err != nil {
 		return false, fmt.Errorf("provider.ProbeFile failed: %w", err)
 	}
 	return result.GetOk(), nil
@@ -96,15 +106,16 @@ func (p *Provider) Upload(file *storage.File) (err error) {
 	}
 	// otherwise upload it
 	result := new(pb.FileUploadResult)
-	if err := p.messenger.RequestSync(&pb.FileUploadArgs{
-		Stat: &pb.FileStat{
-			Filename: &file.Name,
-			Length:   &file.Length,
-			Epoch:    &file.Epoch,
-			Hash:     file.Hash[:],
-		},
-		File: file.Bytes,
-	}, result); err != nil {
+	if err := p.messenger.RequestSync(context.TODO(),
+		&pb.FileUploadArgs{
+			Stat: &pb.FileStat{
+				Filename: &file.Name,
+				Length:   &file.Length,
+				Epoch:    &file.Epoch,
+				Hash:     file.Hash[:],
+			},
+			File: file.Bytes,
+		}, result); err != nil {
 		return fmt.Errorf("provider.Upload %q failed: %w", file.Name, err)
 	}
 	if !result.GetOk() {

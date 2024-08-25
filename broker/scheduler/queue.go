@@ -50,6 +50,7 @@ type TaskResult struct {
 // DispatchTasks takes a run configuration, generates individual tasks from it,
 // schedules them in the queue and eventually returns with the results of all
 // those tasks.
+// TODO: accept a Context, so pending tasks can be cancelled from ExecHandler
 func DispatchTasks(cfg *RunConfiguration, trace *tracer.Trace, ch chan *Task) []*Task {
 
 	// create a waitgroup to await all tasks before returning result

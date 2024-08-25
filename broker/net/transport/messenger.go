@@ -11,7 +11,9 @@ package transport
 // TODO: handling of incoming requests (case pb.Envelope_Request) is not implemented yet
 
 import (
+	"context"
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -19,103 +21,129 @@ import (
 	"reflect"
 	"sync"
 	"sync/atomic"
+	"time"
 	"wasimoff/broker/net/pb"
 
 	"google.golang.org/protobuf/proto"
 )
 
-var (
-	ErrClosedTransport = fmt.Errorf("messenger transport is closed")
-)
-
-type Transport interface {
-	// TODO: add context.Context to Read/Write?
-	WriteMessage(*pb.Envelope) error
-	ReadMessage(*pb.Envelope) error
-	Addr() string
-	Close() error
-}
-
 // Messenger is an abstraction over a Transport, which implements bidirectional
 // RPC as well as simple Event messages.
 type Messenger struct {
-	transport      Transport          // the underlying transport
-	incomingEvents chan proto.Message // channel for event messages
+	transport Transport // the underlying transport
+	lifetime  Lifetime  // cancellable long context
 
-	txLock          sync.Mutex // only one sender
+	events chan proto.Message // incoming event messages
+
+	sendMutex       sync.Mutex  // only one sender
+	envelope        pb.Envelope // reusable for sending
 	eventSequence   atomic.Uint64
 	requestSequence atomic.Uint64
 
-	pendingLock sync.Mutex
-	pending     map[uint64]*PendingCall
-	closing     bool // client called Close
-	stopping    bool // server told us to stop
+	pendingMutex sync.Mutex
+	pending      map[uint64]*PendingCall
 }
 
 // Create a new Messenger by wrapping a Transport, starting the handler for
 // returning RPC responses and listening on incoming events. The caller needs
-// to read from the channel returned by IncomingEvents() to receive events.
+// to read from the channel returned by Events() to receive events.
 func NewMessengerInterface(transport Transport) *Messenger {
-	m := &Messenger{
-		transport:      transport,
-		pending:        make(map[uint64]*PendingCall),
-		incomingEvents: make(chan proto.Message, 10),
+
+	// create a cancellable lifetime context to signal closure upwards
+	lifetime := NewLifetime(context.TODO())
+
+	// instantiate Messenger
+	messenger := &Messenger{
+		transport: transport,
+		pending:   make(map[uint64]*PendingCall),
+		events:    make(chan proto.Message, 10),
+		lifetime:  lifetime,
 	}
-	go m.receiver()
-	return m
+
+	// start the receiver loop
+	go messenger.receiver()
+
+	return messenger
+}
+
+func (m *Messenger) Addr() string {
+	return m.transport.Addr()
+}
+
+// -------------------- closure -------------------- >>
+
+// Returns the cause of the closure or nil if Messenger isn't closed yet.
+func (m *Messenger) Err() error {
+	return m.lifetime.Err()
+}
+
+// Returns a channel to listen for lifetime closure.
+func (m *Messenger) Closing() <-chan struct{} {
+	return m.lifetime.Closing()
 }
 
 // Close the Messenger and underlying Transport.
-// The receiver gofunc will tidy up pending requests.
-func (m *Messenger) Close() {
-	m.pendingLock.Lock()
-	defer m.pendingLock.Unlock()
-	if !m.closing {
-		m.transport.Close()
-		m.closing = true
+// The receiver loop will tidy up pending requests.
+func (m *Messenger) Close(reason error) {
+	if reason == nil {
+		reason = ErrLifetimeEnded
+	}
+
+	// prevent sending more requests
+	m.pendingMutex.Lock()
+	defer m.pendingMutex.Unlock()
+
+	// close if not closed yet
+	if m.Err() == nil {
+		m.transport.Close(fmt.Errorf("closed from Messenger: %w", reason))
+		m.lifetime.Cancel(reason)
+		close(m.events)
 	}
 }
 
+// -------------------- events -------------------- >>
+
 // Get a receive-only channel of incoming Events to handle.
 func (m *Messenger) Events() <-chan proto.Message {
-	return m.incomingEvents
+	return m.events
 }
 
-// Write an event to the channel but never block when doing so!
+// Write an incoming Event to the channel but never block when doing so!
 func (m *Messenger) putEvent(event proto.Message) {
 	select {
-	case m.incomingEvents <- event: // ok
+	case m.events <- event: // ok
 	default:
 		log.Printf("WARN: receiver[%s]: dropped event, channel is full", m.transport.Addr())
 	}
 }
+
+// -------------------- receiver -------------------- >>
 
 // The receiver will continuously read from the Transport and parse incoming
 // messages. Responses are routed to their pending requests and Events are emitted
 // on a channel. Incoming Requests are not implemented yet and are immediately
 // responded to with an Error message. Call receiver in a gofunc after instantiation.
 func (m *Messenger) receiver() {
-	envelope := new(pb.Envelope)
 	var receiveErr error
+	var envelope pb.Envelope
+
 	for receiveErr == nil {
 
 		// receive the next letter and switch by message type
-		if receiveErr = m.transport.ReadMessage(envelope); receiveErr != nil {
+		if receiveErr = m.transport.ReadMessage(m.lifetime.Context, &envelope); receiveErr != nil {
 			break
 		}
 		switch envelope.GetType() {
 
 		case pb.Envelope_Request:
 			// TODO: requests not implemented yet
-			m.send(&pb.Envelope{
-				Sequence: envelope.Sequence,
-				Error:    proto.String("requests not implemented yet"),
-			})
+			timeout, cancel := context.WithTimeout(m.lifetime.Context, time.Second)
+			m.send(timeout, envelope.Sequence, pb.Envelope_Response.Enum(), nil, proto.String("requests not implemented yet"))
+			cancel()
 			continue
 
 		case pb.Envelope_Event:
 			// unpack event payload
-			// TODO: type verification would
 			event, err := envelope.Payload.UnmarshalNew()
 			if err != nil {
 				// this usually means that the message type is not known
@@ -130,10 +158,7 @@ func (m *Messenger) receiver() {
 			// be 0, which is the default if this field was not set in message
 			seq := envelope.GetSequence()
 			// fetch the pending call by sequence number
-			m.pendingLock.Lock()
-			call := m.pending[seq]
-			delete(m.pending, seq)
-			m.pendingLock.Unlock()
+			call := m.popPending(seq)
 			if call == nil {
 				// no such call was pending; either the sequence number was invalid or
 				// the request partially failed upon sending
@@ -145,133 +170,130 @@ func (m *Messenger) receiver() {
 				call.Error = rpc.ServerError(envelope.GetError())
 			}
 			// unpack the payload into expected response
-			if isNil(call.Response) {
-				call.Error = fmt.Errorf("unpacking response payload: Response is nil")
-				call.done()
-				continue
-			}
 			err := envelope.Payload.UnmarshalTo(call.Response)
 			// ignore payload err if this is an error response anyway
 			if err != nil && call.Error == nil {
 				call.Error = fmt.Errorf("unpacking response payload: %w", err)
 			}
 			call.done()
+			continue
 
 		default:
 			receiveErr = fmt.Errorf("received an UNKNOWN message type")
+			// break
 
 		} // switch
 	} // loop
 
-	// when we got here, there was an error, so terminate any pending calls
-	m.txLock.Lock()
-	m.pendingLock.Lock()
-	m.stopping = true
-	if receiveErr == io.EOF {
-		if m.closing {
-			receiveErr = ErrClosedTransport
-		} else {
-			// TODO: probably makes more sense to have m.err instead of two bools for this case
-			receiveErr = io.ErrUnexpectedEOF
-			m.transport.Close()
-			m.closing = true
-		}
+	// receiver failed, tidy up
+	m.sendMutex.Lock()
+	m.pendingMutex.Lock()
+
+	// if Close() was called, there will be a context cancellation in err
+	err := m.Err()
+	if errors.Is(err, context.Canceled) {
+		m.transport.Close(err)
+		receiveErr = err
 	}
+	// terminate any pending calls
 	for _, call := range m.pending {
 		call.Error = receiveErr
 		call.done()
 	}
-	m.pendingLock.Unlock()
-	m.txLock.Unlock()
+	// set errors for future requests
+	// TODO: reuse m.close() but it would currently deadlock because it also wants pendingMutex
+	m.transport.Close(receiveErr)
+	m.lifetime.Cancel(receiveErr)
+	close(m.events)
+	m.pendingMutex.Unlock()
+	m.sendMutex.Unlock()
 }
 
+// -------------------- transmitter -------------------- >>
+
 // Send a prepared Envelope of some type on the transport.
-func (m *Messenger) send(message *pb.Envelope) error {
-	m.txLock.Lock()
-	defer m.txLock.Unlock()
-	if err := m.transport.WriteMessage(message); err != nil {
-		return fmt.Errorf("failed send: %w", err)
+func (m *Messenger) send(ctx context.Context, seq *uint64, mt *pb.Envelope_MessageType, body proto.Message, error *string) error {
+
+	// pack the payload before locking
+	payload, err := pb.Any(body)
+	if err != nil {
+		return fmt.Errorf("failed marshalling payload: %w", err)
+	}
+
+	// prevent concurrent access on envelope
+	m.sendMutex.Lock()
+	defer m.sendMutex.Unlock()
+	m.envelope.Sequence = seq
+	m.envelope.Type = mt
+	m.envelope.Payload = payload
+	m.envelope.Error = error
+
+	// write the full message
+	if werr := m.transport.WriteMessage(ctx, &m.envelope); werr != nil {
+		return fmt.Errorf("failed send: %w", werr)
 	}
 	return nil
 }
 
 // Send an Event using the next sequence number.
-func (m *Messenger) SendEvent(event proto.Message) error {
-	// get next sequence number
+func (m *Messenger) SendEvent(ctx context.Context, event proto.Message) error {
 	seq := m.eventSequence.Add(1) // ++seq
-	// pack and assemble the enveloped message
-	payload, err := pb.Any(event)
-	if err != nil {
-		return fmt.Errorf("failed marshalling event: %w", err)
-	}
-	letter := &pb.Envelope{
-		Sequence: proto.Uint64(seq),
-		Type:     pb.Envelope_Event.Enum(),
-		Payload:  payload,
-	}
-	// send over transport, return any errors directly
-	return m.send(letter)
+	return m.send(ctx, &seq, pb.Envelope_Event.Enum(), event, nil)
 }
 
 // Send a Request using the next sequence number and register a pending
 // listener for the Response. Like the Go method in net/rpc.
-func (m *Messenger) SendRequest(request proto.Message, response proto.Message, done chan *PendingCall) (call *PendingCall) {
+func (m *Messenger) SendRequest(ctx context.Context, request proto.Message, response proto.Message, done chan *PendingCall) *PendingCall {
 
 	// ensure we have a buffered completion channel
 	if done == nil {
-		done = make(chan *PendingCall, 1) // TODO: net/rpc uses 10, why?
+		done = make(chan *PendingCall, 1) //?-- why does net/rpc use 10?
 	} else {
 		if cap(done) == 0 {
 			log.Panic("done channel is unbuffered")
 		}
 	}
 
-	// prepare the call struct
-	call = &PendingCall{request, response, nil, done}
-	// get next sequence number
-	seq := m.requestSequence.Add(1) // ++seq
-	// pack and assemble the enveloped message
-	payload, err := pb.Any(request)
-	if err != nil {
-		call.Error = fmt.Errorf("failed marshalling request: %w", err)
+	// prepare the call struct, check if response isn't nil
+	call := &PendingCall{request, response, nil, done}
+	if response == nil || reflect.ValueOf(response).IsNil() {
+		call.Error = fmt.Errorf("response interface is nil, refusing to send")
 		return call.done()
-	}
-	letter := &pb.Envelope{
-		Sequence: proto.Uint64(seq),
-		Type:     pb.Envelope_Request.Enum(),
-		Payload:  payload,
 	}
 
 	// register this request in pending map
-	m.pendingLock.Lock()
-	if m.closing {
-		m.pendingLock.Unlock()
-		call.Error = ErrClosedTransport
+	seq := m.requestSequence.Add(1) // ++seq
+	if err := m.addPending(seq, call); err != nil {
+		// oops, we're closing, abort
+		call.Error = fmt.Errorf("%w: %w", io.ErrClosedPipe, err)
 		return call.done()
 	}
-	m.pending[seq] = call
-	m.pendingLock.Unlock()
 
-	// try sending over transport, unregister call on error
-	if err := m.send(letter); err != nil {
-		m.pendingLock.Lock()
-		call = m.pending[seq]
-		delete(m.pending, seq)
-		m.pendingLock.Unlock()
-		if call != nil {
+	// send over transport
+	if err := m.send(ctx, &seq, pb.Envelope_Request.Enum(), request, nil); err != nil {
+		// unregister call immediately on error
+		if call = m.popPending(seq); call != nil {
 			call.Error = err
 			return call.done()
 		}
 	}
-	return
+	return call
 }
 
 // Send a Request synchronously by listening for completion directly.
-func (m *Messenger) RequestSync(request, response proto.Message) error {
+func (m *Messenger) RequestSync(ctx context.Context, request, response proto.Message) error {
+	select {
 	// async call with a single-element channel and return its error directly
-	call := <-m.SendRequest(request, response, make(chan *PendingCall, 1)).Done
-	return call.Error
+	case call := <-m.SendRequest(ctx, request, response, make(chan *PendingCall, 1)).Done:
+		return call.Error
+	// context timeout or cancelled
+	case <-ctx.Done():
+		// TODO: remove pending call, need seq for that
+		return ctx.Err()
+	}
 }
+
+// -------------------- pending calls -------------------- >>
 
 // PendingCall is used by Request to have something to write the response to.
 type PendingCall struct {
@@ -289,6 +311,28 @@ func (call *PendingCall) done() *PendingCall {
 	}
 	return call
 }
+
+// register a pending call in the map, err if closing
+func (m *Messenger) addPending(seq uint64, call *PendingCall) error {
+	m.pendingMutex.Lock()
+	defer m.pendingMutex.Unlock()
+	if err := m.Err(); err != nil {
+		return err
+	}
+	m.pending[seq] = call
+	return nil
+}
+
+// load and delete a pending call from the map
+func (m *Messenger) popPending(seq uint64) *PendingCall {
+	m.pendingMutex.Lock()
+	defer m.pendingMutex.Unlock()
+	call := m.pending[seq]
+	delete(m.pending, seq)
+	return call
+}
+
+// -------------------- misc -------------------- >>
 
 // Identifier generates a random 128 bit / 16 byte value from system randomness. It
 // was meant to be used as a safe replacement for uint64 sequence numbers. Not really

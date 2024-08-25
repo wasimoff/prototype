@@ -29,12 +29,12 @@ func NewProviderStore() ProviderStore {
 
 // Add a Provider to the Map.
 func (s *ProviderStore) Add(provider *Provider) {
-	s.providers.Store(provider.Addr, provider)
+	s.providers.Store(provider.Get(Address), provider)
 }
 
 // Remove a Provider from the Map.
 func (s *ProviderStore) Remove(provider *Provider) {
-	s.providers.Delete(provider.Addr)
+	s.providers.Delete(provider.Get(Address))
 }
 
 // Size is the current size of the Map.
