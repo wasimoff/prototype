@@ -1,0 +1,45 @@
+{
+  "version": "3",
+  "packages": {
+    "specifiers": {
+      "jsr:@std/cli@^1.0.3": "jsr:@std/cli@1.0.3",
+      "npm:@bjorn3/browser_wasi_shim@^0.3.0": "npm:@bjorn3/browser_wasi_shim@0.3.0",
+      "npm:@bufbuild/protobuf@^2.0.0": "npm:@bufbuild/protobuf@2.0.0",
+      "npm:comlink@^4.4.1": "npm:comlink@4.4.1",
+      "npm:lru-cache@^11.0.0": "npm:lru-cache@11.0.0"
+    },
+    "jsr": {
+      "@std/cli@1.0.3": {
+        "integrity": "9a0488b5d2e58d29dce106a941eecec7181fae996bf0d2225563f1ca7e4b100c"
+      }
+    },
+    "npm": {
+      "@bjorn3/browser_wasi_shim@0.3.0": {
+        "integrity": "sha512-FlRBYttPRLcWORzBe6g8nmYTafBkOEFeOqMYM4tAHJzFsQy4+xJA94z85a9BCs8S+Uzfh9LrkpII7DXr2iUVFg==",
+        "dependencies": {}
+      },
+      "@bufbuild/protobuf@2.0.0": {
+        "integrity": "sha512-sw2JhwJyvyL0zlhG61aDzOVryEfJg2PDZFSV7i7IdC7nAE41WuXCru3QWLGiP87At0BMzKOoKO/FqEGoKygGZQ==",
+        "dependencies": {}
+      },
+      "comlink@4.4.1": {
+        "integrity": "sha512-+1dlx0aY5Jo1vHy/tSsIGpSkN4tS9rZSW8FIhG0JH/crs9wwweswIo/POr451r7bZww3hFbPAKnTpimzL/mm4Q==",
+        "dependencies": {}
+      },
+      "lru-cache@11.0.0": {
+        "integrity": "sha512-Qv32eSV1RSCfhY3fpPE2GNZ8jgM9X7rdAfemLWqTUxwiyIC4jJ6Sy0fZ8H+oLWevO6i4/bizg7c8d8i6bxrzbA==",
+        "dependencies": {}
+      }
+    }
+  },
+  "remote": {},
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/cli@^1.0.3",
+      "npm:@bjorn3/browser_wasi_shim@^0.3.0",
+      "npm:@bufbuild/protobuf@^2.0.0",
+      "npm:comlink@^4.4.1",
+      "npm:lru-cache@^11.0.0"
+    ]
+  }
+}
