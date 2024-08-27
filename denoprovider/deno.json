@@ -1,5 +1,6 @@
 {
   "imports": {
+    "@wasimoff/": "../webprovider/lib/",
     "@bjorn3/browser_wasi_shim": "npm:@bjorn3/browser_wasi_shim@^0.3.0",
     "@bufbuild/protobuf": "npm:@bufbuild/protobuf@^2.0.0",
     "@std/cli": "jsr:@std/cli@^1.0.3",

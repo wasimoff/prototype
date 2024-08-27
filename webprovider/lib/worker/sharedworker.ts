@@ -6,7 +6,7 @@ export {};
 import { type WasiTaskExecution } from "./wasiworker.ts";
 import { WasiWorkerPool } from "./workerpool.ts";
 import { expose, workerReady } from "./index.ts";
-import { OpfsStorage } from "../storage/index.ts";
+import { OpfsStorage } from "@wasimoff/storage/index.ts";
 
 
 // ---- initialize shared worker for wasimoff ---- //

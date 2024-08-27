@@ -1,9 +1,9 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
 import { useTerminal } from "./terminal";
-import { serialize } from "../../lib/func/promises";
-import { type WasiTaskExecution } from "../../lib/worker/wasiworker.ts";
-import { SharedWasiWorkerPool } from "../../lib/worker/workerpoolshared.ts";
+import { serialize } from "@wasimoff/func/promises";
+import { type WasiTaskExecution } from "@wasimoff/worker/wasiworker.ts";
+import { SharedWasiWorkerPool } from "@wasimoff/worker/workerpoolshared.ts";
 
 /** Use a store as a "thread pool" of `WASMRunner` Workers to run computation requests on. */
 export const useWorkerPool = defineStore("WorkerPool", () => {

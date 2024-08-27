@@ -1,21 +1,21 @@
 // use polyfills for browser quirks
-import "@/polyfills";
+import "@app/polyfills.ts";
 
 // use global CSS base
-import "@/assets/main.css";
+import "@app/assets/main.css";
 
 // use Bulma CSS for styling
 // https://bulma.io/documentation/
 import "bulma/css/bulma.css";
 
 // check prerequisites before we do anything else
-import { CheckFeatures } from "../lib/func/featuredetection";
+import { CheckFeatures } from "@wasimoff/func/featuredetection";
 try { CheckFeatures() }
 catch (err) { alert(err); }
 
 // create the Vue app instance
 import { createApp } from "vue";
-import App from "@/App.vue";
+import App from "@app/App.vue";
 const app = createApp(App);
 
 // register Pinia stores

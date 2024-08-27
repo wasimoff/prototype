@@ -1,7 +1,7 @@
 import { type Remote, construct, releaseProxy, type WrappedWorker } from "./index.ts";
 import { WasiWorker, type WasiTaskExecution } from "./wasiworker.ts";
-import { Queue } from "../func/queue.ts";
-import { ProviderStorage } from "../storage/index.ts";
+import { Queue } from "@wasimoff/func/queue.ts";
+import { ProviderStorage } from "@wasimoff/storage/index.ts";
 
 /** Worker threadpool, which dispatches tasks to WasmWorkers. */
 export class WasiWorkerPool {

@@ -8,7 +8,8 @@ export default defineConfig({
   plugins: [ vue() ],
   resolve: {
     alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "@app": fileURLToPath(new URL("./src", import.meta.url)),
+      "@wasimoff": fileURLToPath(new URL("./lib", import.meta.url)),
     },
   },
   build: { target: "esnext" },

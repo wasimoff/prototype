@@ -1,13 +1,13 @@
 import { ref, shallowRef, watch, type ComputedRef, computed } from "vue";
 import { defineStore, storeToRefs } from "pinia";
 import { useWorkerPool } from "./workerpool.ts";
-import { Messenger, WebSocketTransport } from "../../lib/transport/";
+import { Messenger, WebSocketTransport } from "@wasimoff/transport/";
 import { useTerminal } from "./terminal.ts";
-import { OpfsStorage } from "../../lib/storage/";
-import type { WasiTaskExecution, WasiTaskResult } from "../../lib/worker/wasiworker.ts";
-import { Trace } from "../../lib/func/trace";
+import { OpfsStorage } from "@wasimoff/storage/";
+import type { WasiTaskExecution, WasiTaskResult } from "@wasimoff/worker/wasiworker.ts";
+import { Trace } from "@wasimoff/func/trace";
 import { proxy } from "comlink";
-import { ExecuteWasiArgsSchema, ExecuteWasiResultSchema, FileListingArgsSchema, FileListingResultSchema, FileProbeArgsSchema, FileProbeResultSchema, FileUploadArgsSchema, FileUploadResultSchema, Provider, ProviderInfoSchema, ProviderResourcesSchema, type ExecuteWasiArgs, type ExecuteWasiResult, type FileListingArgs, type FileListingResult, type FileProbeArgs, type FileProbeResult, type FileStat, type FileUploadArgs, type FileUploadResult } from "../../lib/proto/messages_pb.ts";
+import { ExecuteWasiArgsSchema, ExecuteWasiResultSchema, FileListingArgsSchema, FileListingResultSchema, FileProbeArgsSchema, FileProbeResultSchema, FileUploadArgsSchema, FileUploadResultSchema, Provider, ProviderInfoSchema, ProviderResourcesSchema, type ExecuteWasiArgs, type ExecuteWasiResult, type FileListingArgs, type FileListingResult, type FileProbeArgs, type FileProbeResult, type FileStat, type FileUploadArgs, type FileUploadResult } from "@wasimoff/proto/messages_pb.ts";
 import { create, isMessage, type Message, type MessageInitShape } from "@bufbuild/protobuf";
 import type { GenMessage } from "@bufbuild/protobuf/codegenv1";
 

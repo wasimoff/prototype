@@ -1,20 +1,19 @@
 <script setup lang="ts">
 
-import Terminal from "@/components/Terminal.vue";
-import Controls from "@/components/Controls.vue";
+import Terminal from "@app/components/Terminal.vue";
+import Controls from "@app/components/Controls.vue";
 
 const title = "wasimoff";
 
-import { useTerminal, LogType } from "@/stores/terminal";
+import { useTerminal, LogType } from "@app/stores/terminal.ts";
 const terminal = useTerminal();
 terminal.log(`Hello, ${title}!`, LogType.Black);
 
 
 
-import { comlink } from "../lib/worker/index.ts";
-import { SharedWasimoff } from "../lib/worker/sharedworker.ts";
-import { type SomeWasiWorkerMessage } from "../lib/worker/wasiworker.ts";
-import { WasiWorkerPool } from "../lib/worker/workerpool.ts";
+import { comlink } from "@wasimoff/worker/index.ts";
+import { SharedWasimoff } from "@wasimoff/worker/sharedworker.ts";
+import { WasiWorkerPool } from "@wasimoff/worker/workerpool.ts";
 
 // simple performance timer function
 async function timed<T>(fn: () => Promise<T>) {

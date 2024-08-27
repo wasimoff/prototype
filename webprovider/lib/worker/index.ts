@@ -4,8 +4,8 @@ export * from "comlink";
 /** Return an instantiated object of a Worker, which exposes a Comlink-wrapped class.
  * #### Example:
  * ```
- * import { SimpleWorker } from "@/worker/simple";
- * let worker = new Worker(new URL("@/worker/simple", import.meta.url));
+ * import { SimpleWorker } from "@app/worker/simple";
+ * let worker = new Worker(new URL("@app/worker/simple", import.meta.url));
  * let simple = await construct(worker, SimpleWorker, "MyName");
  * console.log(await simple.name); // "MyName"
  * ```

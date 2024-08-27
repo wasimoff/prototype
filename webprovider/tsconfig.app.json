@@ -9,7 +9,8 @@
     
     /* aliases */
     "paths": {
-      "@/*": ["./src/*"]
+      "@app/*": ["./src/*"],
+      "@wasimoff/*": ["./lib/*"]
     },
 
     /* Bundler mode */

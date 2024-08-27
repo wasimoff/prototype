@@ -1,4 +1,4 @@
-import { type Envelope } from "../proto/messages_pb.ts";
+import { type Envelope } from "@wasimoff/proto/messages_pb.ts";
 
 /** Transport abstracts away an underlying network connection and marshalling
  * protocol to the Broker or another resource consumer. On the surface, it is a

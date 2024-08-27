@@ -2,24 +2,24 @@
 import { ref, computed } from "vue";
 
 // terminal for logging
-import { useTerminal, LogType } from "@/stores/terminal";
+import { useTerminal, LogType } from "@app/stores/terminal";
 const terminal = useTerminal();
 
 // configuration via url fragment
-import { useConfiguration } from "@/stores/configuration";
+import { useConfiguration } from "@app/stores/configuration";
 const conf = useConfiguration();
 
 // filesystem storage
-import { OpfsStorage } from "../../lib/storage/opfs.ts";
+import { OpfsStorage } from "@wasimoff/storage/opfs.ts";
 let fs: OpfsStorage;
 (async () => fs = await OpfsStorage.open("/wasm"))();
 
 // webassembly runner worker pool
-import { useWorkerPool } from "@/stores/workerpool";
+import { useWorkerPool } from "@app/stores/workerpool";
 const pool = useWorkerPool();
 
 // connection to the broker
-import { useConnection } from "@/stores/connection";
+import { useConnection } from "@app/stores/connection";
 const conn = useConnection();
 
 

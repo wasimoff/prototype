@@ -1,8 +1,8 @@
 import { toBinary, fromBinary, toJsonString, fromJsonString, createRegistry } from "@bufbuild/protobuf";
-import { EnvelopeSchema, Subprotocol, type Envelope, Envelope_MessageType, file_messages } from "../proto/messages_pb.ts";
+import { EnvelopeSchema, Subprotocol, type Envelope, Envelope_MessageType, file_messages } from "@wasimoff/proto/messages_pb.ts";
 import { type Transport } from "./index.ts";
-import { PushableAsyncIterable } from "../func/pushableiterable.ts";
-import { Signal } from "../func/promises.ts";
+import { PushableAsyncIterable } from "@wasimoff/func/pushableiterable.ts";
+import { Signal } from "@wasimoff/func/promises.ts";
 
 export class WebSocketTransport implements Transport {
   

@@ -1,7 +1,7 @@
-import { Envelope_MessageType as MessageType, EnvelopeSchema, file_messages } from "../proto/messages_pb.ts";
+import { Envelope_MessageType as MessageType, EnvelopeSchema, file_messages } from "@wasimoff/proto/messages_pb.ts";
 import { create, createRegistry, toBinary, type Message } from "@bufbuild/protobuf";
 import { type Transport } from "./index.ts";
-import { PushableAsyncIterable } from "../func/pushableiterable.ts";
+import { PushableAsyncIterable } from "@wasimoff/func/pushableiterable.ts";
 import { AnySchema, anyUnpack, type Any } from "@bufbuild/protobuf/wkt";
 
 
