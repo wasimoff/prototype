@@ -1,19 +1,9 @@
-
-
-export interface WasimoffStorage {
-
-  lsf(): Promise<File[]>;
-  store(buf: ArrayBuffer, filename: string): Promise<File>;
-
-  getBuffer(filename: string): Promise<ArrayBuffer | undefined>;
-  getWasmModule(filename: string): Promise<WebAssembly.Module | undefined>;
-
-
-}
-
+import { ProviderStorage } from "./index.ts";
 import { LRUCache } from "lru-cache";
 
-export class InMemoryStorage implements WasimoffStorage {
+const logprefix = [ "%c MemoryStorage ", "background: purple; color: white;" ];
+
+export class InMemoryStorage implements ProviderStorage {
 
   // just keep file buffers in a map
   private storage = new Map<string, ArrayBuffer>();
@@ -24,6 +14,7 @@ export class InMemoryStorage implements WasimoffStorage {
     fetchMethod: async (filename) => await this.compile(filename),
   });
 
+  // list files
   async lsf() {
     let files = <File[]>[];
     for (let [filename, buffer] of this.storage.entries()) {
@@ -32,32 +23,28 @@ export class InMemoryStorage implements WasimoffStorage {
     return files;
   };
 
+  // return files from map directly
   async getBuffer(filename: string) {
     return this.storage.get(filename);
   }
 
+  // return a compiled and cached module
   async getWasmModule(filename: string) {
     return this.wasmCache.fetch(filename);
   };
 
-  async compile(filename: string) {
+  // compile a buffer to wasm module
+  private async compile(filename: string) {
     let file = this.storage.get(filename);
     if (file === undefined) return undefined;
     return WebAssembly.compile(file);
   };
 
+  // store a new file in the map
   async store(buf: ArrayBuffer, filename: string) {
-    console.log(`InMemoryStore: store ${buf.byteLength} bytes in ${filename}`);
+    console.log(...logprefix, `store ${filename}, ${buf.byteLength} bytes`);
     this.storage.set(filename, buf);
     return new File([buf], filename);
   };
 
-}
-
-// digest a file to a [32]Uint8Array
-export async function digest(file: File, verbose = false): Promise<Uint8Array> {
-  let t0 = performance.now();
-  let sum = new Uint8Array(await crypto.subtle.digest("SHA-256", await file.arrayBuffer()));
-  if (verbose) console.warn("SHA-256 digest of", file.name, `(${file.size} bytes)`, "took", performance.now() - t0, "ms.");
-  return sum;
 }

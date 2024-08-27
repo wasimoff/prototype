@@ -1,11 +1,13 @@
-#!/usr/bin/env -S deno run --allow-env --allow-read=./ --allow-net
+#!/usr/bin/env -S deno run --allow-env --allow-read=./,../webprovider/ --allow-net
 
-import { create, isMessage } from "@bufbuild/protobuf";
-import { Messenger } from "./transport/messenger.ts";
-import { WebSocketTransport } from "./transport/websocket.ts";
-import { ExecuteWasiArgsSchema, ExecuteWasiResult, ExecuteWasiResultSchema, FileListingArgsSchema, FileListingResult, FileListingResultSchema, FileProbeArgsSchema, FileProbeResult, FileProbeResultSchema, FileUploadArgsSchema, FileUploadResult, FileUploadResultSchema, GenericEventSchema, ProviderInfoSchema } from "./proto/messages_pb.ts";
-import { digest, InMemoryStorage } from "./storage/filesystem.ts";
-import { WasiWorkerPool } from "./workerpool/workerpool.ts";
+import { create, isMessage, Message } from "@bufbuild/protobuf";
+import { Messenger, WebSocketTransport } from "../webprovider/lib/transport/index.ts";
+import {
+  ExecuteWasiArgsSchema, ExecuteWasiResult, ExecuteWasiResultSchema, FileListingArgsSchema, FileListingResult, FileListingResultSchema,
+  FileProbeArgsSchema, FileProbeResult, FileProbeResultSchema, FileUploadArgsSchema, FileUploadResult, FileUploadResultSchema, GenericEventSchema, ProviderInfoSchema
+} from "../webprovider/lib/proto/messages_pb.ts";
+import { digest, InMemoryStorage } from "../webprovider/lib/storage/index.ts";
+import { WasiWorkerPool } from "../webprovider/lib/worker/workerpool.ts";
 import { parseArgs } from "@std/cli/parse-args";
 
 // parse commandline arguments

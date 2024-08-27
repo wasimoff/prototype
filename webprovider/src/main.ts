@@ -9,7 +9,7 @@ import "@/assets/main.css";
 import "bulma/css/bulma.css";
 
 // check prerequisites before we do anything else
-import { CheckFeatures } from "@/fn/featuredetection";
+import { CheckFeatures } from "../lib/func/featuredetection";
 try { CheckFeatures() }
 catch (err) { alert(err); }
 

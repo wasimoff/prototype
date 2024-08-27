@@ -1,8 +1,9 @@
+import { ProviderStorage } from "./index.ts";
 import { LRUCache } from "lru-cache";
 
-// TODO: store with content-addressing, e.g. by SHA256 hash
+const logprefix = [ "%c OpfsStorage ", "background: purple; color: white;" ];
 
-export class OPFSDirectory {
+export class OpfsStorage implements ProviderStorage {
 
   // we need async initialization, therefore disallow direct constructor usage
   private constructor(
@@ -10,22 +11,19 @@ export class OPFSDirectory {
     public readonly path: string,
   ) { }
 
-  // colorful prefix for logging
-  private static logprefix = [ "%c Filesystem ", "background: purple; color: white;" ];
 
   /** Initialize a new Filesystem with OPFS backing. */
   static async open(directory?: string | FileSystemDirectoryHandle) {
     let opfs = await navigator.storage.getDirectory();
-    let storage: OPFSDirectory;
+    let storage: OpfsStorage;
     // easy mode: open the root
     if (directory === undefined || directory === "/") {
-      storage = new OPFSDirectory(opfs, "/");
+      storage = new OpfsStorage(opfs, "/");
     } else {
       // directory is a path, open each fragment until we reach its handle
       if (typeof directory === "string") {
         let handle = opfs; // start at root
         for (let fragment of directory.split("/").filter(f => f != "")) {
-          console.log(...OPFSDirectory.logprefix, "going deeper:", fragment);
           handle = await handle.getDirectoryHandle(fragment, { create: true });
         }
         directory = handle;
@@ -33,9 +31,9 @@ export class OPFSDirectory {
       // (now) directory is a handle, resolve its path and open
       let path = await opfs.resolve(directory);
       if (path === null) throw "given DirectoryHandle is not in OPFS";
-      storage = new OPFSDirectory(directory, `/${path.join("/")}/`)
+      storage = new OpfsStorage(directory, `/${path.join("/")}/`)
     }
-    console.log(...OPFSDirectory.logprefix, `opened Origin-Private Filesystem at "${storage.path}"`);
+    console.log(...logprefix, `opened Origin-Private Filesystem at "${storage.path}"`);
     return storage;
   }
 
@@ -85,7 +83,7 @@ export class OPFSDirectory {
 
   /** Compile a `WebAssembly.Module` by opening a file in a streaming fashion. */
   private async compileStreaming(filename: string) {
-    console.log(...OPFSDirectory.logprefix, `compile WebAssembly module ${this.path}${filename}`);
+    console.log(...logprefix, `compile WebAssembly module ${this.path}${filename}`);
     // fetch the file from opfs and check if it's wasm
     let file = await (await this.handle.getFileHandle(filename)).getFile();
     if (file.type !== "application/wasm") throw new Error("this file isn't a WebAssembly module");
@@ -100,7 +98,7 @@ export class OPFSDirectory {
 
   /** Remove a particular file. */
   async rm(filename: string) {
-    console.log(...OPFSDirectory.logprefix, `delete ${this.path}${filename}`);
+    console.log(...logprefix, `delete ${this.path}${filename}`);
     await this.handle.removeEntry(filename);
     this.wasmcache.delete(filename);
   };
@@ -114,7 +112,7 @@ export class OPFSDirectory {
 
   /** Store a given BufferSource into the filesystem. */
   async store(blob: BufferSource, filename: string) {
-    console.log(...OPFSDirectory.logprefix, `store ${blob.byteLength} bytes in ${this.path}${filename}`);
+    console.log(...logprefix, `store ${blob.byteLength} bytes in ${this.path}${filename}`);
     let handle = await this.handle.getFileHandle(filename, { create: true });
     let file = await handle.createWritable({ keepExistingData: false });
     await file.write(blob);
@@ -124,7 +122,7 @@ export class OPFSDirectory {
 
   /** Fetch an arbitrary file from URL and write to a file in directory. */
   async download(url: string, filename: string) {
-    console.log(...OPFSDirectory.logprefix, `download ${new URL(url, import.meta.url)} to ${this.path}${filename}`);
+    console.log(...logprefix, `download ${new URL(url, import.meta.url)} to ${this.path}${filename}`);
     // start the request in background
     let request = window.fetch(url);
     // open writable stream of file to download to

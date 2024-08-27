@@ -1,8 +1,8 @@
 import { toBinary, fromBinary, toJsonString, fromJsonString, createRegistry } from "@bufbuild/protobuf";
 import { EnvelopeSchema, Subprotocol, type Envelope, Envelope_MessageType, file_messages } from "../proto/messages_pb.ts";
 import { type Transport } from "./index.ts";
-import { PushableAsyncIterable } from "../fn/pushableasynciterable.ts";
-import { Signal } from "../fn/utilities.ts";
+import { PushableAsyncIterable } from "../func/pushableiterable.ts";
+import { Signal } from "../func/promises.ts";
 
 export class WebSocketTransport implements Transport {
   
@@ -156,9 +156,10 @@ export namespace WebSocketTransport {
 const debugging = false;
 
 // pretty console logging prefixes
-const prefixOpen = [ "%c WebSocketTransport %c open ", "color: #aaa;", "color: greenyellow;" ];
-const prefixRx   = [ "%c WebSocketTransport %c « Rx %c %s ", "color: #aaa;", "color: skyblue;", "color: #ccc;" ];
-const prefixTx   = [ "%c WebSocketTransport %c Tx » %c %s ", "color: #aaa;", "color: greenyellow;", "color: #ccc;" ];
-const prefixErr  = [ "%c WebSocketTransport %c Error ", "color: #aaa;", "color: firebrick;" ];
-const prefixWarn = [ "%c WebSocketTransport %c Warning ", "color: #aaa;", "color: goldenrod;" ];
+// TODO: colors barely readable in deno log
+const prefixOpen = [ "%c WebSocketTransport %c open ", "background: #333; color: white;", "background: greenyellow;" ];
+const prefixRx   = [ "%c WebSocketTransport %c « Rx %c %s ", "background: #333; color: white;", "background: skyblue;", "background: #ccc;" ];
+const prefixTx   = [ "%c WebSocketTransport %c Tx » %c %s ", "background: #333; color: white;", "background: greenyellow;", "background: #ccc;" ];
+const prefixErr  = [ "%c WebSocketTransport %c Error ", "background: #333; color: white;", "background: firebrick; color: white;" ];
+const prefixWarn = [ "%c WebSocketTransport %c Warning ", "background: #333; color: white;", "background: goldenrod;" ];
 

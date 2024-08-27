@@ -23,8 +23,7 @@ export class WasiWorker {
   ) { };
 
   // colorful console logging prefix
-  // private get logprefix() { return [ `%c WasiWorker ${this.name} `, "background: #f03a5f; color: white;" ]; }
-  private readonly logprefix = ["[WasiWorker]"];
+  private get logprefix() { return [ `%c WasiWorker ${this.name} `, "background: #f03a5f; color: white;" ]; }
 
   // TODO: shim the trace function to not rip out all the statements completely
   private trace(msg: string) { if (VERBOSE) console.debug(...this.logprefix, msg); };
@@ -34,28 +33,28 @@ export class WasiWorker {
    * variables etc. The binary can be either a precompiled module or raw bytes. */
   public async run(id: string, task: WasiTaskExecution): Promise<WasiTaskResult> {
     try {
-      // this.trace("worker: function top");
+      this.trace("worker: function top");
 
       // log the overall commandline to terminal and console
       if (true) { // TODO
         let cmdline = [...task.envs, task.argv[0] || "<binary>", ...task.argv.slice(1)];
         console.log(...this.logprefix, id, cmdline);
         this.emit("cmdline", { id, cmdline });
-        // this.trace("worker: commandline logged");
+        this.trace("worker: commandline logged");
       };
 
       // initialize filesystem for shim
       let files = await this.preopenFilesystem(task.stdin);
-      // this.trace("worker: filesystem prepared");
+      this.trace("worker: filesystem prepared");
 
       // if `wasm` isn't a module yet, we need to compile it
       if (!(task.wasm instanceof WebAssembly.Module)) {
         //! there's an open ticket for firefox where postMessage payloads over ~250 MB crash, so be careful
         // https://bugzilla.mozilla.org/show_bug.cgi?id=1754400 (via https://blog.stackblitz.com/posts/supporting-firefox/)
         task.wasm = await WebAssembly.compile(task.wasm);
-        // this.trace("worker: wasm module compiled");
+        this.trace("worker: wasm module compiled");
       };
-      // this.trace("worker: wasm module prepared");
+      this.trace("worker: wasm module prepared");
 
       // prepare the browser_wasi_shim
       let shim = new WASI(task.argv, task.envs, files, { debug: false });
@@ -63,7 +62,7 @@ export class WasiWorker {
         "wasi_snapshot_preview1": task.strace ? strace(shim.wasiImport, []) : shim.wasiImport,
         "wasi_unstable":          task.strace ? strace(shim.wasiImport, []) : shim.wasiImport,
       };
-      // this.trace("worker: wasi shim prepared");
+      this.trace("worker: wasi shim prepared");
       
       // instantiate the webassembly module, with retries on OOM errors
       let instance: WebAssembly.Instance | null = null;
@@ -75,10 +74,10 @@ export class WasiWorker {
         } catch (error) {
           instance = null;
           if (String(error).includes("Out of memory: Cannot allocate Wasm memory for new instance")) {
-            // this.trace("worker: OOM, retry");
+            this.trace("worker: OOM, retry");
             let elapsed = performance.now() - t0;
             console.warn(...this.logprefix, `OOM, attempt ${attempt}, at ${elapsed} ms`);
-            // this.emit("oom", { id, attempt, elapsed });
+            this.emit("oom", { id, attempt, elapsed });
             if (attempt === retries) throw error;
           } else {
             // this wasn't OOM, immediately rethrow
@@ -89,7 +88,7 @@ export class WasiWorker {
         await new Promise(r => setTimeout(r, 2**attempt));
       };
       if (instance === null) throw "WebAssembly module was not instantiated!";
-      // this.trace("worker: module instantiated");
+      this.trace("worker: module instantiated");
 
       // start the instance's main() and wait for it to exit
       let returncode = 0;
@@ -108,7 +107,7 @@ export class WasiWorker {
         // this won't completely prevent out-of-memory errors but might make the GC run earlier
         instance = null;
       };
-      // this.trace("worker: task completed");
+      this.trace("worker: task completed");
       
       // format the output
       let output: WasiTaskResult = {
@@ -118,7 +117,7 @@ export class WasiWorker {
         stderr: new TextDecoder().decode((<OpenFile>shim.fds[2]).file.data),
         // TODO: re-add trace
       };
-      // if (VERBOSE) console.debug(...this.logprefix, "Finished execution:", output);
+      if (VERBOSE) console.debug(...this.logprefix, "Finished execution:", output);
       // {
       //   returncode,
       //   stdout: output.stdout, stderr: output.stderr,
@@ -161,8 +160,8 @@ export class WasiWorker {
 
   // private broadcast = new BroadcastChannel("WasiWorkerBroadcast");
   private emit<T extends keyof WasiWorkerMessages>(type: T, payload: WasiWorkerMessages[T]) {
-    // this.broadcast.postMessage({ name: this.name, type, payload } as SomeWasiWorkerMessage);
-    if (VERBOSE) console.log("Worker:", { name: this.name, type, payload } as SomeWasiWorkerMessage);
+  //   this.broadcast.postMessage({ name: this.name, type, payload } as SomeWasiWorkerMessage);
+    self.postMessage({ name: this.name, type, payload } as SomeWasiWorkerMessage);
   };
 
 };

@@ -1,7 +1,7 @@
 import { type Remote, construct, releaseProxy, type WrappedWorker } from "./index.ts";
 import { WasiWorker, type WasiTaskExecution } from "./wasiworker.ts";
-import { Queue } from "../fn/utilities.ts";
-import { WasimoffStorage } from "../storage/filesystem.ts";
+import { Queue } from "../func/queue.ts";
+import { ProviderStorage } from "../storage/index.ts";
 
 /** Worker threadpool, which dispatches tasks to WasmWorkers. */
 export class WasiWorkerPool {
@@ -9,11 +9,11 @@ export class WasiWorkerPool {
   constructor(
     /** The maximum number of workers in this pool. */
     private readonly nmax: number,
-    private fs: WasimoffStorage,
+    private readonly fs: ProviderStorage,
   ) { };
 
   // colorful console logging prefix
-  private readonly logprefix = [ "%c WasmWorkerPool ", "color: violet;" ];
+  private readonly logprefix = [ "%c WasmWorkerPool ", "background: violet; color: black;" ];
 
   // TODO: make proper event emitter?
   // private channel = new BroadcastChannel("WasiWorkerBroadcast");
@@ -56,10 +56,10 @@ export class WasiWorkerPool {
   async run(id: string, task: WasiTaskExecution, next?: () => void) {
     if (this.fs === undefined) throw "oops, too fast";
     if (typeof task.wasm === "string") {
+      let mod = await this.fs.getWasmModule(task.wasm);
+      if (mod === undefined) throw "module not found";
       task.argv = [ task.wasm, ...task.argv ];
-      let wasm = await this.fs.getWasmModule(task.wasm);
-      if (wasm === undefined) throw "module not found in storage";
-      task.wasm = wasm;
+      task.wasm = mod;
     }
     return this.exec(w => w.run(id, task), next);
   };
@@ -108,7 +108,6 @@ export class WasiWorkerPool {
 
   /** Add Workers to maximum capacity. */
   async fill() {
-    // console.warn("FILLING", this);
     while (this.pool.length < this.nmax) await this.spawn();
     return this.pool.length;
   };

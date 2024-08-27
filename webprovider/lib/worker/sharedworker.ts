@@ -3,9 +3,10 @@ declare var self: SharedWorkerGlobalScope;
 export {};
 
 
-import { type WasiTaskExecution } from "./wasiworker";
-import { WasiWorkerPool } from "./workerpool";
-import { expose, workerReady } from "@/workerpool";
+import { type WasiTaskExecution } from "./wasiworker.ts";
+import { WasiWorkerPool } from "./workerpool.ts";
+import { expose, workerReady } from "./index.ts";
+import { OpfsStorage } from "../storage/index.ts";
 
 
 // ---- initialize shared worker for wasimoff ---- //
@@ -15,7 +16,12 @@ const logprefix = [ "%c SharedWasimoff ", "background-color: violet;" ];
 const spawned = new Date().toLocaleString();
 console.log(...logprefix, "booting", spawned);
 
-const pool = new WasiWorkerPool(16);
+// TODO: make the storage configurable
+let pool: WasiWorkerPool;
+(async () => {
+  let fs = await OpfsStorage.open("/wasm");
+  pool = new WasiWorkerPool(16, fs);
+})();
 
 export const SharedWasimoff = {
 

@@ -14,7 +14,7 @@ export class Trace {
 
   // time origin and starting time offset in milliseconds
   private readonly origin = performance.timeOrigin;
-  private readonly t0: number = performance.now();
+  // private readonly t0: number = performance.now();
 
   // calculate the unix epoch
   private epoch(t: number) { return this.origin + t; };
@@ -25,12 +25,12 @@ export class Trace {
   };
 
   // format an ISO string with microseconds
-  private isomicro(t: number) {
-    let epoch = this.epoch(t);
-    let iso = new Date(epoch).toISOString();
-    console.error("EVENT", epoch, iso, (epoch % 1).toPrecision(3));
-    return iso.replace("Z", (epoch % 1).toPrecision(3).substring(2, 5) + "Z");
-  }
+  // private isomicro(t: number) {
+  //   let epoch = this.epoch(t);
+  //   let iso = new Date(epoch).toISOString();
+  //   console.error("EVENT", epoch, iso, (epoch % 1).toPrecision(3));
+  //   return iso.replace("Z", (epoch % 1).toPrecision(3).substring(2, 5) + "Z");
+  // }
 
   // collected events with timestamps
   private events: Event<number>[] = [ ];

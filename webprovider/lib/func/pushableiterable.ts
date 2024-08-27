@@ -42,6 +42,3 @@ export class PushableAsyncIterable<T> implements AsyncIterable<T> {
   }};
 
 };
-
-// TODO: remove, used for debugging
-(globalThis as any).PushableAsyncIterable = PushableAsyncIterable;

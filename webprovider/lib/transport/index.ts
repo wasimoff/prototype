@@ -19,5 +19,5 @@ export interface Transport {
 
 }
 
-export { WebSocketTransport } from "./websocket.ts";
 export { Messenger } from "./messenger.ts";
+export { WebSocketTransport } from "./websocket.ts";

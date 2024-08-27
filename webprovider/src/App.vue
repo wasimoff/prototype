@@ -11,10 +11,10 @@ terminal.log(`Hello, ${title}!`, LogType.Black);
 
 
 
-import { comlink } from "@/workerpool";
-import { SharedWasimoff } from "@/workerpool/sharedworker";
-import { type SomeWasiWorkerMessage } from "@/workerpool/wasiworker";
-import { WasiWorkerPool } from "@/workerpool/workerpool";
+import { comlink } from "../lib/worker/index.ts";
+import { SharedWasimoff } from "../lib/worker/sharedworker.ts";
+import { type SomeWasiWorkerMessage } from "../lib/worker/wasiworker.ts";
+import { WasiWorkerPool } from "../lib/worker/workerpool.ts";
 
 // simple performance timer function
 async function timed<T>(fn: () => Promise<T>) {
@@ -40,13 +40,13 @@ let benchmark = async () => {
   terminal.warn(`Setup ...`);
 
   // listen to worker messages on broadcast channel and print to terminal?
-  if (true) {
-    terminal.log(`Setup BroadcastChannel listener ...`);
-    let bc = new BroadcastChannel("WasiWorkerBroadcast");
-    bc.addEventListener("message", ({ data }: { data: SomeWasiWorkerMessage }) => {
-      if (data.type === "cmdline") terminal.info(`WasiWorker ${data.name}: ${data.payload.id} ${data.payload.cmdline}`);
-    }, { signal: hmrController.signal });
-  };
+  // if (true) {
+  //   terminal.log(`Setup BroadcastChannel listener ...`);
+  //   let bc = new BroadcastChannel("WasiWorkerBroadcast");
+  //   bc.addEventListener("message", ({ data }: { data: SomeWasiWorkerMessage }) => {
+  //     if (data.type === "cmdline") terminal.info(`WasiWorker ${data.name}: ${data.payload.id} ${data.payload.cmdline}`);
+  //   }, { signal: hmrController.signal });
+  // };
 
   // prepare task payload
   //! use ArrayBuffer since we can't seem to transfer WebAssembly.Modules to SharedWorkers
@@ -55,7 +55,7 @@ let benchmark = async () => {
 
 
   // setup the SharedWorker pool
-  const sharedWorker = new SharedWorker(new URL("@/workerpool/sharedworker", import.meta.url), { type: "module" });
+  const sharedWorker = new SharedWorker(new URL("./sharedworker.ts", import.meta.url), { type: "module" });
   const sharedLink = await comlink<typeof SharedWasimoff>(sharedWorker.port);
   const sharedFill = await timed(() => sharedLink.fill());
   

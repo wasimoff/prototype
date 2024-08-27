@@ -1,13 +1,13 @@
 import { ref, shallowRef, watch, type ComputedRef, computed } from "vue";
 import { defineStore, storeToRefs } from "pinia";
-import { useWorkerPool } from "@/stores/workerpool";
-import { Messenger, WebSocketTransport } from "@/transports";
-import { useTerminal } from "./terminal";
-import { OPFSDirectory } from "@/filesystem/opfs";
-import type { WasiTaskExecution, WasiTaskResult } from "@/workerpool/wasiworker";
-import { Trace } from "@/fn/trace";
+import { useWorkerPool } from "./workerpool.ts";
+import { Messenger, WebSocketTransport } from "../../lib/transport/";
+import { useTerminal } from "./terminal.ts";
+import { OpfsStorage } from "../../lib/storage/";
+import type { WasiTaskExecution, WasiTaskResult } from "../../lib/worker/wasiworker.ts";
+import { Trace } from "../../lib/func/trace";
 import { proxy } from "comlink";
-import { ExecuteWasiArgsSchema, ExecuteWasiResultSchema, FileListingArgsSchema, FileListingResultSchema, FileProbeArgsSchema, FileProbeResultSchema, FileUploadArgsSchema, FileUploadResultSchema, Provider, ProviderInfoSchema, ProviderResourcesSchema, type ExecuteWasiArgs, type ExecuteWasiResult, type FileListingArgs, type FileListingResult, type FileProbeArgs, type FileProbeResult, type FileStat, type FileUploadArgs, type FileUploadResult } from "@/proto/messages_pb";
+import { ExecuteWasiArgsSchema, ExecuteWasiResultSchema, FileListingArgsSchema, FileListingResultSchema, FileProbeArgsSchema, FileProbeResultSchema, FileUploadArgsSchema, FileUploadResultSchema, Provider, ProviderInfoSchema, ProviderResourcesSchema, type ExecuteWasiArgs, type ExecuteWasiResult, type FileListingArgs, type FileListingResult, type FileProbeArgs, type FileProbeResult, type FileStat, type FileUploadArgs, type FileUploadResult } from "../../lib/proto/messages_pb.ts";
 import { create, isMessage, type Message, type MessageInitShape } from "@bufbuild/protobuf";
 import type { GenMessage } from "@bufbuild/protobuf/codegenv1";
 
@@ -22,8 +22,8 @@ export const useConnection = defineStore("Connection", () => {
 
   // use other stores for terminal output and filesystem access
   const terminal = useTerminal();
-  let filesystem: OPFSDirectory;
-  (async () => filesystem = await OPFSDirectory.open("/wasm"))();
+  let filesystem: OpfsStorage;
+  (async () => filesystem = await OpfsStorage.open("/wasm"))();
 
   // use the worker pool needed to execute WASM
   let pool = useWorkerPool();

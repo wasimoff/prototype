@@ -10,9 +10,9 @@ import { useConfiguration } from "@/stores/configuration";
 const conf = useConfiguration();
 
 // filesystem storage
-import { OPFSDirectory } from "@/filesystem/opfs";
-let fs: OPFSDirectory;
-(async () => fs = await OPFSDirectory.open("/wasm"))();
+import { OpfsStorage } from "../../lib/storage/opfs.ts";
+let fs: OpfsStorage;
+(async () => fs = await OpfsStorage.open("/wasm"))();
 
 // webassembly runner worker pool
 import { useWorkerPool } from "@/stores/workerpool";
@@ -90,8 +90,11 @@ const connectionStatus = computed(() => conn.connected
 // ---------- WORKER POOL ---------- //
 
 // fill the pool on launch
-if (conf.autoconnect)
-  (async () => await pool.ensure(conf.workers))();
+if (conf.autoconnect) (async () => {
+  // TODO: async problems because pool connections hasn't resolved yet
+  await new Promise(r => setTimeout(r, 1000));
+  await pool.ensure(conf.workers)
+})();
 
 // add / remove / fill workers in the pool
 async function addWorker() {
@@ -219,4 +222,4 @@ async function runloadtesting(iterations: number = 1000) {
     </div>
 
   </div>
-</template>@/filesystem/opfs
+</template>

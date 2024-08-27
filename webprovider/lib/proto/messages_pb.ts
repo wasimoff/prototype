@@ -746,7 +746,7 @@ export const GenericEventSchema: GenMessage<GenericEvent, GenericEventJson> = /*
  */
 export type ProviderInfo = Message<"ProviderInfo"> & {
   /**
-   * a logging-friendly name of the provider // TODO: make a persistent ID?
+   * a logging-friendly name of the provider
    *
    * @generated from field: string name = 1;
    */

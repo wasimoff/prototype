@@ -1,6 +1,11 @@
 /** Check for the existence of a few key APIs. Some browsers or configurations
  * might disallow access to parts of these and the application won't work. */
 export function CheckFeatures() {
+
+  function check(expr: boolean, error: string): Error | undefined {
+    return expr ? undefined : new MissingFeature(error);
+  };
+
   let results = [
 
     // need OPFS for file storage
@@ -22,14 +27,12 @@ export function CheckFeatures() {
     check(("SharedWorker" in window && typeof window.SharedWorker.constructor === "function"), "Shared Web Workers not available"),
 
   ].filter(err => err !== undefined);
+
   if (results.length) {
     results.forEach(err => console.error(err));
     throw new Error("Prerequisites not met!\n" + results.join("\n"));
   };
-};
 
-function check(expr: boolean, error: string): Error | undefined {
-  return expr ? undefined : new MissingFeature(error);
 };
 
 class MissingFeature extends Error {
