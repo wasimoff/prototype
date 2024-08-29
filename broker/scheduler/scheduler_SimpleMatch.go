@@ -2,7 +2,6 @@ package scheduler
 
 import (
 	"context"
-	"fmt"
 	"time"
 	"wasimoff/broker/provider"
 )
@@ -19,9 +18,10 @@ func NewSimpleMatchSelector(store *provider.ProviderStore) SimpleMatchSelector {
 }
 
 func (s *SimpleMatchSelector) Ok() (err error) {
-	if s.store.Size() == 0 {
-		return fmt.Errorf("provider store is empty")
-	}
+	// TODO: don't abort when list is currently empty
+	// if s.store.Size() == 0 {
+	// 	return fmt.Errorf("provider store is empty")
+	// }
 	return
 }
 
@@ -53,9 +53,10 @@ func (s *SimpleMatchSelector) selectCandidates(task *Task) (candidates []*provid
 	})
 
 	// no candidates found?
-	if len(candidates) == 0 {
-		err = fmt.Errorf("no suitable provider found which satisfies all requirements")
-	}
+	// TODO: don't abort when list is currently empty
+	// if len(candidates) == 0 {
+	// 	err = fmt.Errorf("no suitable provider found which satisfies all requirements")
+	// }
 	return
 
 }
