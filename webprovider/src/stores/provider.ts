@@ -6,6 +6,7 @@ import { WasimoffProvider } from "@wasimoff/worker/provider";
 import { WasiWorkerPool } from "@wasimoff/worker/workerpool";
 import { ProviderStorage } from "@wasimoff/storage";
 import { Messenger } from "@wasimoff/transport";
+import { useTerminal } from "./terminal";
 
 export const useProvider = defineStore("WasimoffProvider", () => {
 
@@ -22,11 +23,18 @@ export const useProvider = defineStore("WasimoffProvider", () => {
   const $messenger = ref<Remote<Messenger>>();
   const $storage = ref<Remote<ProviderStorage>>();
 
+  // have a terminal for logging
+  const terminal = useTerminal();
+
   // start the worker immediately after instantiation
   navigator.locks.request("wasimoff", { ifAvailable: true }, async (lock) => {
 
     // fail if lock was already held in another tab
-    if (lock === null) throw "another WasimoffProvider Worker is already running";
+    if (lock === null) {
+      const err = "another WasimoffProvider Worker is already running in another tab";
+      terminal.error(`ERROR: failed to start Provider, ${err}`);
+      throw err;
+    }
 
     // start a worker and connect the comlink proxy
     connected.value = false;
@@ -90,7 +98,7 @@ export const useProvider = defineStore("WasimoffProvider", () => {
     await $provider.value.handlerequests();
     // the above promise only returns when the loop dies
     connected.value = false;
-  }
+  };
 
   // exported as store
   return {
