@@ -4,11 +4,10 @@ import { computed, reactive } from "vue";
 type Configuration = {
   // whether to connect to transport automatically
   autoconnect: boolean | null;
-  // how many workers to start on launch; "nproc" means as many as there are cores
-  workers: "max" | number | null;
-  // broker transport URL and certificate hash
+  // how many workers to start on launch; "max" means as many as there are cores
+  workers: number | null;
+  // broker transport URL
   transport: string | null;
-  certhash: string | undefined | null;
   // endpoint for server config
   configpath: string | null;
 }
@@ -23,20 +22,23 @@ export const useConfiguration = defineStore("Configuration", () => {
 
   // get the relevant values from URL fragment
   const fragmentconf: Configuration = {
+
     autoconnect: asBoolean(fragments.get("autoconnect")),
+
     workers: (() => {
       let arg = fragments.get("workers");
-      if (arg === null || arg === "max") return arg;
+      if (arg === "max")
+        return navigator.hardwareConcurrency;
       let n = Number.parseInt(arg as string);
-      if (Number.isNaN(n)) {
-        console.error("is not a number:", arg);
-        return 0;
-      };
+      if (Number.isNaN(n))
+        return null;
       return n;
     })(),
+
     transport: fragments.get("transport"),
-    certhash: fragments.get("certhash"),
+
     configpath: fragments.get("config"),
+
   };
 
 
@@ -56,16 +58,14 @@ export const useConfiguration = defineStore("Configuration", () => {
     let json = await response.json();
     // set values from json, where it makes sense
     if (typeof json["transport"] === "string") serverconf.transport = json["transport"];
-    if (typeof json["certhash"]  === "string") serverconf.certhash  = json["certhash"];
   }
 
 
   // ---------- default values --------- //
   const defaultconf: Configuration = {
     autoconnect: true,
-    workers: "max",
+    workers: navigator.hardwareConcurrency,
     transport: window.location.origin.replace(/^http/, "ws") + "/websocket/provider",
-    certhash: undefined,
     configpath: window.location.origin + "/api/broker/v1/config",
   };
 
@@ -74,13 +74,12 @@ export const useConfiguration = defineStore("Configuration", () => {
   const autoconnect = computed(() => firstOf(fragmentconf.autoconnect, defaultconf.autoconnect));
   const workers = computed(() => firstOf(fragmentconf.workers, defaultconf.workers));
   const transport = computed(() => firstOf(fragmentconf.transport, serverconf.transport, defaultconf.transport));
-  const certhash = computed(() => firstOf(fragmentconf.certhash, serverconf.certhash, defaultconf.certhash));
   const configpath = firstOf(fragmentconf.configpath, defaultconf.configpath);
 
 
   return {
     fragmentconf, serverconf, defaultconf, fetchConfig,
-    autoconnect, workers, transport, certhash, configpath,
+    autoconnect, workers, transport, configpath,
   };
 });
 
@@ -90,6 +89,6 @@ function firstOf<T>(...args: (T|null)[]): T {
 
 function asBoolean(s: string | null): boolean | null {
   if (s === null) return null;
-  if (["", "true", "yes"].includes(s)) return true;
+  if (["", "true", "t", "yes", "y", "1", "on"].includes(s.toLowerCase())) return true;
   return false;
 }

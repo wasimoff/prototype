@@ -30,7 +30,7 @@ if (Number.isNaN(nproc) || nproc < 1) throw "--workers must be a positive number
 
 // initialize the provider
 console.log("%c [[ Wasimoff Denoprovider ]] ", "color: red;");
-const provider = await WasimoffProvider.init(brokerurl, ":memory:", nproc);
+const provider = await WasimoffProvider.init(nproc, brokerurl, ":memory:");
 const workers = await provider.pool.fill();
 await provider.sendInfo(workers, "deno", `${navigator.userAgent} (${Deno.build.target})`);
 

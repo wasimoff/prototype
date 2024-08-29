@@ -7,6 +7,7 @@ import { WasiWorkerPool } from "@wasimoff/worker/workerpool";
 import { ProviderStorage } from "@wasimoff/storage";
 import { Messenger } from "@wasimoff/transport";
 import { useTerminal } from "./terminal";
+import { useConfiguration } from "./configuration";
 
 export const useProvider = defineStore("WasimoffProvider", () => {
 
@@ -31,6 +32,9 @@ export const useProvider = defineStore("WasimoffProvider", () => {
 
   // have a terminal for logging
   const terminal = useTerminal();
+
+  // load configuration values
+  const config = useConfiguration();
 
   // check if we're running exclusively (not open in another tab)
   const exclusive = new Promise<void>(resolve => {
@@ -57,7 +61,7 @@ export const useProvider = defineStore("WasimoffProvider", () => {
     // start a worker and connect the comlink proxy
     connected.value = false;
     worker.value = new Worker(new URL("@wasimoff/worker/provider.ts", import.meta.url), { type: "module" });
-    $provider.value = await construct<typeof WasimoffProvider>(worker.value);
+    $provider.value = await construct<typeof WasimoffProvider>(worker.value, config.workers);
 
     // wrap the pool proxy in another proxy to keep worker count updated
     $pool.value = new Proxy(await $provider.value.poolProxy(), {

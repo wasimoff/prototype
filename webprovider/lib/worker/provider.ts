@@ -46,18 +46,18 @@ export class WasimoffProvider {
   static readonly logprefix = [ `%c Wasimoff Provider `, "color: indigo; background-color: #ccc;" ];
 
   constructor(
+    /** maximum number of workers in the pool */
+    public readonly nmax = navigator.hardwareConcurrency,
     /** connection to the broker */
     public messenger?: Messenger,
     /** storage backend for modules and artifacts */
     public storage?: ProviderStorage,
-    /** maximum number of workers in the pool */
-    public readonly nmax = navigator.hardwareConcurrency,
   ) {
     console.info(...WasimoffProvider.logprefix, "started in", self.constructor.name)
   };
 
-  static async init(url: string, dir: string, nmax: number) {
-    const p = new WasimoffProvider(undefined, undefined, nmax);
+  static async init(nmax: number, url: string, dir: string) {
+    const p = new WasimoffProvider(nmax);
     await p.open(dir);
     await p.connect(url);
     return p;
