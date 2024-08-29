@@ -24,7 +24,10 @@ export function CheckFeatures() {
     // need Workers for multithreaded processing, SharedWebWorker for multi-tab pooling
     // https://caniuse.com/webworkers, https://caniuse.com/sharedworkers
     check(("Worker" in window && typeof window.Worker.constructor === "function"), "Web Workers not available"),
-    check(("SharedWorker" in window && typeof window.SharedWorker.constructor === "function"), "Shared Web Workers not available"),
+    // check(("SharedWorker" in window && typeof window.SharedWorker.constructor === "function"), "Shared Web Workers not available"),
+
+    // need Web Locks when using Workers to avoid double-opening pool
+    // check(("locks" in navigator && typeof navigator.locks.request === "function"), "Web Locks API not availbale"),
 
   ].filter(err => err !== undefined);
 

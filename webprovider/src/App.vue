@@ -7,6 +7,11 @@ import { useTerminal, LogType } from "@app/stores/terminal.ts";
 const terminal = useTerminal();
 terminal.log("Starting wasimoff provider ...", LogType.Black);
 
+// check if we are in a secure context
+if (!window.isSecureContext) {
+  terminal.warn("WARNING: application running in an insecure context!")
+}
+
 </script>
 
 <template>

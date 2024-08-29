@@ -32,15 +32,27 @@ export const useProvider = defineStore("WasimoffProvider", () => {
   // have a terminal for logging
   const terminal = useTerminal();
 
-  // start the worker immediately after instantiation
-  navigator.locks.request("wasimoff", { ifAvailable: true }, async (lock) => {
+  // check if we're running exclusively (not open in another tab)
+  const exclusive = new Promise<void>(resolve => {
+    if ("locks" in navigator) {
+      navigator.locks.request("wasimoff", { ifAvailable: true }, async (lock) => {
+        if (lock === null) {
+          return terminal.error("ERROR: another Provider is already running; refusing to start!");
+        };
+        // got the lock, continue startup
+        resolve();
+        // return an "infinite" Promise; lock is only released when tab is closed
+        return new Promise(r => window.addEventListener("beforeunload", r));
+      });
+    } else {
+      // can't check the lock, warn about it and continue anyway
+      terminal.warn("WARNING: Web Locks API not available; can't check for exclusive Provider!");
+      resolve();
+    };
+  });
 
-    // fail if lock was already held in another tab
-    if (lock === null) {
-      const err = "another WasimoffProvider Worker is already running in another tab";
-      terminal.error(`ERROR: failed to start Provider, ${err}`);
-      throw err;
-    }
+  // start the worker when the lock has been acquired
+  exclusive.then(async () => {
 
     // start a worker and connect the comlink proxy
     connected.value = false;
@@ -66,9 +78,7 @@ export const useProvider = defineStore("WasimoffProvider", () => {
         };
       },
     });
-
-    // return an infinite Promise; lock is only released when tab is closed
-    return new Promise(() => { /* forever */ });
+    
   });
 
   async function open(...args: Parameters<WasimoffProvider["open"]>) {
