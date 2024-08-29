@@ -62,7 +62,7 @@ export const useConfiguration = defineStore("Configuration", () => {
 
   // ---------- default values --------- //
   const defaultconf: Configuration = {
-    autoconnect: false,
+    autoconnect: true,
     workers: "max",
     transport: window.location.origin.replace(/^http/, "ws") + "/websocket/provider",
     certhash: undefined,
