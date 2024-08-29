@@ -1,9 +1,13 @@
 package provider
 
 import (
+	"context"
+	"log"
+	"wasimoff/broker/net/pb"
 	"wasimoff/broker/storage"
 
 	"github.com/puzpuzpuz/xsync"
+	"google.golang.org/protobuf/proto"
 )
 
 // ProviderStore holds the currently connected providers, safe for concurrent access.
@@ -15,13 +19,31 @@ type ProviderStore struct {
 
 	// Storage holds the uploaded files in memory
 	Storage storage.FileStorage
+
+	// Broadcast is a channel to submit events for all Providers
+	Broadcast chan proto.Message
 }
 
 // NewProviderStore properly initializes the fields in the store
 func NewProviderStore() ProviderStore {
-	return ProviderStore{
+	store := ProviderStore{
 		providers: xsync.NewMapOf[*Provider](),
 		Storage:   storage.NewFileStorage(),
+		Broadcast: make(chan proto.Message, 10),
+	}
+	go store.transmitter()
+	return store
+}
+
+// ------------- broadcast events to everyone -------------
+
+// transmitter forwards events from the chan to all Providers
+func (s *ProviderStore) transmitter() {
+	for event := range s.Broadcast {
+		s.Range(func(_ string, p *Provider) bool {
+			p.messenger.SendEvent(context.TODO(), event)
+			return true
+		})
 	}
 }
 
@@ -30,11 +52,15 @@ func NewProviderStore() ProviderStore {
 // Add a Provider to the Map.
 func (s *ProviderStore) Add(provider *Provider) {
 	s.providers.Store(provider.Get(Address), provider)
+	log.Printf("ProviderStore: %d connected", s.Size())
+	s.Broadcast <- &pb.ClusterInfo{Providers: proto.Uint32(uint32(s.Size()))}
 }
 
 // Remove a Provider from the Map.
 func (s *ProviderStore) Remove(provider *Provider) {
 	s.providers.Delete(provider.Get(Address))
+	log.Printf("ProviderStore: %d connected", s.Size())
+	s.Broadcast <- &pb.ClusterInfo{Providers: proto.Uint32(uint32(s.Size()))}
 }
 
 // Size is the current size of the Map.

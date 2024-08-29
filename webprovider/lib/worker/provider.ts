@@ -5,10 +5,10 @@ export {};
 import { InMemoryStorage, OpfsStorage, ProviderStorage } from "@wasimoff/storage/index.ts";
 import { Messenger, WebSocketTransport } from "@wasimoff/transport/index.ts";
 import { WasiWorkerPool } from "./workerpool.ts";
-import { create } from "@bufbuild/protobuf";
+import { create, Message } from "@bufbuild/protobuf";
 import { ProviderInfoSchema } from "@wasimoff/proto/messages_pb.ts";
 import { rpchandler } from "@wasimoff/worker/rpchandler.ts";
-import { expose, proxy as comlinkProxy, workerReady } from "./comlink.ts";
+import { expose, proxy as comlinkProxy, workerReady, transfer } from "./comlink.ts";
 import { WasiTaskExecution } from "./wasiworker.ts";
 
 /**
@@ -170,6 +170,28 @@ export class WasimoffProvider {
     for await (const request of this.messenger.requests) {
       request(request => this.rpchandler(request));
     };
+
+  };
+
+  /** Get a ReadableStream of the Events from the messenger. */
+  async getEventstream() {
+
+    // must have an open messenger on which to receive events
+    if (this.messenger === undefined || this.messenger.closed.aborted)
+      throw "need to connect to a broker first";
+
+    // create a ReadableStream from the events iterable
+    const iterator = this.messenger.events[Symbol.asyncIterator]()
+    const stream = new ReadableStream<Message>({
+      async pull(controller) {
+        let { done, value } = await iterator.next();
+        if (done) return controller.close();
+        if (value) controller.enqueue(value);
+      },
+    });
+
+    // transfer the stream
+    return transfer(stream, [ stream ]);
 
   };
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --allow-env --allow-read=./,../webprovider/ --allow-net
 
-import { create } from "@bufbuild/protobuf";
+import { create, isMessage } from "@bufbuild/protobuf";
 import { GenericEventSchema } from "@wasimoff/proto/messages_pb.ts";
 import { parseArgs } from "@std/cli/parse-args";
 import { WasimoffProvider } from "@wasimoff/worker/provider.ts";
@@ -40,7 +40,8 @@ provider.messenger?.sendEvent(create(GenericEventSchema, { message: "Hello, Worl
 // log received messages
 (async () => {
   for await (const event of provider.messenger.events) {
-    console.log("Message: " + JSON.stringify(event));
+    if (isMessage(event, GenericEventSchema))
+      console.log("Message: " + JSON.stringify(event));
   };
 })();
 

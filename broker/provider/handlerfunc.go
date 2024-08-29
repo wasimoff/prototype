@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"slices"
+	"time"
 	"wasimoff/broker/net/pb"
 	"wasimoff/broker/net/server"
 	"wasimoff/broker/net/transport"
@@ -37,7 +38,7 @@ func WebSocketHandler(server *server.Server, store *ProviderStore, origins []str
 		defer provider.Close(nil)
 
 		// handle incoming event messages
-		go provider.eventReceiver()
+		go provider.eventTransmitter()
 
 		// TODO: replace this up-front pushing with on-demand fetching by Providers (needs scheduler change, too!)
 		// get the list of available files on provider
@@ -55,9 +56,9 @@ func WebSocketHandler(server *server.Server, store *ProviderStore, origins []str
 		}
 
 		// add ourselves to the available provider store
+		log.Printf("[%s] New Provider connected using WebSocket", addr)
 		store.Add(provider)
 		defer store.Remove(provider)
-		log.Printf("[%s] New Provider connected using WebSocket", addr)
 
 		// wait until the session ends to defer cleanup
 		select {
@@ -70,40 +71,61 @@ func WebSocketHandler(server *server.Server, store *ProviderStore, origins []str
 	}
 }
 
-// eventReceiver loops over incoming messages to update info on the provider
-func (p *Provider) eventReceiver() {
-	for event := range p.messenger.Events() {
-		switch ev := event.(type) {
+// eventTransmitter loops to receive incoming messages or send updates to the provider
+func (p *Provider) eventTransmitter() {
 
-		case *pb.GenericEvent:
-			log.Printf("[%s] says: %s", p.Get(Address), ev.GetMessage())
+	// create a ticker to send regular updates
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
 
-		case *pb.ProviderInfo:
-			log.Printf("[%s] ProviderInfo:\n%s", p.Get(Address), prototext.Format(ev))
-			if v := ev.GetName(); v != "" {
-				p.info[Name] = v
-			}
-			if v := ev.GetUseragent(); v != "" {
-				p.info[UserAgent] = v
-			}
-			pool := ev.GetPool()
-			// TODO: set active tasks .. see below
-			if pool != nil && pool.Concurrency != nil {
-				p.limiter.SetLimit(int(*pool.Concurrency))
-			}
+	for {
+		select {
 
-		case *pb.ProviderResources:
-			log.Printf("[%s] ProviderResources:\n%s", p.Get(Address), prototext.Format(ev))
-			// TODO: set active tasks
-			// The problem is that you can't really "set" a semaphore, so possibly
-			// need to switch to a manual atomic, when providers are allowed to receive
-			// tasks from multiple sources and we can't track it ourselves anymore.
-			if ev.Concurrency != nil {
-				p.limiter.SetLimit(int(*ev.Concurrency))
-			}
+		// send regular updates
+		case <-ticker.C:
+			// TODO, this branch was used for ClusterInfo originally
 
-		default:
-			log.Printf("[%s] WARN: unknown event: %s", p.Get(Address), event.ProtoReflect().Descriptor().FullName())
+		// handle incoming events
+		case event, ok := <-p.messenger.Events():
+			if !ok {
+				// channel is closing, quit
+				return
+			}
+			switch ev := event.(type) {
+
+			case *pb.GenericEvent:
+				log.Printf("[%s] says: %s", p.Get(Address), ev.GetMessage())
+
+			case *pb.ProviderInfo:
+				if v := ev.GetName(); v != "" {
+					p.info[Name] = v
+				}
+				if v := ev.GetUseragent(); v != "" {
+					p.info[UserAgent] = v
+					log.Printf("[%s] UserAgent: %s", p.Get(Address), v)
+				}
+				pool := ev.GetPool()
+				// TODO: set active tasks .. see below
+				if pool != nil && pool.Concurrency != nil {
+					log.Printf("[%s] Workers: %d", p.Get(Address), *pool.Concurrency)
+					p.limiter.SetLimit(int(*pool.Concurrency))
+				}
+
+			case *pb.ProviderResources:
+				log.Printf("[%s] ProviderResources:\n%s", p.Get(Address), prototext.Format(ev))
+				// TODO: set active tasks
+				// The problem is that you can't really "set" a semaphore, so possibly
+				// need to switch to a manual atomic, when providers are allowed to receive
+				// tasks from multiple sources and we can't track it ourselves anymore.
+				if ev.Concurrency != nil {
+					log.Printf("[%s] Workers: %d", p.Get(Address), *ev.Concurrency)
+					p.limiter.SetLimit(int(*ev.Concurrency))
+				}
+
+			default:
+				log.Printf("[%s] WARN: unknown event: %s", p.Get(Address), event.ProtoReflect().Descriptor().FullName())
+
+			}
 
 		}
 	}

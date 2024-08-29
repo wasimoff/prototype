@@ -170,6 +170,11 @@ message ProviderResources {
   uint32 tasks = 2; // currently active tasks
 }
 
+// ClusterInfo contains information about all connected Providers
+message ClusterInfo {
+  uint32 providers = 1; // number of currently connected providers
+}
+
 
 // ---------- client interface ---------- //
 

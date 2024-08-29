@@ -13,9 +13,12 @@ const conf = useConfiguration();
 // the broker socket to connect
 const transport = storeToRefs(conf).transport;
 
+// info components
+import InfoProviders from "./InfoProviders.vue";
+
 // link to the provider worker
 import { useProvider } from "@app/stores/provider.ts";
-const wasimoff = useProvider();
+let wasimoff = useProvider();
 // TODO: typings for ref<remote<...> | undefined>?
 const { connected, workers, $pool, $provider, $storage } = storeToRefs(wasimoff);
 
@@ -26,20 +29,17 @@ let stop = watch(() => wasimoff.$provider, async (provider) => {
 
     // TODO: connect to configuration store
     await wasimoff.open(":memory:");
-    terminal.log(`Opened in-memory storage.`, LogType.Info);
+    terminal.info(`Opened in-memory storage.`);
 
     // add at least one worker immediately
     if (workers.value === 0) await $pool.value?.scale(1);
 
-    // connect to the broker
-    await connect();
+    // maybe autoconnect to the broker
+    if (conf.autoconnect) await connect();
+    else terminal.warn("Autoconnect disabled. Please connect manually.");
 
     // fill remaining workers to capacity
-    if ($pool.value) {
-      await fillWorkers();
-      // while (await $pool.value.spawn());
-      // terminal.log(`Provider filled with ${workers.value} Workers.`, LogType.Info);
-    };
+    if ($pool.value) await fillWorkers();
 
   };
 });
@@ -53,10 +53,7 @@ async function connect() {
     await $provider.value?.sendInfo(workers.value);
     wasimoff.handlerequests();
   } catch (err) { terminal.error(String(err)); }
-}
-
-// connect automatically
-// if (conf.autoconnect) setTimeout(connect, 100);
+};
 
 async function rmrf() {
   if (!$storage.value) return terminal.error("$storage not connected yet");
@@ -197,6 +194,9 @@ const nmax = 16
           <button class="button is-danger" @click="kill" title="Kill Workers and close Transport immediately">Kill</button>
         </div>
       </div>
+
+      <label class="label has-text-grey-dark">Cluster Information</label>
+      <InfoProviders></InfoProviders>
 
     </div>
 
