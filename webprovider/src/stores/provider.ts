@@ -13,8 +13,14 @@ export const useProvider = defineStore("WasimoffProvider", () => {
   // whether we are currently connected to the broker
   const connected = ref(false);
 
-  // current number of workers in the pool
-  const workers = ref(0);
+  // current state of workers in the pool
+  const workers = ref<boolean[]>([]);
+
+  // update busy map on interval
+  setInterval(async () => {
+    // this interval slows my devtools inspector to a crawl but works fine when closed
+    if ($pool.value) workers.value = await $pool.value.busy
+  }, 50);
 
   // keep various proxies in refs ($ = Remote)
   const worker = ref<Worker>();
@@ -51,7 +57,7 @@ export const useProvider = defineStore("WasimoffProvider", () => {
         if (typeof method === "function" && traps.includes(prop as string)) {
           return async (...args: any[]) => {
             let result = await (method as any).apply(target, args) as Promise<number>;
-            try { workers.value = await result; } catch { };
+            try { workers.value = await target.busy; } catch { };
             return result;
           };
         } else {
@@ -79,7 +85,7 @@ export const useProvider = defineStore("WasimoffProvider", () => {
     $messenger.value = await $provider.value.messengerProxy();
     connected.value = true;
     // fill the pool it it's empty
-    if (workers.value === 0 && $pool.value) {
+    if (workers.value.length === 0 && $pool.value) {
       // doing it manually here is more responsive, because
       // each spawn updates the workers ref
       let capacity = await $pool.value.capacity;

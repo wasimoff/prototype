@@ -14,11 +14,14 @@ export class WasiWorkerPool {
   ) { };
 
   // hold the Workers in an array
-  private pool: WrappedWorker<WasiWorker, { index: number }>[] = [];
+  private pool: WrappedWorker<WasiWorker, { index: number, busy: boolean }>[] = [];
   private nextindex = 0;
 
   /** Get the number of Workers currently in the pool. */
   get length() { return this.pool.length; };
+
+  /** Get a "bitmap" of busy workers. */
+  get busy() { return this.pool.map(w => w.busy); };
 
   // an asynchronous queue to fetch an available worker
   private queue = new Queue<typeof this.pool[0]>;
@@ -41,7 +44,7 @@ export class WasiWorkerPool {
     const link = await construct<typeof WasiWorker>(worker, index);
 
     // append to pool and enqueue available for work
-    const wrapped = { index, worker, link };
+    const wrapped = { index, worker, link, busy: false };
     this.pool.push(wrapped);
     this.queue.put(wrapped);
     return this.length;
@@ -126,10 +129,15 @@ export class WasiWorkerPool {
 
     // take an idle worker from the queue
     const worker = await this.queue.get(); next?.();
+    worker.busy = true;
 
     // try to execute the task and put worker back into queue
-    try { return await task(worker.link); }
-    finally { await this.queue.put(worker); };
+    try {
+      return await task(worker.link);
+    } finally {
+      worker.busy = false;
+      await this.queue.put(worker);
+    };
 
   };
 

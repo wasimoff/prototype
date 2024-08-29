@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { computed, watch, ref } from "vue";
 import { storeToRefs } from "pinia";
 
 // terminal for logging
@@ -11,7 +11,7 @@ import { useConfiguration } from "@app/stores/configuration.ts";
 const conf = useConfiguration();
 
 // the broker socket to connect
-const transport = storeToRefs(conf).transport;
+const { transport } = storeToRefs(conf);
 
 // info components
 import InfoProviders from "./InfoProviders.vue";
@@ -20,29 +20,31 @@ import InfoProviders from "./InfoProviders.vue";
 import { useProvider } from "@app/stores/provider.ts";
 let wasimoff = useProvider();
 // TODO: typings for ref<remote<...> | undefined>?
-const { connected, workers, $pool, $provider, $storage } = storeToRefs(wasimoff);
+const { connected, workers, $pool, $storage } = storeToRefs(wasimoff);
 
 // connect immediately on load, when the provider proxy is connected
-let stop = watch(() => wasimoff.$provider, async (provider) => {
-  if (provider !== undefined) {
-    stop(); // do this just once
+(() => {
+  let stop = watch(() => wasimoff.$provider, async (provider) => {
+    if (provider !== undefined) {
+      stop(); // do this just once
 
-    // TODO: connect to configuration store
-    await wasimoff.open(":memory:");
-    terminal.info(`Opened in-memory storage.`);
+      // TODO: connect to configuration store
+      await wasimoff.open(":memory:");
+      terminal.info(`Opened in-memory storage.`);
 
-    // add at least one worker immediately
-    if (workers.value === 0) await $pool.value?.scale(1);
+      // add at least one worker immediately
+      if (workers.value.length === 0) await $pool.value?.scale(1);
 
-    // maybe autoconnect to the broker
-    if (conf.autoconnect) await connect();
-    else terminal.warn("Autoconnect disabled. Please connect manually.");
+      // maybe autoconnect to the broker
+      if (conf.autoconnect) await connect();
+      else terminal.warn("Autoconnect disabled. Please connect manually.");
 
-    // fill remaining workers to capacity
-    if ($pool.value) await fillWorkers();
+      // fill remaining workers to capacity
+      if ($pool.value) await fillWorkers();
 
-  };
-});
+    };
+  });
+})();
 
 
 async function connect() {
@@ -50,7 +52,6 @@ async function connect() {
     const url = transport.value;
     await wasimoff.connect(url);
     terminal.log(`Connected to Broker at ${url}`, LogType.Success);
-    await $provider.value?.sendInfo(workers.value);
     wasimoff.handlerequests();
   } catch (err) { terminal.error(String(err)); }
 };
@@ -134,12 +135,26 @@ async function fillWorkers() {
     // await $pool.value.fill();
     let max = await $pool.value.capacity;
     while (await $pool.value.spawn() < max);
-    terminal.success(`Filled pool to capacity with ${workers.value} runners.`);
+    terminal.success(`Filled pool to capacity with ${workers.value.length} runners.`);
   } catch (err) { terminal.error(err as string); };
 };
 
-// TODO: forward from pool
-const nmax = 16
+// get the maximum capacity from pool
+const nmax = ref(0);
+(() => {
+  let stop = watch(() => wasimoff.$pool, async value => {
+    // capacity is readonly and should only ever change once
+    if (value) nmax.value = await value.capacity;
+    stop();
+  });
+})();
+
+// calculate current worker usage
+const usage = computed(() => {
+  const busy = workers.value;
+  if (busy.length === 0) return 0;
+  return busy.filter(b => b).length / busy.length;
+});
 
 </script>
 
@@ -153,20 +168,23 @@ const nmax = 16
       <label class="label has-text-grey-dark">Worker Pool</label>
       <div class="field has-addons">
         <div class="control">
-          <input class="input is-info" type="number" min="0" max="16" step="1" placeholder="Number of Workers" disabled
-            :value="workers" @input="ev => scaleWorker((ev.target as HTMLInputElement).value as unknown as number)"
-            style="min-width: 100px;"><!-- hotfix for type="number" input ... no problem with type="text" -->
+          <input class="input is-info" type="text" placeholder="Number of Workers" disabled
+            :value="workers.length" @input="ev => scaleWorker((ev.target as HTMLInputElement).value as unknown as number)"
+            style="width: 110px;"><!-- hotfix for type="number" input ... no problem with type="text" -->
         </div>
         <div class="control">
-          <button class="button is-family-monospace is-info" @click="spawnWorker" :disabled="workers == nmax" title="Add a WASM Runner to the Pool">+</button>
+          <button class="button is-family-monospace is-info" @click="spawnWorker" :disabled="workers.length == nmax" title="Add a WASM Runner to the Pool">+</button>
         </div>
         <div class="control">
-          <button class="button is-family-monospace is-info" @click="dropWorker" :disabled="workers == 0" title="Remove a WASM Runner from the Pool">-</button>
+          <button class="button is-family-monospace is-info" @click="dropWorker" :disabled="workers.length == 0" title="Remove a WASM Runner from the Pool">-</button>
         </div>
         <div class="control">
-          <button class="button is-info" @click="fillWorkers" :disabled="workers == nmax" title="Add WASM Runners to maximum capacity">Fill</button>
+          <button class="button is-info" @click="fillWorkers" :disabled="workers.length == nmax" title="Add WASM Runners to maximum capacity">Fill</button>
         </div>
       </div>
+
+      <label class="label has-text-grey-dark">Current Usage: {{ (100*usage).toFixed() }}%</label>
+      <progress class="progress is-large is-info" :value="usage" max="1" style="width: 245px;"></progress>
 
       <label class="label has-text-grey-dark">Storage</label>
       <div class="buttons">

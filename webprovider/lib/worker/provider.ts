@@ -115,7 +115,7 @@ export class WasimoffProvider {
     if (directory === ":memory:") this.storage = new InMemoryStorage();
     else this.storage = await OpfsStorage.open(directory);
 
-  }; // TODO: fire an event
+  };
 
 
   // --------->  messenger connections
@@ -138,9 +138,12 @@ export class WasimoffProvider {
     if (url.match(/^wss?:\/\//) === null) throw "must be a WebSocket URL";
     const wst = WebSocketTransport.connect(url);
     this.messenger = new Messenger(wst);
-    return wst.ready;
+    await wst.ready;
 
-  }; // TODO: fire an event
+    // send current concurrency
+    this.sendInfo(this.pool.length);
+
+  };
 
   async disconnect() {
     if (this.messenger !== undefined && !this.messenger.closed.aborted) {

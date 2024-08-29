@@ -11,6 +11,6 @@ const { providers } = storeToRefs(cluster);
 
 <template>
   <span v-if="providers !== undefined">
-    Currently {{ providers }} provider{{ providers > 1 ? "s" : "" }} connected.
+    Broker has {{ providers }} connected provider{{ providers > 1 ? "s" : "" }}.
   </span>
 </template>
