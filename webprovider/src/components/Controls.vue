@@ -180,10 +180,12 @@ const usage = computed(() => {
       <label class="label has-text-grey-dark">Current Usage: {{ (100*usage).toFixed() }}%</label>
       <progress class="progress is-large is-info" :value="usage" max="1" style="width: 245px;"></progress>
 
-      <label class="label has-text-grey-dark">Storage</label>
-      <div class="buttons">
-        <button class="button is-family-monospace is-success" @click="listdir" title="List files in OPFS">ls</button>
-        <button class="button is-family-monospace is-danger" @click="rmrf" title="Delete all files in OPFS">rm -f *</button>
+      <div v-if="false"><!-- TODO: storage controls hidden -->
+        <label class="label has-text-grey-dark">Storage</label>
+        <div class="buttons">
+          <button class="button is-family-monospace is-success" @click="listdir" title="List files in OPFS">ls</button>
+          <button class="button is-family-monospace is-danger" @click="rmrf" title="Delete all files in OPFS">rm -f *</button>
+        </div>
       </div>
 
     </div>
