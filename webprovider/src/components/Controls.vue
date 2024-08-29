@@ -14,7 +14,7 @@ const conf = useConfiguration();
 const { transport } = storeToRefs(conf);
 
 // info components
-import InfoProviders from "./InfoProviders.vue";
+import InfoProviders from "./ClusterInfo.vue";
 
 // link to the provider worker
 import { useProvider } from "@app/stores/provider.ts";

@@ -29,8 +29,8 @@ function scrolldown() {
 <style scoped>
 span.textarea {
   /* scroll-behavior: smooth; */
-  scrollbar-width: none;
-  height: 500px;
+  scrollbar-width: thin;
+  min-height: 250px;
   overflow-y: scroll;
   white-space: pre-wrap;
 }
