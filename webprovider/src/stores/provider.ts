@@ -78,7 +78,21 @@ export const useProvider = defineStore("WasimoffProvider", () => {
         };
       },
     });
-    
+
+    // try to grab a wakelock to keep screen on
+    if ("wakeLock" in navigator) {
+      try {
+        const lock = await navigator.wakeLock.request("screen");
+        terminal.info("Acquired a wakelock.")
+        lock.addEventListener("release", () => terminal.warn("Wakelock was revoked!"));
+        window.addEventListener("beforeunload", () => lock.release());
+      } catch (err) {
+        terminal.warn(`Could not acquire wakelock: ${err}`);
+      };
+    } else {
+      terminal.info("Wakelock API unavailable.");
+    }
+
   });
 
   async function open(...args: Parameters<WasimoffProvider["open"]>) {

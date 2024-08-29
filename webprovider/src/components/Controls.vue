@@ -23,29 +23,25 @@ let wasimoff = useProvider();
 const { connected, workers, $pool, $storage } = storeToRefs(wasimoff);
 
 // connect immediately on load, when the provider proxy is connected
-(() => {
-  let stop = watch(() => wasimoff.$provider, async (provider) => {
-    if (provider !== undefined) {
-      stop(); // do this just once
+watch(() => wasimoff.$provider, async (provider) => {
+  if (provider !== undefined) {
 
-      // TODO: connect to configuration store
-      await wasimoff.open(":memory:");
-      terminal.info(`Opened in-memory storage.`);
+    // TODO: connect to configuration store
+    await wasimoff.open(":memory:");
+    terminal.success(`Opened in-memory storage.`);
 
-      // add at least one worker immediately
-      if (workers.value.length === 0) await $pool.value?.scale(1);
+    // add at least one worker immediately
+    if (workers.value.length === 0) await $pool.value?.scale(1);
 
-      // maybe autoconnect to the broker
-      if (conf.autoconnect) await connect();
-      else terminal.warn("Autoconnect disabled. Please connect manually.");
+    // maybe autoconnect to the broker
+    if (conf.autoconnect) await connect();
+    else terminal.warn("Autoconnect disabled. Please connect manually.");
 
-      // fill remaining workers to capacity
-      if ($pool.value) await fillWorkers();
+    // fill remaining workers to capacity
+    if ($pool.value) await fillWorkers();
 
-    };
-  });
-})();
-
+  };
+});
 
 async function connect() {
   try {
@@ -141,13 +137,11 @@ async function fillWorkers() {
 
 // get the maximum capacity from pool
 const nmax = ref(0);
-(() => {
-  let stop = watch(() => wasimoff.$pool, async value => {
-    // capacity is readonly and should only ever change once
-    if (value) nmax.value = await value.capacity;
-    stop();
-  });
-})();
+watch(() => wasimoff.$pool, async value => {
+  // capacity is readonly and should only ever change once
+  if (value) nmax.value = await value.capacity;
+  stop();
+});
 
 // calculate current worker usage
 const usage = computed(() => {
