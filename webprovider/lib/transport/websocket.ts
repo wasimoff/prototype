@@ -22,7 +22,7 @@ export class WebSocketTransport implements Transport {
 
     this.ws.addEventListener("open", () => {
       console.log(...prefixOpen, "connection established", { url: this.ws.url, protocol: this.ws.protocol });
-      this.ready.resolve();
+      this.signal.resolve();
     });
 
     this.ws.addEventListener("error", (event) => {
@@ -58,7 +58,7 @@ export class WebSocketTransport implements Transport {
   /** send picks the correct codec depending on negotiated subprotocol and marshalls the envelope */
   public async send(envelope: Envelope): Promise<void> {
     this.closed.throwIfAborted();
-    await this.ready.promise;
+    await this.signal.promise;
     if (debugging) console.debug(...prefixTx, envelope.sequence, Envelope_MessageType[envelope.type], envelope.payload, envelope.error);
     switch (this.ws.protocol) {
 
@@ -97,7 +97,8 @@ export class WebSocketTransport implements Transport {
   }
 
   // signal to wait for readiness when sending
-  private ready = Signal();
+  private signal = Signal();
+  public ready = this.signal.promise;
 
   // handle closure and cancellation
   private controller = new AbortController();
@@ -109,7 +110,7 @@ export class WebSocketTransport implements Transport {
     let err = new WebSocketTransport.Err.TransportClosed(1000, reason, wasClean, this.ws.url);
     this.ws.close(1000, reason);
     this.messages.close();
-    this.ready.reject(err);
+    this.signal.reject(err);
     this.controller.abort(err);
   };
 

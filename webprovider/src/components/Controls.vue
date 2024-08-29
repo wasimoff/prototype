@@ -1,163 +1,153 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { computed, watch } from "vue";
+import { storeToRefs } from "pinia";
 
 // terminal for logging
-import { useTerminal, LogType } from "@app/stores/terminal";
+import { useTerminal, LogType } from "@app/stores/terminal.ts";
 const terminal = useTerminal();
 
 // configuration via url fragment
-import { useConfiguration } from "@app/stores/configuration";
+import { useConfiguration } from "@app/stores/configuration.ts";
 const conf = useConfiguration();
 
-// filesystem storage
-import { OpfsStorage } from "@wasimoff/storage/opfs.ts";
-let fs: OpfsStorage;
-(async () => fs = await OpfsStorage.open("/wasm"))();
+// the broker socket to connect
+const transport = storeToRefs(conf).transport;
 
-// webassembly runner worker pool
-import { useWorkerPool } from "@app/stores/workerpool";
-const pool = useWorkerPool();
+// link to the provider worker
+import { useProvider } from "@app/stores/provider.ts";
+const wasimoff = useProvider();
+// TODO: typings for ref<remote<...> | undefined>?
+const { connected, workers, $pool, $provider, $storage } = storeToRefs(wasimoff);
 
-// connection to the broker
-import { useConnection } from "@app/stores/connection";
-const conn = useConnection();
+// connect immediately on load, when the provider proxy is connected
+let stop = watch(() => wasimoff.$provider, async (provider) => {
+  if (provider !== undefined) {
+    stop(); // do this just once
 
+    // TODO: connect to configuration store
+    await wasimoff.open(":memory:");
+    terminal.log(`Opened in-memory storage.`, LogType.Info);
 
-// ---------- TRANSPORT ---------- //
+    // add at least one worker immediately
+    if (workers.value === 0) await $pool.value?.scale(1);
 
-// the webtransport URL to connect
-let transportConfig = ref(conf.transport);
+    // connect to the broker
+    await connect();
+
+    // fill remaining workers to capacity
+    if ($pool.value) {
+      await fillWorkers();
+      // while (await $pool.value.spawn());
+      // terminal.log(`Provider filled with ${workers.value} Workers.`, LogType.Info);
+    };
+
+  };
+});
+
 
 async function connect() {
   try {
-    // await conf.fetchConfig(transportConfig.value);
-    await conn.connect(conf.transport, conf.certhash);
+    const url = transport.value;
+    await wasimoff.connect(url);
+    terminal.log(`Connected to Broker at ${url}`, LogType.Success);
+    await $provider.value?.sendInfo(workers.value);
+    wasimoff.handlerequests();
   } catch (err) { terminal.error(String(err)); }
 }
 
 // connect automatically
-if (conf.autoconnect) setTimeout(connect, 100);
+// if (conf.autoconnect) setTimeout(connect, 100);
 
 async function rmrf() {
-  let files = await fs.prune();
+  if (!$storage.value) return terminal.error("$storage not connected yet");
+  let files = await $storage.value.prune();
   for (const file of files) {
     terminal.error(`Deleted: '${file}'`);
   };
 };
 
 async function listdir() {
-  let items = await fs.ls();
-  console.log("DEBUG", items);
+  if (!$storage.value) return terminal.error("$storage not connected yet");
+  let items = await $storage.value.lsf();
   if (items.length > 0) {
-    terminal.log(`OPFS directory ${fs.path} listing:`, LogType.Link);
+    terminal.log(`Directory listing:`, LogType.Link);
+    function filesize(bytes: number): string {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024**2) return `${(bytes/1024).toFixed(2)} KiB`;
+      return `${(bytes/1024**2).toFixed(2)} MiB`;
+    };
     for (const it of items) {
       if (it instanceof File)
         terminal.log(` ${it.name} [${filesize(it.size)}, ${it.type}]`, LogType.Link);
-      else
-        terminal.log(` ${it.name}/ [directory]`, LogType.Link);
+      // else
+      //   terminal.log(` ${it.name}/ [directory]`, LogType.Link);
     };
   } else {
-    terminal.log(`OPFS directory ${fs.path} is empty!`, LogType.Link);
+    terminal.log(`Directory is empty!`, LogType.Link);
   };
 };
 
-function filesize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024**2) return `${(bytes/1024).toFixed(2)} KiB`;
-  return `${(bytes/1024**2).toFixed(2)} MiB`;
-}
-
-async function killall() {
-  await pool.killall();
+async function kill() {
+  if (!$pool.value) return terminal.error("$pool not connected yet");
+  await $pool.value.killall();
+  // grace period for some error responses
   await new Promise(r => setTimeout(r, 100));
-  await conn.transport?.close("kill");
-  terminal.log("Transport closed!", LogType.Danger);
+  await wasimoff.disconnect();
 };
 
 async function shutdown() {
-  await pool.ensure(0);
-  await conn.transport?.close("shutdown");
-  terminal.log("Transport closed.", LogType.Warning);
+  if (!$pool.value) return terminal.error("$pool not connected yet");
+  await $pool.value.scale(0);
+  await wasimoff.disconnect();
 }
 
 // class bindings for the transport url field
-const connectionStatus = computed(() => conn.connected
+const connectionStatus = computed(() => connected.value
   ? { "is-success": true, "has-text-success": true }
   : { "is-danger": false,  "has-text-danger": false }
 );
 
+// watch connection status disconnections
+watch(() => connected.value, (conn) => {
+  if (conn === false) terminal.log("Connection closed.", LogType.Warning);
+});
+
 
 // ---------- WORKER POOL ---------- //
 
-// fill the pool on launch
-if (conf.autoconnect) (async () => {
-  // TODO: async problems because pool connections hasn't resolved yet
-  await new Promise(r => setTimeout(r, 1000));
-  await pool.ensure(conf.workers)
-})();
-
 // add / remove / fill workers in the pool
-async function addWorker() {
-  try { await pool.add(); }
+async function spawnWorker() {
+  if (!$pool.value) return terminal.error("$pool not connected yet");
+  try { await $pool.value.spawn(); }
   catch (err) { terminal.error(err as string); };
 };
-async function terminateWorker() {
-  try { await pool.terminate(); }
+async function dropWorker() {
+  if (!$pool.value) return terminal.error("$pool not connected yet");
+  try { await $pool.value.drop(); }
+  catch (err) { terminal.error(err as string); };
+};
+async function scaleWorker(n?: number) {
+  if (!$pool.value) return terminal.error("$pool not connected yet");
+  try { await $pool.value.scale(n); }
   catch (err) { terminal.error(err as string); };
 };
 async function fillWorkers() {
+  if (!$pool.value) return terminal.error("$pool not connected yet");
   try {
-    await pool.fill();
-    terminal.success(`Filled pool to capacity with ${pool.count} runners.`);
+    // await $pool.value.fill();
+    let max = await $pool.value.capacity;
+    while (await $pool.value.spawn() < max);
+    terminal.success(`Filled pool to capacity with ${workers.value} runners.`);
   } catch (err) { terminal.error(err as string); };
 };
 
-
-// ---------- OOM TESTING ---------- //
-
-const showOOMtest = false;
-
-// start a large number of `tsp.wasm` modules to try to trigger OOMs
-async function runloadtesting(iterations: number = 1000) {
-  terminal.success(`START LOCAL LOAD TESTING with ${iterations} iterations.`);
-
-  // get the binary from OPFS and precompile a module
-  const wasm = await fs.getWasmModule("tsp.wasm");
-
-  let t0 = performance.now(); // calculate how long it took
-  let ooms = 0; // count the number of OOMs that surfaced
-  let tasks: Promise<void>[] = []; // collect tasks to properly await
-
-  // start lots of tasks asynchronously and await them all
-  // for (let count = 0; count < iterations; count++) {
-  //   await new Promise<void>(async next => {
-  //     let task = pool.exec(async worker => {
-  //       try {
-  //         await worker.run(String(count), wasm, ["tsp", "rand", "8"], [], undefined, undefined, true);
-  //       } catch(err) {
-  //         console.error("oops:", err);
-  //         // just wait for OOM errors
-  //         if (String(err).includes("Out of memory")) {
-  //           ooms++;
-  //         } else {
-  //           terminal.error(String(err));
-  //           throw err;
-  //         };
-  //       };
-  //     }, next);
-  //     tasks.push(task);
-  //   });
-  // };
-  // await Promise.allSettled(tasks);
-
-  // log the results
-  let ms = (performance.now() - t0).toFixed(3);
-  terminal.info(`Done in ${ms} ms. OOM'd ${ooms} times.`);
-};
+// TODO: forward from pool
+const nmax = 16
 
 </script>
 
 <template>
+
   <!-- worker pool controls -->
   <div class="columns">
 
@@ -167,21 +157,21 @@ async function runloadtesting(iterations: number = 1000) {
       <div class="field has-addons">
         <div class="control">
           <input class="input is-info" type="number" min="0" max="16" step="1" placeholder="Number of Workers" disabled
-            :value="pool.count" @input="ev => pool.ensure((ev.target as HTMLInputElement).value as unknown as number)"
+            :value="workers" @input="ev => scaleWorker((ev.target as HTMLInputElement).value as unknown as number)"
             style="min-width: 100px;"><!-- hotfix for type="number" input ... no problem with type="text" -->
         </div>
         <div class="control">
-          <button class="button is-family-monospace is-info" @click="addWorker" :disabled="pool.count == pool.nmax" title="Add a WASM Runner to the Pool">+</button>
+          <button class="button is-family-monospace is-info" @click="spawnWorker" :disabled="workers == nmax" title="Add a WASM Runner to the Pool">+</button>
         </div>
         <div class="control">
-          <button class="button is-family-monospace is-info" @click="terminateWorker" :disabled="pool.count == 0" title="Remove a WASM Runner from the Pool">-</button>
+          <button class="button is-family-monospace is-info" @click="dropWorker" :disabled="workers == 0" title="Remove a WASM Runner from the Pool">-</button>
         </div>
         <div class="control">
-          <button class="button is-info" @click="fillWorkers" :disabled="pool.count == pool.nmax" title="Add WASM Runners to maximum capacity">Fill</button>
+          <button class="button is-info" @click="fillWorkers" :disabled="workers == nmax" title="Add WASM Runners to maximum capacity">Fill</button>
         </div>
       </div>
 
-      <label class="label has-text-grey-dark">Origin-Private Filesystem</label>
+      <label class="label has-text-grey-dark">Storage</label>
       <div class="buttons">
         <button class="button is-family-monospace is-success" @click="listdir" title="List files in OPFS">ls</button>
         <button class="button is-family-monospace is-danger" @click="rmrf" title="Delete all files in OPFS">rm -f *</button>
@@ -195,28 +185,17 @@ async function runloadtesting(iterations: number = 1000) {
       <label class="label has-text-grey-dark">Broker Transport</label>
       <div class="field has-addons">
         <div class="control">
-          <input :readonly="conn.connected" class="input" :class="connectionStatus" type="text" title="WebTransport Configuration URL" v-model="transportConfig">
+          <input :readonly="connected" class="input" :class="connectionStatus" type="text" title="WebTransport Configuration URL" v-model="transport">
         </div>
-        <div class="control" v-if="!conn.connected">
+        <div class="control" v-if="!connected">
           <button class="button is-success" @click="connect" title="Reconnect Transport">Connect</button>
         </div>
-        <div class="control" v-if="conn.connected">
+        <div class="control" v-if="connected">
           <button class="button is-warning" @click="shutdown" title="Drain Workers and close the Transport gracefully">Close</button>
         </div>
-        <div class="control" v-if="conn.connected">
-          <button class="button is-danger" @click="killall" title="Kill Workers and close Transport immediately">Kill</button>
+        <div class="control" v-if="connected">
+          <button class="button is-danger" @click="kill" title="Kill Workers and close Transport immediately">Kill</button>
         </div>
-      </div>
-
-      <!-- <label class="label has-text-grey-dark">Flags</label>
-      <label class="checkbox">
-        <input type="checkbox">
-        Log Wasm Runs
-      </label> -->
-
-      <div v-if="showOOMtest">
-        <label class="label has-text-grey-dark">Out of Memory Testing</label>
-        <button class="button is-warning" @click="() => runloadtesting()" title="Run Load testing to trigger OOM error">Eat my Memory, plz</button>
       </div>
 
     </div>

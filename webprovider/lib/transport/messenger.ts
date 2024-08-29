@@ -1,8 +1,8 @@
+import { create, createRegistry, toBinary, Message as ProtoMessage } from "@bufbuild/protobuf";
+import { AnySchema, anyUnpack, type Any } from "@bufbuild/protobuf/wkt";
 import { Envelope_MessageType as MessageType, EnvelopeSchema, file_messages } from "@wasimoff/proto/messages_pb.ts";
-import { create, createRegistry, toBinary, type Message } from "@bufbuild/protobuf";
 import { type Transport } from "./index.ts";
 import { PushableAsyncIterable } from "@wasimoff/func/pushableiterable.ts";
-import { AnySchema, anyUnpack, type Any } from "@bufbuild/protobuf/wkt";
 
 
 /** This interface is not technically needed. It's just there to
@@ -11,11 +11,11 @@ interface MessengerInterface {
 
   // remote procedure calls
   requests: AsyncIterable<RemoteProcedureCall>;
-  sendRequest: (r: Message) => Promise<Result>;
+  sendRequest: (r: ProtoMessage) => Promise<Result>;
 
   // event messages
-  events: AsyncIterable<Message>;
-  sendEvent: (event: Message) => Promise<void>;
+  events: AsyncIterable<ProtoMessage>;
+  sendEvent: (event: ProtoMessage) => Promise<void>;
 
   // signal a closed transport
   closed: AbortSignal;
@@ -26,7 +26,7 @@ interface MessengerInterface {
 /** A remote procedure call is emitted by the AsyncIterator and must be called with an async handler,
  * which receives the Request object and produces a Result. If the handler throws, the caught error is
  * sent back to the caller automatically. */
-export type RemoteProcedureCall = (handler: (request: Message) => Promise<Message>) => Promise<void>;
+export type RemoteProcedureCall = (handler: (request: ProtoMessage) => Promise<ProtoMessage>) => Promise<void>;
 
 
 /** MessengerInterface wraps around some Transport, which could be a WebSocket,
@@ -103,7 +103,7 @@ export class Messenger implements MessengerInterface {
 
   private requestSequence = 0n;
   private pending = new Map<BigInt, (r: Result) => void>();
-  async sendRequest(request: Message): Promise<Result> {
+  async sendRequest(request: ProtoMessage): Promise<Result> {
     // TODO: caution, Provider->Broker requests are not properly tested yet
     // get the next sequence number
     let sequence = this.requestSequence++;
@@ -122,10 +122,10 @@ export class Messenger implements MessengerInterface {
     }
   };
 
-  events = new PushableAsyncIterable<Message>;
+  events = new PushableAsyncIterable<ProtoMessage>;
 
   private eventSequence = 0n;
-  async sendEvent(event: Message): Promise<void> {
+  async sendEvent(event: ProtoMessage): Promise<void> {
     // envelope the event and send it off
     return this.transport.send(create(EnvelopeSchema, {
       sequence: this.eventSequence++,
@@ -152,7 +152,7 @@ export class Messenger implements MessengerInterface {
   };
 
 
-  private pack(m: Message): Any {
+  private pack(m: ProtoMessage): Any {
     let schema = this.registry.getMessage(m.$typeName);
     if (schema === undefined) throw "unknown message type";
     let into = create(AnySchema, {
@@ -162,7 +162,7 @@ export class Messenger implements MessengerInterface {
     return into;
   };
 
-  private unpack(p: Any | undefined): Message {
+  private unpack(p: Any | undefined): ProtoMessage {
     if (p === undefined) throw "cannot unpack empty payload";
     let message = anyUnpack(p, this.registry);
     if (message === undefined) throw "unknown payload type";
@@ -171,4 +171,4 @@ export class Messenger implements MessengerInterface {
 
 }
 
-export type Result = Error | PromiseLike<Error> | Message | PromiseLike<Message>;
+export type Result = Error | PromiseLike<Error> | ProtoMessage | PromiseLike<ProtoMessage>;

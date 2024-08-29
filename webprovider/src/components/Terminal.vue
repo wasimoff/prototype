@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { ref, watch } from "vue";
-import { useTerminal, LogType } from "@app/stores/terminal";
+import { useTerminal } from "@app/stores/terminal";
 import LogLine from "@app/components/LogLine.vue";
 
 // reference to the log textarea

@@ -4,9 +4,9 @@ export * from "comlink";
 /** Return an instantiated object of a Worker, which exposes a Comlink-wrapped class.
  * #### Example:
  * ```
- * import { SimpleWorker } from "@app/worker/simple";
+ * import { type SimpleWorker } from "@app/worker/simple";
  * let worker = new Worker(new URL("@app/worker/simple", import.meta.url));
- * let simple = await construct(worker, SimpleWorker, "MyName");
+ * let simple = await construct<typeof SimpleWorker>(worker, "MyName");
  * console.log(await simple.name); // "MyName"
  * ```
  * 
@@ -14,12 +14,11 @@ export * from "comlink";
  * that the exposed class expects and avoids a double-await like `await (await comlink<T>(...))(...args);`.
 */
 export async function construct<T extends { new(...args: any[]): InstanceType<T> }>(
-  worker: Worker,
-  constructor: T,
-  ...args: ConstructorParameters<typeof constructor>
+  worker: Worker | MessagePort,
+  ...args: ConstructorParameters<T>
 ): Promise<Remote<InstanceType<T>>> {
   // wrap the comlink proxy when it's ready
-  let proxiedClass = await comlink<typeof constructor>(worker);
+  let proxiedClass = await comlink<T>(worker);
   // call the remote class constructor
   return await new proxiedClass(...args) as any;
 };
@@ -40,6 +39,7 @@ export async function comlink<T>(endpoint: Endpoint): Promise<Remote<T>> {
   return wrap<T>(endpoint);
 };
 
+
 /** Listen for a readiness message `{ ready: true }` from the Worker and call the `callback` once. */
 // Comlink adds EventListeners "per request" and ignores any that don't match an
 // expected UUID. So you can just listen for your own custom messages as well.
@@ -57,6 +57,8 @@ export function whenready(endpoint: Endpoint, callback: (u?: unknown) => void) {
 
 /** The message expected by the `readinessListener`. */
 export const workerReady = { ready: true } as const;
+
+
 
 /** A Comlink-wrapped Worker, which also still holds the bare Worker reference. */
 export type WrappedWorker<Exposed, Metadata extends Object> = {

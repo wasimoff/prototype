@@ -2,14 +2,12 @@
 declare var self: DedicatedWorkerGlobalScope;
 export {};
 
-// TODO: in deno, replace browser_wasi_shim with std module https://deno.land/std@0.93.0/wasi/README.md
-
-//TODO
-//* accept filesystem image as zip or tar archive; return a specified list of files as archive, too
-//* use FinalizationRegistry to notify OOM'ed workers (https://github.com/wasimoff/prototype/blob/cf3b222aba5dd218040fcc6b15af425f0f95b35a/webprovider/src/worker/wasmrunner.ts#L52-L54)
+// TODO: in Deno, replace browser_wasi_shim with std module https://deno.land/std@0.93.0/wasi/README.md?
+// TODO: accept rootfs and return artifacts as zip using zip.js https://gildas-lormeau.github.io/zip.js/api/
+// TODO: use FinalizationRegistry to notify OOM'ed workers (https://github.com/wasimoff/prototype/blob/cf3b222aba5dd218040fcc6b15af425f0f95b35a/webprovider/src/worker/wasmrunner.ts#L52-L54)
 
 import { WASI, File, OpenFile, PreopenDirectory, Fd, strace } from "@bjorn3/browser_wasi_shim";
-import { expose, workerReady } from "./index.ts";
+import { expose, workerReady } from "./comlink.ts";
 
 // be more verbose with the messages
 const VERBOSE = false;
@@ -19,11 +17,11 @@ const VERBOSE = false;
 export class WasiWorker {
 
   constructor(
-    private readonly name: string,
+    private readonly index: number,
   ) { };
 
   // colorful console logging prefix
-  private get logprefix() { return [ `%c WasiWorker ${this.name} `, "background: #f03a5f; color: white;" ]; }
+  private get logprefix() { return [ `%c WasiWorker ${this.index} `, "background: #f03a5f; color: white;" ]; }
 
   // TODO: shim the trace function to not rip out all the statements completely
   private trace(msg: string) { if (VERBOSE) console.debug(...this.logprefix, msg); };
@@ -36,9 +34,9 @@ export class WasiWorker {
       this.trace("worker: function top");
 
       // log the overall commandline to terminal and console
-      if (true) { // TODO
+      if (VERBOSE) { // TODO
         let cmdline = [...task.envs, task.argv[0] || "<binary>", ...task.argv.slice(1)];
-        console.log(...this.logprefix, id, cmdline);
+        console.debug(...this.logprefix, id, cmdline);
         this.emit("cmdline", { id, cmdline });
         this.trace("worker: commandline logged");
       };
@@ -161,13 +159,14 @@ export class WasiWorker {
   // private broadcast = new BroadcastChannel("WasiWorkerBroadcast");
   private emit<T extends keyof WasiWorkerMessages>(type: T, payload: WasiWorkerMessages[T]) {
   //   this.broadcast.postMessage({ name: this.name, type, payload } as SomeWasiWorkerMessage);
-    self.postMessage({ name: this.name, type, payload } as SomeWasiWorkerMessage);
+    self.postMessage({ name: String(this.index), type, payload } as SomeWasiWorkerMessage);
   };
 
 };
 
-if (self.postMessage !== undefined) {
-  expose(WasiWorker);
+// only expose if we're actually started in a worker and not just being imported
+if (self.constructor.name === "DedicatedWorkerGlobalScope" && self.postMessage !== undefined) {
+  expose(WasiWorker, self);
   postMessage(workerReady);
 };
 
@@ -178,6 +177,7 @@ if (self.postMessage !== undefined) {
 export type WasiInstance = { exports: { memory: WebAssembly.Memory, _start: () => unknown } };
 
 /** Arguments for a WASI task executions. */
+// TODO: fully reuse the protobuf definitions?
 export type WasiTaskExecution = {
 
   /** The WebAssembly executable itself, either precompiled module or a binary source. */
@@ -210,12 +210,8 @@ export type WasiTaskResult = {
 
 };
 
-// a preloaded root filesystem // TODO
-// type RootFS = { [key: string]: File | SyncOPFSFile | Directory };
 
 // ------------------------- messages ------------------------- //
-
-
 
 export type WasiWorkerMessages = {
 

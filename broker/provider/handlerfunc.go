@@ -36,6 +36,9 @@ func WebSocketHandler(server *server.Server, store *ProviderStore, origins []str
 		provider := NewProvider(msg)
 		defer provider.Close(nil)
 
+		// handle incoming event messages
+		go provider.eventReceiver()
+
 		// TODO: replace this up-front pushing with on-demand fetching by Providers (needs scheduler change, too!)
 		// get the list of available files on provider
 		if err = provider.ListFiles(); err != nil {
@@ -55,9 +58,6 @@ func WebSocketHandler(server *server.Server, store *ProviderStore, origins []str
 		store.Add(provider)
 		defer store.Remove(provider)
 		log.Printf("[%s] New Provider connected using WebSocket", addr)
-
-		// handle incoming event messages
-		go provider.eventReceiver()
 
 		// wait until the session ends to defer cleanup
 		select {

@@ -1,7 +1,7 @@
 import { ProviderStorage } from "./index.ts";
 import { LRUCache } from "lru-cache";
 
-const logprefix = [ "%c OpfsStorage ", "background: purple; color: white;" ];
+const logprefix = [ "%c OPFS Storage ", "background: purple; color: white;" ];
 
 export class OpfsStorage implements ProviderStorage {
 
@@ -100,7 +100,7 @@ export class OpfsStorage implements ProviderStorage {
   async rm(filename: string) {
     console.log(...logprefix, `delete ${this.path}${filename}`);
     await this.handle.removeEntry(filename);
-    this.wasmcache.delete(filename);
+    return this.wasmcache.delete(filename);
   };
 
   /** Remove all files in directory. */

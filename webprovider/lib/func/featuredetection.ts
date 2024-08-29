@@ -10,12 +10,12 @@ export function CheckFeatures() {
 
     // need OPFS for file storage
     // https://caniuse.com/native-filesystem-api
-    check(("storage" in navigator && typeof navigator.storage.getDirectory === "function"), "Origin-Private FileSystem (OPFS) not available"),
+    // check(("storage" in navigator && typeof navigator.storage.getDirectory === "function"), "Origin-Private FileSystem (OPFS) not available"),
 
     // need WebSocket / WebTransport for broker connection
     // https://caniuse.com/websockets, https://caniuse.com/webtransport
     check(("WebSocket" in window && typeof window.WebSocket.constructor === "function"), "WebSocket not available"),
-    check(("WebTransport" in window && typeof window.WebTransport.constructor === "function"), "WebTransport not available"),
+    // check(("WebTransport" in window && typeof window.WebTransport.constructor === "function"), "WebTransport not available"),
 
     // need WebAssembly support, obviously
     // https://caniuse.com/wasm

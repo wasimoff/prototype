@@ -97,6 +97,7 @@ func (m *Messenger) Close(reason error) {
 	if m.Err() == nil {
 		m.transport.Close(fmt.Errorf("closed from Messenger: %w", reason))
 		m.lifetime.Cancel(reason)
+		<-m.Closing()
 		close(m.events)
 	}
 }
@@ -202,9 +203,12 @@ func (m *Messenger) receiver() {
 	}
 	// set errors for future requests
 	// TODO: reuse m.close() but it would currently deadlock because it also wants pendingMutex
-	m.transport.Close(receiveErr)
-	m.lifetime.Cancel(receiveErr)
-	close(m.events)
+	if m.Err() == nil {
+		m.transport.Close(receiveErr)
+		m.lifetime.Cancel(receiveErr)
+		<-m.Closing()
+		close(m.events)
+	}
 	m.pendingMutex.Unlock()
 	m.sendMutex.Unlock()
 }

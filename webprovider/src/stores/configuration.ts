@@ -64,7 +64,7 @@ export const useConfiguration = defineStore("Configuration", () => {
   const defaultconf: Configuration = {
     autoconnect: false,
     workers: "max",
-    transport: "ws://localhost:4080/websocket/provider",
+    transport: window.location.origin.replace(/^http/, "ws") + "/websocket/provider",
     certhash: undefined,
     configpath: window.location.origin + "/api/broker/v1/config",
   };

@@ -16,6 +16,7 @@ export interface Transport {
   // signal a closed connection with an AbortController internally
   closed: AbortSignal;
   close: (reason?: string) => void;
+  ready: Promise<void>;
 
 }
 

@@ -12,7 +12,10 @@ export default defineConfig({
       "@wasimoff": fileURLToPath(new URL("./lib", import.meta.url)),
     },
   },
-  build: { target: "esnext" },
+  build: {
+    target: "esnext",
+    sourcemap: "hidden",
+  },
   worker: { format: "es" },
   server: {
     headers: {

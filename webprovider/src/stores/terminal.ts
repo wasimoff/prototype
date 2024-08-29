@@ -1,4 +1,4 @@
-import { computed, reactive, ref } from "vue";
+import { computed, reactive } from "vue";
 import { defineStore } from "pinia";
 
 /** A single "line" of logging output created by a call to `log()`. */

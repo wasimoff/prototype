@@ -9,9 +9,6 @@
     is: "info",
   });
 
-  // create timestamp on instantiation time
-  // const timestamp = new Date().toLocaleTimeString();
-
 </script>
 
 <template>

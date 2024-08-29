@@ -1,9 +1,11 @@
 import { ProviderStorage } from "./index.ts";
 import { LRUCache } from "lru-cache";
 
-const logprefix = [ "%c MemoryStorage ", "background: purple; color: white;" ];
+const logprefix = [ "%c Memory Storage ", "background: purple; color: white;" ];
 
 export class InMemoryStorage implements ProviderStorage {
+
+  readonly path = ":memory:";
 
   // just keep file buffers in a map
   private storage = new Map<string, ArrayBuffer>();
@@ -45,6 +47,18 @@ export class InMemoryStorage implements ProviderStorage {
     console.log(...logprefix, `store ${filename}, ${buf.byteLength} bytes`);
     this.storage.set(filename, buf);
     return new File([buf], filename);
+  };
+
+  // remove a file
+  async rm(filename: string) {
+    return this.storage.delete(filename);
+  };
+
+  // remove all files
+  async prune() {
+    let files = [...this.storage.keys()];
+    this.storage.clear();
+    return files;
   };
 
 }
