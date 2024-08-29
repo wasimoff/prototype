@@ -66,3 +66,7 @@ func (s *RoundRobinSelector) Schedule(ctx context.Context, task *Task) (call *pr
 	return
 
 }
+
+func (s *RoundRobinSelector) TaskDone() {
+	s.store.RateTick()
+}

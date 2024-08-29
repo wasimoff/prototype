@@ -41,6 +41,11 @@ func Dispatcher(queue chan *Task, selector Scheduler) {
 			task.Result = FormatResult(call.Result, err)
 			task.Done()
 
+			// signal completion to measure throughput
+			if task.Result.Err == nil {
+				selector.TaskDone()
+			}
+
 		}(task)
 	}
 }

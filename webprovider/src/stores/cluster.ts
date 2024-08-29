@@ -13,6 +13,9 @@ export const useClusterState = defineStore("ClusterState", () => {
   // number of providers currently connected to the broker
   const providers = ref<number>();
 
+  // current throughput of tasks per second
+  const throughput = ref<number>(0);
+
   // whenever the provider messenger reconnects
   watch(() => wasimoff.$messenger, async (messenger) => {
     if (messenger !== undefined && wasimoff.$provider !== undefined) {
@@ -31,6 +34,11 @@ export const useClusterState = defineStore("ClusterState", () => {
             providers.value = event.providers;
             break;
 
+          // update throughput
+          case isMessage(event, pb.ThroughputSchema):
+            throughput.value = event.throughput;
+            break;
+
         };
       };
 
@@ -41,8 +49,6 @@ export const useClusterState = defineStore("ClusterState", () => {
   });
 
 
-  return {
-    providers,
-  };
+  return { providers, throughput };
 
 })

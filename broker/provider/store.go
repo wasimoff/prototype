@@ -3,9 +3,11 @@ package provider
 import (
 	"context"
 	"log"
+	"time"
 	"wasimoff/broker/net/pb"
 	"wasimoff/broker/storage"
 
+	"github.com/paulbellamy/ratecounter"
 	"github.com/puzpuzpuz/xsync"
 	"google.golang.org/protobuf/proto"
 )
@@ -22,14 +24,18 @@ type ProviderStore struct {
 
 	// Broadcast is a channel to submit events for all Providers
 	Broadcast chan proto.Message
+
+	// ratecounter is used to keep track of throughput [tasks/s]
+	ratecounter *ratecounter.RateCounter
 }
 
 // NewProviderStore properly initializes the fields in the store
 func NewProviderStore() ProviderStore {
 	store := ProviderStore{
-		providers: xsync.NewMapOf[*Provider](),
-		Storage:   storage.NewFileStorage(),
-		Broadcast: make(chan proto.Message, 10),
+		providers:   xsync.NewMapOf[*Provider](),
+		Storage:     storage.NewFileStorage(),
+		Broadcast:   make(chan proto.Message, 10),
+		ratecounter: ratecounter.NewRateCounter(5 * time.Second),
 	}
 	go store.transmitter()
 	return store
@@ -39,11 +45,35 @@ func NewProviderStore() ProviderStore {
 
 // transmitter forwards events from the chan to all Providers
 func (s *ProviderStore) transmitter() {
+
+	// send current throughput regularly
+	go s.throughput(time.Second)
+
+	// broadcast events from channel
 	for event := range s.Broadcast {
 		s.Range(func(_ string, p *Provider) bool {
 			p.messenger.SendEvent(context.TODO(), event)
 			return true
 		})
+	}
+
+}
+
+// -------------- ratecounter in tasks/second --------------
+
+// RateTick should be called on successful Task completion to measure throughput
+func (s *ProviderStore) RateTick() {
+	s.ratecounter.Incr(1)
+}
+
+// throughput expects
+func (s *ProviderStore) throughput(tick time.Duration) {
+	for range time.Tick(tick) {
+		tps := s.ratecounter.Rate() / 5
+		// log.Println("Tasks/sec:", tps)
+		s.Broadcast <- &pb.Throughput{
+			Throughput: proto.Float32(float32(tps)),
+		}
 	}
 }
 

@@ -46,3 +46,7 @@ func (s *AnyFreeSelector) Schedule(ctx context.Context, task *Task) (call *provi
 	return
 
 }
+
+func (s *AnyFreeSelector) TaskDone() {
+	s.store.RateTick()
+}

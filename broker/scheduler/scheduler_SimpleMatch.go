@@ -84,3 +84,7 @@ func (s *SimpleMatchSelector) Schedule(ctx context.Context, task *Task) (call *p
 
 	}
 }
+
+func (s *SimpleMatchSelector) TaskDone() {
+	s.store.RateTick()
+}

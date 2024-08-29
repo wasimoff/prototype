@@ -14,6 +14,8 @@ type Scheduler interface {
 	Ok() error
 	// The Schedule function tries to submit a Task to a suitable Provider's queue and returns the WasmTask struct
 	Schedule(ctx context.Context, task *Task) (*provider.PendingWasiCall, error)
+	// Called on task completion to measure overall throughput
+	TaskDone()
 }
 
 // dynamicSubmit uses `reflect.Select` to dynamically select a Provider to submit a task to.
