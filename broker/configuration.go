@@ -25,6 +25,9 @@ type Configuration struct {
 
 	// StaticFiles is a path with static files to serve; usually the webprovider frontend dist.
 	StaticFiles string `split_words:"true" default:"../webprovider/dist/" desc:"Serve static files on \"/\" from here"`
+
+	// Activate the benchmarking mode where the Broker produces workload itself
+	Benchmode bool `split_words:"true" desc:"Activate benchmarking mode"`
 }
 
 //

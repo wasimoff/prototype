@@ -66,11 +66,50 @@ var taskid atomic.Uint64
 // The ExecHandler returns a HTTP handler, which accepts run configurations for
 // existing WASM binaries and dispatches them to available providers. Upon task
 // completion, the results are returned to the HTTP requester.
-func ExecHandler(selector Scheduler) http.HandlerFunc {
+func ExecHandler(selector Scheduler, benchmode bool) http.HandlerFunc {
 
 	// create a queue for the tasks and start the dispatcher
 	queue := make(chan *Task, 10)
 	go Dispatcher(queue, selector)
+
+	// TODO: this is a horrible graft ..
+	if benchmode {
+		go func() {
+
+			// use "tickets" to limit the number of concurrent tasks in-flight
+			tickets := make(chan struct{}, 4096)
+			for len(tickets) < cap(tickets) {
+				tickets <- struct{}{}
+			}
+
+			// dummy runconfig, which makes it clear we're benchmarking
+			run := RunConfiguration{
+				RunID:     "BENCHMODE",
+				Requestor: &Requestor{RemoteAddr: "broker"},
+			}
+
+			for i := 0; ; i++ {
+				<-tickets
+				if i > 0 && i%100 == 0 {
+					log.Println("Benchmarking:", i, "requests")
+				}
+				queue <- &Task{
+					Run:    &run,
+					Index:  i,
+					Binary: "tsp.wasm",
+					Envs:   []string{},
+					Args:   []string{"rand", "10"},
+					Done:   func() { tickets <- struct{}{} },
+					Result: &TaskResult{},
+				}
+			}
+		}()
+
+		// no other execs are allowed
+		return func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "sorry, running in benchmode", http.StatusTeapot)
+		}
+	}
 
 	// return the http handler to register as a route
 	return func(w http.ResponseWriter, r *http.Request) {

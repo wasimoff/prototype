@@ -32,7 +32,7 @@ func main() {
 	selector := scheduler.NewSimpleMatchSelector(&store)
 
 	// run request handler
-	http.HandleFunc(apiPrefix+"/run", scheduler.ExecHandler(&selector))
+	http.HandleFunc(apiPrefix+"/run", scheduler.ExecHandler(&selector, conf.Benchmode))
 
 	// upload wasm binaries to providers
 	http.HandleFunc(apiPrefix+"/upload", scheduler.UploadHandler(&store))
