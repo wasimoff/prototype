@@ -11,7 +11,7 @@ import { useConfiguration } from "@app/stores/configuration.ts";
 const conf = useConfiguration();
 
 // the broker socket to connect
-const { transport } = storeToRefs(conf);
+const transport = ref(conf.transport);
 
 // info components
 import InfoProviders from "./ClusterInfo.vue";

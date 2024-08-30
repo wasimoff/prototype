@@ -10,7 +10,7 @@ export class WasiWorkerPool {
 
   constructor(
     /** The absolute maximum number of workers in this pool. */
-    public readonly capacity: number,
+    public readonly capacity: number = navigator.hardwareConcurrency,
   ) { };
 
   // hold the Workers in an array

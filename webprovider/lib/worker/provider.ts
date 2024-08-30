@@ -53,7 +53,28 @@ export class WasimoffProvider {
     /** storage backend for modules and artifacts */
     public storage?: ProviderStorage,
   ) {
-    console.info(...WasimoffProvider.logprefix, "started in", self.constructor.name)
+    console.info(...WasimoffProvider.logprefix, "started in", self.constructor.name);
+
+    // setup the proxied pool to send concurrency updates automatically
+    this.pool = new Proxy(new WasiWorkerPool(this.nmax), {
+      // trap property accesses that return methods which can change the pool length
+      get: (target, prop, receiver) => {
+        const traps = ["spawn", "scale", "fill", "drop", "flush", "killall"];
+        const method = Reflect.get(target, prop, receiver);
+        // wrap the function calls with an update to the broker
+        if (typeof method === "function" && traps.includes(prop as string)) {
+          return async (...args: any[]) => {
+            let result = await (method as any).apply(target, args) as Promise<number>;
+            this.sendInfo(await result).catch(() => { /* ignore errors */ });
+            return result;
+          };
+        } else {
+          // anything else is passed through
+          return method;
+        };
+      },
+    });
+
   };
 
   static async init(nmax: number, url: string, dir: string) {
@@ -71,25 +92,8 @@ export class WasimoffProvider {
     return comlinkProxy(this.pool);
   }
 
-  // hold the wasiworkers in a pool and use a Proxy to send pool updates automatically
-  public pool = new Proxy(new WasiWorkerPool(this.nmax), {
-    // trap property accesses that return methods which can change the pool length
-    get: (target, prop, receiver) => {
-      const traps = ["spawn", "scale", "fill", "drop", "flush", "killall"];
-      const method = Reflect.get(target, prop, receiver);
-      // wrap the function calls with an update to the broker
-      if (typeof method === "function" && traps.includes(prop as string)) {
-        return async (...args: any[]) => {
-          let result = await (method as any).apply(target, args) as Promise<number>;
-          try { this.sendInfo(await result); } catch { };
-          return result;
-        };
-      } else {
-        // anything else is passed through
-        return method;
-      };
-    },
-  });
+  // hold the wasiworkers in a pool
+  public pool: WasiWorkerPool;
 
   async run(id: string, task: WasiTaskExecution) {
     return this.pool.run(id, task);
