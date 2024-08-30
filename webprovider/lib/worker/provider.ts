@@ -8,7 +8,7 @@ import { WasiWorkerPool } from "./workerpool.ts";
 import { create, Message } from "@bufbuild/protobuf";
 import { ProviderInfoSchema } from "@wasimoff/proto/messages_pb.ts";
 import { rpchandler } from "@wasimoff/worker/rpchandler.ts";
-import { expose, proxy as comlinkProxy, workerReady, transfer } from "./comlink.ts";
+import { expose, proxy as comlinkProxy, workerReady, transfer, proxy } from "./comlink.ts";
 import { WasiTaskExecution } from "./wasiworker.ts";
 
 /**
@@ -198,9 +198,22 @@ export class WasimoffProvider {
     });
 
     // transfer the stream
+    // this doesn't work on safari :(
     return transfer(stream, [ stream ]);
 
   };
+
+  async getEventIteratorNext() {
+
+    // must have an open messenger on which to receive events
+    if (this.messenger === undefined || this.messenger.closed.aborted)
+      throw "need to connect to a broker first";
+
+    // create an iterator and return a proxied next
+    const iterator = this.messenger.events[Symbol.asyncIterator]()
+    return proxy(() => iterator.next());
+
+  }
 
 
   // --------->  shorthands to send events
