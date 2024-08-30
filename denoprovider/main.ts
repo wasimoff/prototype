@@ -6,21 +6,23 @@ import { parseArgs } from "@std/cli/parse-args";
 import { WasimoffProvider } from "@wasimoff/worker/provider.ts";
 
 // parse commandline arguments
+const help = (fatal: boolean = false) => {
+  console.log("$", import.meta.filename?.replace(/.*\//, ""), "[--workers n] [--url <WebSocket URL>]");
+  Deno.exit(fatal ? 1 : 0);
+};
 const args = parseArgs(Deno.args, {
-  alias: { "workers": "w", "help": "h" },
+  alias: { "workers": "w", "url": "u", "help": "h" },
   default: {
     "workers": navigator.hardwareConcurrency,
     "url": "ws://localhost:4080/websocket/provider",
   },
   boolean: [ "help" ],
   string: [ "url" ],
+  unknown: (arg) => { console.warn("Unknown argument:", arg); help(true); }
 });
 
 // print help if requested
-if (args.help) {
-  console.log("$", import.meta.filename?.replace(/.*\//, ""), "[--workers n] [--url <WebSocket URL>]");
-  Deno.exit(0);
-};
+if (args.help) help();
 
 // validate the values
 const brokerurl = args.url;
