@@ -37,6 +37,15 @@ func NewServer(handler http.Handler, httpAddr, httpCert, httpKey string) (s *Ser
 	return
 }
 
+// Addr returns the base listening address, like https?://host:port
+func (s *Server) Addr() string {
+	protocol := "http"
+	if s.Http.TLSConfig != nil {
+		protocol = "https"
+	}
+	return fmt.Sprintf("%s://%s", protocol, s.Http.Addr)
+}
+
 func (s *Server) ListenAndServe() error {
 
 	// signal handler to close connections on CTRL-C
@@ -61,7 +70,7 @@ func (s *Server) ListenAndServe() error {
 		return fmt.Errorf("SIGINT received")
 
 	case err := <-httpErr: // http.Server failed
-		return fmt.Errorf("http.Server server failed: %w", err)
+		return fmt.Errorf("http.Server failed: %w", err)
 	}
 
 }

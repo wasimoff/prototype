@@ -13,7 +13,7 @@ import (
 type Configuration struct {
 
 	// HttpListen is the listening address for the HTTP server.
-	HttpListen string `split_words:"true" default:":4080" desc:"Listening Addr for HTTP server"`
+	HttpListen string `split_words:"true" default:"localhost:4080" desc:"Listening Addr for HTTP server"`
 
 	// HttpCert and HttpKey are paths to a TLS keypair to optionally use for the HTTP server.
 	// If none are given, a plaintext server is started. Reload keys with SIGHUP.
@@ -27,7 +27,10 @@ type Configuration struct {
 	StaticFiles string `split_words:"true" default:"../webprovider/dist/" desc:"Serve static files on \"/\" from here"`
 
 	// Activate the benchmarking mode where the Broker produces workload itself
-	Benchmode bool `split_words:"true" desc:"Activate benchmarking mode"`
+	Benchmode bool `desc:"Activate benchmarking mode" default:"false"`
+
+	// Enable the pprof handlers under /debug/pprof
+	Debug bool `desc:"Enable /debug/pprof profile handlers" default:"false"`
 }
 
 //
