@@ -71,15 +71,16 @@ func (s *SimpleMatchSelector) Schedule(ctx context.Context, task *Task) (call *p
 
 		// wrap parent context in a short timeout
 		timeout, cancel := context.WithTimeout(ctx, time.Second)
-		defer cancel()
 
 		// submit the task normally with new context
 		call, err = dynamicSubmit(timeout, requestFromTask(task), providers)
 		if err != nil && ctx.Err() == nil && timeout.Err() == err {
 			// parent context not cancelled and err == our timeout,
 			// so reschedule in hopes of picking up changes in provider store
-			continue // loop again
+			cancel()
+			continue // retry
 		}
+		cancel()
 		return call, err
 
 	}
