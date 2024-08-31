@@ -54,6 +54,8 @@ func (s *RoundRobinSelector) selectCandidates(task *Task) (candidates []*provide
 }
 
 func (s *RoundRobinSelector) Schedule(ctx context.Context, task *Task) (call *provider.PendingWasiCall, err error) {
+	run := requestFromTask(task)
+	call = provider.NewPendingWasiCall(run)
 
 	providers, err := s.selectCandidates(task)
 	if err != nil {
@@ -62,7 +64,7 @@ func (s *RoundRobinSelector) Schedule(ctx context.Context, task *Task) (call *pr
 		return nil, fmt.Errorf("RoundRobinSelector.Select() did not return exactly one Provider")
 	}
 
-	call, err = dynamicSubmit(ctx, requestFromTask(task), providers)
+	err = dynamicSubmit(ctx, call, providers)
 	return
 
 }

@@ -3,7 +3,6 @@ package scheduler
 import (
 	"context"
 	"reflect"
-	"wasimoff/broker/net/pb"
 	"wasimoff/broker/provider"
 )
 
@@ -22,10 +21,7 @@ type Scheduler interface {
 // This uses the Providers' unbuffered Queue, so that a task can only be submitted to a Provider
 // when it currently has free capacity, without needing to busy-loop and recheck capacity yourself.
 // Based on StackOverflow answer by Dave C. on https://stackoverflow.com/a/32381409.
-func dynamicSubmit(ctx context.Context, run *pb.ExecuteWasiArgs, providers []*provider.Provider) (*provider.PendingWasiCall, error) {
-
-	// construct the submission
-	call := provider.NewPendingWasiCall(run)
+func dynamicSubmit(ctx context.Context, call *provider.PendingWasiCall, providers []*provider.Provider) error {
 
 	// setup select cases
 	cases := make([]reflect.SelectCase, len(providers), len(providers)+1)
@@ -50,8 +46,8 @@ func dynamicSubmit(ctx context.Context, run *pb.ExecuteWasiArgs, providers []*pr
 	i, _, _ := reflect.Select(cases)
 	if i == len(providers) {
 		// index out of bounds for providers, so it must be the ctx.Done
-		return nil, ctx.Err()
+		return ctx.Err()
 	}
-	return call, nil
+	return nil
 
 }

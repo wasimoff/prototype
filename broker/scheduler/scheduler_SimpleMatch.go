@@ -62,6 +62,8 @@ func (s *SimpleMatchSelector) selectCandidates(task *Task) (candidates []*provid
 }
 
 func (s *SimpleMatchSelector) Schedule(ctx context.Context, task *Task) (call *provider.PendingWasiCall, err error) {
+	run := requestFromTask(task)
+	call = provider.NewPendingWasiCall(run)
 	for {
 
 		providers, err := s.selectCandidates(task)
@@ -73,7 +75,7 @@ func (s *SimpleMatchSelector) Schedule(ctx context.Context, task *Task) (call *p
 		timeout, cancel := context.WithTimeout(ctx, time.Second)
 
 		// submit the task normally with new context
-		call, err = dynamicSubmit(timeout, requestFromTask(task), providers)
+		err = dynamicSubmit(timeout, call, providers)
 		if err != nil && ctx.Err() == nil && timeout.Err() == err {
 			// parent context not cancelled and err == our timeout,
 			// so reschedule in hopes of picking up changes in provider store

@@ -42,7 +42,9 @@ func (s *AnyFreeSelector) Schedule(ctx context.Context, task *Task) (call *provi
 		return nil, err
 	}
 
-	call, err = dynamicSubmit(ctx, requestFromTask(task), providers)
+	run := requestFromTask(task)
+	call = provider.NewPendingWasiCall(run)
+	err = dynamicSubmit(ctx, call, providers)
 	return
 
 }
