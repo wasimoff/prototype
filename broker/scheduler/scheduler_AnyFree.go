@@ -17,17 +17,11 @@ func NewAnyFreeSelector(store *provider.ProviderStore) AnyFreeSelector {
 	return AnyFreeSelector{store}
 }
 
-func (s *AnyFreeSelector) Ok() (err error) {
-	if s.store.Size() == 0 {
-		return fmt.Errorf("provider store is empty")
-	}
-	return
-}
-
 func (s *AnyFreeSelector) selectCandidates(task *Task) (candidates []*provider.Provider, err error) {
 
 	// if the list is empty, return nil
-	if err = s.Ok(); err != nil {
+	if s.store.Size() == 0 {
+		err = fmt.Errorf("provider store is empty")
 		return
 	}
 
@@ -42,8 +36,7 @@ func (s *AnyFreeSelector) Schedule(ctx context.Context, task *Task) (call *provi
 		return nil, err
 	}
 
-	run := requestFromTask(task)
-	call = provider.NewPendingWasiCall(run)
+	call = provider.NewPendingWasiCall(task.Args, task.Result)
 	err = dynamicSubmit(ctx, call, providers)
 	return
 

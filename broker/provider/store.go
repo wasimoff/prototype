@@ -72,7 +72,8 @@ func (s *ProviderStore) throughput(tick time.Duration) {
 		tps := s.ratecounter.Rate() / 5
 		// log.Println("Tasks/sec:", tps)
 		s.Broadcast <- &pb.Throughput{
-			Throughput: proto.Float32(float32(tps)),
+			Overall: proto.Float32(float32(tps)),
+			// TODO: add individual contribution
 		}
 	}
 }

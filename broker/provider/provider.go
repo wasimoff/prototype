@@ -6,7 +6,6 @@ import (
 	"sync"
 	"wasimoff/broker/net/pb"
 	"wasimoff/broker/net/transport"
-	"wasimoff/broker/storage"
 
 	"github.com/marusama/semaphore/v2"
 )
@@ -29,7 +28,7 @@ type Provider struct {
 	info map[ProviderInfoKey]string
 
 	// list of files known on this provider
-	files map[string]*storage.File
+	files []string
 }
 
 type ProviderInfoKey string
@@ -51,7 +50,7 @@ func NewProvider(messenger *transport.Messenger) *Provider {
 		Submit:    nil, // must be setup by acceptTasks
 		limiter:   semaphore.New(0),
 		info:      make(map[ProviderInfoKey]string),
-		files:     make(map[string]*storage.File),
+		files:     make([]string, 10),
 	}
 
 	// set known information
@@ -108,17 +107,18 @@ func (p *Provider) CurrentLimit() int {
 
 // PendingWasiCall represents an asynchronous WebAssembly exec call
 type PendingWasiCall struct {
-	Request *pb.ExecuteWasiArgs   // arguments to the call
-	Result  *pb.ExecuteWasiResult // response from the Provider
-	Error   error                 // error encountered during the call
-	Done    chan *PendingWasiCall // receives itself when request completes
+	Request *pb.ExecuteWasiArgs     // arguments to the call
+	Result  *pb.ExecuteWasiResponse // response from the Provider
+	Error   error                   // error encountered during the call
+	Done    chan *PendingWasiCall   // receives itself when request completes
 }
 
 // NewPendingWasiCall creates a new call struct for the Submit chan
-func NewPendingWasiCall(run *pb.ExecuteWasiArgs) *PendingWasiCall {
+func NewPendingWasiCall(args *pb.ExecuteWasiArgs, res *pb.ExecuteWasiResponse) *PendingWasiCall {
+	// TODO: very duplicate with a *Task and at the same time an RPC *Call ...
 	return &PendingWasiCall{
-		Request: run,
-		Result:  new(pb.ExecuteWasiResult),
+		Request: args,
+		Result:  res,
 		Done:    make(chan *PendingWasiCall, 1),
 	}
 }

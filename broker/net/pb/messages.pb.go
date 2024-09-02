@@ -311,6 +311,7 @@ type TaskMetadata struct {
 	Id     *string `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`         // overall job ID
 	Client *string `protobuf:"bytes,2,opt,name=client" json:"client,omitempty"` // info about the requesting client
 	Index  *uint64 `protobuf:"varint,3,opt,name=index" json:"index,omitempty"`  // index within a job with multiple tasks
+	Trace  *bool   `protobuf:"varint,4,opt,name=trace" json:"trace,omitempty"`  // request a trace of task execution, TODO
 }
 
 func (x *TaskMetadata) Reset() {
@@ -366,87 +367,12 @@ func (x *TaskMetadata) GetIndex() uint64 {
 	return 0
 }
 
-// Executable can be either a string reference or the raw binary itself
-type Executable struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	// Types that are assignable to Binary:
-	//
-	//	*Executable_Reference
-	//	*Executable_Raw
-	Binary isExecutable_Binary `protobuf_oneof:"binary"`
-}
-
-func (x *Executable) Reset() {
-	*x = Executable{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_messages_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
+func (x *TaskMetadata) GetTrace() bool {
+	if x != nil && x.Trace != nil {
+		return *x.Trace
 	}
+	return false
 }
-
-func (x *Executable) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Executable) ProtoMessage() {}
-
-func (x *Executable) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Executable.ProtoReflect.Descriptor instead.
-func (*Executable) Descriptor() ([]byte, []int) {
-	return file_messages_proto_rawDescGZIP(), []int{3}
-}
-
-func (m *Executable) GetBinary() isExecutable_Binary {
-	if m != nil {
-		return m.Binary
-	}
-	return nil
-}
-
-func (x *Executable) GetReference() string {
-	if x, ok := x.GetBinary().(*Executable_Reference); ok {
-		return x.Reference
-	}
-	return ""
-}
-
-func (x *Executable) GetRaw() []byte {
-	if x, ok := x.GetBinary().(*Executable_Raw); ok {
-		return x.Raw
-	}
-	return nil
-}
-
-type isExecutable_Binary interface {
-	isExecutable_Binary()
-}
-
-type Executable_Reference struct {
-	Reference string `protobuf:"bytes,1,opt,name=reference,oneof"`
-}
-
-type Executable_Raw struct {
-	Raw []byte `protobuf:"bytes,2,opt,name=raw,oneof"`
-}
-
-func (*Executable_Reference) isExecutable_Binary() {}
-
-func (*Executable_Raw) isExecutable_Binary() {}
 
 // ExecuteWasi runs a webassembly/wasi binary on the Provider
 type ExecuteWasiArgs struct {
@@ -454,20 +380,19 @@ type ExecuteWasiArgs struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Task     *TaskMetadata `protobuf:"bytes,1,opt,name=task" json:"task,omitempty"`
-	Binary   *Executable   `protobuf:"bytes,2,opt,name=binary" json:"binary,omitempty"`
-	Args     []string      `protobuf:"bytes,3,rep,name=args" json:"args,omitempty"`
-	Envs     []string      `protobuf:"bytes,4,rep,name=envs" json:"envs,omitempty"`
-	Stdin    []byte        `protobuf:"bytes,5,opt,name=stdin" json:"stdin,omitempty"`
-	Loadfs   []string      `protobuf:"bytes,6,rep,name=loadfs" json:"loadfs,omitempty"`
-	Datafile *string       `protobuf:"bytes,7,opt,name=datafile" json:"datafile,omitempty"`
-	Trace    *bool         `protobuf:"varint,8,opt,name=trace" json:"trace,omitempty"`
+	Task      *TaskMetadata `protobuf:"bytes,1,opt,name=task" json:"task,omitempty"`
+	Binary    *File         `protobuf:"bytes,2,opt,name=binary" json:"binary,omitempty"`
+	Args      []string      `protobuf:"bytes,3,rep,name=args" json:"args,omitempty"`
+	Envs      []string      `protobuf:"bytes,4,rep,name=envs" json:"envs,omitempty"`
+	Stdin     []byte        `protobuf:"bytes,5,opt,name=stdin" json:"stdin,omitempty"`
+	Rootfs    *File         `protobuf:"bytes,6,opt,name=rootfs" json:"rootfs,omitempty"`
+	Artifacts []string      `protobuf:"bytes,7,rep,name=artifacts" json:"artifacts,omitempty"`
 }
 
 func (x *ExecuteWasiArgs) Reset() {
 	*x = ExecuteWasiArgs{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_messages_proto_msgTypes[4]
+		mi := &file_messages_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -480,7 +405,7 @@ func (x *ExecuteWasiArgs) String() string {
 func (*ExecuteWasiArgs) ProtoMessage() {}
 
 func (x *ExecuteWasiArgs) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[4]
+	mi := &file_messages_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -493,7 +418,7 @@ func (x *ExecuteWasiArgs) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecuteWasiArgs.ProtoReflect.Descriptor instead.
 func (*ExecuteWasiArgs) Descriptor() ([]byte, []int) {
-	return file_messages_proto_rawDescGZIP(), []int{4}
+	return file_messages_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ExecuteWasiArgs) GetTask() *TaskMetadata {
@@ -503,7 +428,7 @@ func (x *ExecuteWasiArgs) GetTask() *TaskMetadata {
 	return nil
 }
 
-func (x *ExecuteWasiArgs) GetBinary() *Executable {
+func (x *ExecuteWasiArgs) GetBinary() *File {
 	if x != nil {
 		return x.Binary
 	}
@@ -531,41 +456,114 @@ func (x *ExecuteWasiArgs) GetStdin() []byte {
 	return nil
 }
 
-func (x *ExecuteWasiArgs) GetLoadfs() []string {
+func (x *ExecuteWasiArgs) GetRootfs() *File {
 	if x != nil {
-		return x.Loadfs
+		return x.Rootfs
 	}
 	return nil
 }
 
-func (x *ExecuteWasiArgs) GetDatafile() string {
-	if x != nil && x.Datafile != nil {
-		return *x.Datafile
+func (x *ExecuteWasiArgs) GetArtifacts() []string {
+	if x != nil {
+		return x.Artifacts
 	}
-	return ""
+	return nil
 }
 
-func (x *ExecuteWasiArgs) GetTrace() bool {
-	if x != nil && x.Trace != nil {
-		return *x.Trace
-	}
-	return false
-}
-
-type ExecuteWasiResult struct {
+type ExecuteWasiResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Status   *int32          `protobuf:"varint,1,opt,name=status" json:"status,omitempty"`
-	Stdout   []byte          `protobuf:"bytes,2,opt,name=stdout" json:"stdout,omitempty"`
-	Stderr   []byte          `protobuf:"bytes,3,opt,name=stderr" json:"stderr,omitempty"`
-	Datafile []byte          `protobuf:"bytes,4,opt,name=datafile" json:"datafile,omitempty"`
-	Trace    *ExecutionTrace `protobuf:"bytes,5,opt,name=trace" json:"trace,omitempty"`
+	Error     *string `protobuf:"bytes,1,opt,name=error" json:"error,omitempty"`
+	Status    *int32  `protobuf:"varint,2,opt,name=status" json:"status,omitempty"`
+	Stdout    []byte  `protobuf:"bytes,3,opt,name=stdout" json:"stdout,omitempty"`
+	Stderr    []byte  `protobuf:"bytes,4,opt,name=stderr" json:"stderr,omitempty"`
+	Artifacts *File   `protobuf:"bytes,5,opt,name=artifacts" json:"artifacts,omitempty"`
 }
 
-func (x *ExecuteWasiResult) Reset() {
-	*x = ExecuteWasiResult{}
+func (x *ExecuteWasiResponse) Reset() {
+	*x = ExecuteWasiResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_messages_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ExecuteWasiResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExecuteWasiResponse) ProtoMessage() {}
+
+func (x *ExecuteWasiResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExecuteWasiResponse.ProtoReflect.Descriptor instead.
+func (*ExecuteWasiResponse) Descriptor() ([]byte, []int) {
+	return file_messages_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ExecuteWasiResponse) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
+	}
+	return ""
+}
+
+func (x *ExecuteWasiResponse) GetStatus() int32 {
+	if x != nil && x.Status != nil {
+		return *x.Status
+	}
+	return 0
+}
+
+func (x *ExecuteWasiResponse) GetStdout() []byte {
+	if x != nil {
+		return x.Stdout
+	}
+	return nil
+}
+
+func (x *ExecuteWasiResponse) GetStderr() []byte {
+	if x != nil {
+		return x.Stderr
+	}
+	return nil
+}
+
+func (x *ExecuteWasiResponse) GetArtifacts() *File {
+	if x != nil {
+		return x.Artifacts
+	}
+	return nil
+}
+
+// File is a file reference with optional mime-type and length. The reference
+// can be a plain filename, a prefixed hash digest or a URL to fetch from. When
+// stored, a hash digest should be computed to have a stable identifier.
+type File struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Ref     *string `protobuf:"bytes,1,opt,name=ref" json:"ref,omitempty"`         // filename, encoded digest or URL
+	Content *string `protobuf:"bytes,2,opt,name=content" json:"content,omitempty"` // content-type in MIME notation
+	Blob    []byte  `protobuf:"bytes,3,opt,name=blob" json:"blob,omitempty"`       // the actual file contents
+}
+
+func (x *File) Reset() {
+	*x = File{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_messages_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -573,13 +571,13 @@ func (x *ExecuteWasiResult) Reset() {
 	}
 }
 
-func (x *ExecuteWasiResult) String() string {
+func (x *File) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ExecuteWasiResult) ProtoMessage() {}
+func (*File) ProtoMessage() {}
 
-func (x *ExecuteWasiResult) ProtoReflect() protoreflect.Message {
+func (x *File) ProtoReflect() protoreflect.Message {
 	mi := &file_messages_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -591,160 +589,28 @@ func (x *ExecuteWasiResult) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ExecuteWasiResult.ProtoReflect.Descriptor instead.
-func (*ExecuteWasiResult) Descriptor() ([]byte, []int) {
+// Deprecated: Use File.ProtoReflect.Descriptor instead.
+func (*File) Descriptor() ([]byte, []int) {
 	return file_messages_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *ExecuteWasiResult) GetStatus() int32 {
-	if x != nil && x.Status != nil {
-		return *x.Status
-	}
-	return 0
-}
-
-func (x *ExecuteWasiResult) GetStdout() []byte {
-	if x != nil {
-		return x.Stdout
-	}
-	return nil
-}
-
-func (x *ExecuteWasiResult) GetStderr() []byte {
-	if x != nil {
-		return x.Stderr
-	}
-	return nil
-}
-
-func (x *ExecuteWasiResult) GetDatafile() []byte {
-	if x != nil {
-		return x.Datafile
-	}
-	return nil
-}
-
-func (x *ExecuteWasiResult) GetTrace() *ExecutionTrace {
-	if x != nil {
-		return x.Trace
-	}
-	return nil
-}
-
-type ExecutionTrace struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-}
-
-func (x *ExecutionTrace) Reset() {
-	*x = ExecutionTrace{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_messages_proto_msgTypes[6]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ExecutionTrace) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ExecutionTrace) ProtoMessage() {}
-
-func (x *ExecutionTrace) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[6]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ExecutionTrace.ProtoReflect.Descriptor instead.
-func (*ExecutionTrace) Descriptor() ([]byte, []int) {
-	return file_messages_proto_rawDescGZIP(), []int{6}
-}
-
-// FileStat contains metadata about a file for identification in other messages
-type FileStat struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Filename    *string `protobuf:"bytes,1,opt,name=filename" json:"filename,omitempty"`
-	Contenttype *string `protobuf:"bytes,2,opt,name=contenttype" json:"contenttype,omitempty"`
-	Length      *uint64 `protobuf:"varint,3,opt,name=length" json:"length,omitempty"`
-	Epoch       *int64  `protobuf:"varint,5,opt,name=epoch" json:"epoch,omitempty"`
-	Hash        []byte  `protobuf:"bytes,4,opt,name=hash" json:"hash,omitempty"`
-}
-
-func (x *FileStat) Reset() {
-	*x = FileStat{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_messages_proto_msgTypes[7]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *FileStat) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*FileStat) ProtoMessage() {}
-
-func (x *FileStat) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[7]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use FileStat.ProtoReflect.Descriptor instead.
-func (*FileStat) Descriptor() ([]byte, []int) {
-	return file_messages_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *FileStat) GetFilename() string {
-	if x != nil && x.Filename != nil {
-		return *x.Filename
+func (x *File) GetRef() string {
+	if x != nil && x.Ref != nil {
+		return *x.Ref
 	}
 	return ""
 }
 
-func (x *FileStat) GetContenttype() string {
-	if x != nil && x.Contenttype != nil {
-		return *x.Contenttype
+func (x *File) GetContent() string {
+	if x != nil && x.Content != nil {
+		return *x.Content
 	}
 	return ""
 }
 
-func (x *FileStat) GetLength() uint64 {
-	if x != nil && x.Length != nil {
-		return *x.Length
-	}
-	return 0
-}
-
-func (x *FileStat) GetEpoch() int64 {
-	if x != nil && x.Epoch != nil {
-		return *x.Epoch
-	}
-	return 0
-}
-
-func (x *FileStat) GetHash() []byte {
+func (x *File) GetBlob() []byte {
 	if x != nil {
-		return x.Hash
+		return x.Blob
 	}
 	return nil
 }
@@ -759,7 +625,7 @@ type FileListingArgs struct {
 func (x *FileListingArgs) Reset() {
 	*x = FileListingArgs{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_messages_proto_msgTypes[8]
+		mi := &file_messages_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -772,7 +638,7 @@ func (x *FileListingArgs) String() string {
 func (*FileListingArgs) ProtoMessage() {}
 
 func (x *FileListingArgs) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[8]
+	mi := &file_messages_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -785,34 +651,34 @@ func (x *FileListingArgs) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FileListingArgs.ProtoReflect.Descriptor instead.
 func (*FileListingArgs) Descriptor() ([]byte, []int) {
-	return file_messages_proto_rawDescGZIP(), []int{8}
+	return file_messages_proto_rawDescGZIP(), []int{6}
 }
 
-type FileListingResult struct {
+type FileListingResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Files []*FileStat `protobuf:"bytes,1,rep,name=files" json:"files,omitempty"`
+	Files []string `protobuf:"bytes,1,rep,name=files" json:"files,omitempty"`
 }
 
-func (x *FileListingResult) Reset() {
-	*x = FileListingResult{}
+func (x *FileListingResponse) Reset() {
+	*x = FileListingResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_messages_proto_msgTypes[9]
+		mi := &file_messages_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
 }
 
-func (x *FileListingResult) String() string {
+func (x *FileListingResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*FileListingResult) ProtoMessage() {}
+func (*FileListingResponse) ProtoMessage() {}
 
-func (x *FileListingResult) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[9]
+func (x *FileListingResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -823,12 +689,12 @@ func (x *FileListingResult) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use FileListingResult.ProtoReflect.Descriptor instead.
-func (*FileListingResult) Descriptor() ([]byte, []int) {
-	return file_messages_proto_rawDescGZIP(), []int{9}
+// Deprecated: Use FileListingResponse.ProtoReflect.Descriptor instead.
+func (*FileListingResponse) Descriptor() ([]byte, []int) {
+	return file_messages_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *FileListingResult) GetFiles() []*FileStat {
+func (x *FileListingResponse) GetFiles() []string {
 	if x != nil {
 		return x.Files
 	}
@@ -841,13 +707,13 @@ type FileProbeArgs struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Stat *FileStat `protobuf:"bytes,1,opt,name=stat" json:"stat,omitempty"`
+	File *string `protobuf:"bytes,1,opt,name=file" json:"file,omitempty"`
 }
 
 func (x *FileProbeArgs) Reset() {
 	*x = FileProbeArgs{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_messages_proto_msgTypes[10]
+		mi := &file_messages_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -860,7 +726,7 @@ func (x *FileProbeArgs) String() string {
 func (*FileProbeArgs) ProtoMessage() {}
 
 func (x *FileProbeArgs) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[10]
+	mi := &file_messages_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -873,17 +739,17 @@ func (x *FileProbeArgs) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FileProbeArgs.ProtoReflect.Descriptor instead.
 func (*FileProbeArgs) Descriptor() ([]byte, []int) {
-	return file_messages_proto_rawDescGZIP(), []int{10}
+	return file_messages_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *FileProbeArgs) GetStat() *FileStat {
-	if x != nil {
-		return x.Stat
+func (x *FileProbeArgs) GetFile() string {
+	if x != nil && x.File != nil {
+		return *x.File
 	}
-	return nil
+	return ""
 }
 
-type FileProbeResult struct {
+type FileProbeResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -891,23 +757,23 @@ type FileProbeResult struct {
 	Ok *bool `protobuf:"varint,1,opt,name=ok" json:"ok,omitempty"`
 }
 
-func (x *FileProbeResult) Reset() {
-	*x = FileProbeResult{}
+func (x *FileProbeResponse) Reset() {
+	*x = FileProbeResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_messages_proto_msgTypes[11]
+		mi := &file_messages_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
 }
 
-func (x *FileProbeResult) String() string {
+func (x *FileProbeResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*FileProbeResult) ProtoMessage() {}
+func (*FileProbeResponse) ProtoMessage() {}
 
-func (x *FileProbeResult) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[11]
+func (x *FileProbeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -918,12 +784,12 @@ func (x *FileProbeResult) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use FileProbeResult.ProtoReflect.Descriptor instead.
-func (*FileProbeResult) Descriptor() ([]byte, []int) {
-	return file_messages_proto_rawDescGZIP(), []int{11}
+// Deprecated: Use FileProbeResponse.ProtoReflect.Descriptor instead.
+func (*FileProbeResponse) Descriptor() ([]byte, []int) {
+	return file_messages_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *FileProbeResult) GetOk() bool {
+func (x *FileProbeResponse) GetOk() bool {
 	if x != nil && x.Ok != nil {
 		return *x.Ok
 	}
@@ -936,14 +802,13 @@ type FileUploadArgs struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Stat *FileStat `protobuf:"bytes,1,opt,name=stat" json:"stat,omitempty"`
-	File []byte    `protobuf:"bytes,2,opt,name=file" json:"file,omitempty"`
+	Upload *File `protobuf:"bytes,1,opt,name=upload" json:"upload,omitempty"`
 }
 
 func (x *FileUploadArgs) Reset() {
 	*x = FileUploadArgs{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_messages_proto_msgTypes[12]
+		mi := &file_messages_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -956,7 +821,7 @@ func (x *FileUploadArgs) String() string {
 func (*FileUploadArgs) ProtoMessage() {}
 
 func (x *FileUploadArgs) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[12]
+	mi := &file_messages_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -969,33 +834,122 @@ func (x *FileUploadArgs) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FileUploadArgs.ProtoReflect.Descriptor instead.
 func (*FileUploadArgs) Descriptor() ([]byte, []int) {
-	return file_messages_proto_rawDescGZIP(), []int{12}
+	return file_messages_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *FileUploadArgs) GetStat() *FileStat {
+func (x *FileUploadArgs) GetUpload() *File {
 	if x != nil {
-		return x.Stat
+		return x.Upload
 	}
 	return nil
 }
 
-func (x *FileUploadArgs) GetFile() []byte {
-	if x != nil {
-		return x.File
-	}
-	return nil
-}
-
-type FileUploadResult struct {
+type FileUploadResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Ok *bool `protobuf:"varint,1,opt,name=ok" json:"ok,omitempty"`
+	Err *string `protobuf:"bytes,1,opt,name=err" json:"err,omitempty"`
 }
 
-func (x *FileUploadResult) Reset() {
-	*x = FileUploadResult{}
+func (x *FileUploadResponse) Reset() {
+	*x = FileUploadResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_messages_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *FileUploadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FileUploadResponse) ProtoMessage() {}
+
+func (x *FileUploadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FileUploadResponse.ProtoReflect.Descriptor instead.
+func (*FileUploadResponse) Descriptor() ([]byte, []int) {
+	return file_messages_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *FileUploadResponse) GetErr() string {
+	if x != nil && x.Err != nil {
+		return *x.Err
+	}
+	return ""
+}
+
+// FileDownload can be sent by the Provider to request a file download.
+type FileDownloadArgs struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	File *string `protobuf:"bytes,1,opt,name=file" json:"file,omitempty"`
+}
+
+func (x *FileDownloadArgs) Reset() {
+	*x = FileDownloadArgs{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_messages_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *FileDownloadArgs) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FileDownloadArgs) ProtoMessage() {}
+
+func (x *FileDownloadArgs) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FileDownloadArgs.ProtoReflect.Descriptor instead.
+func (*FileDownloadArgs) Descriptor() ([]byte, []int) {
+	return file_messages_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *FileDownloadArgs) GetFile() string {
+	if x != nil && x.File != nil {
+		return *x.File
+	}
+	return ""
+}
+
+type FileDownloadResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Download *File   `protobuf:"bytes,1,opt,name=download" json:"download,omitempty"`
+	Err      *string `protobuf:"bytes,2,opt,name=err" json:"err,omitempty"`
+}
+
+func (x *FileDownloadResponse) Reset() {
+	*x = FileDownloadResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_messages_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1003,13 +957,13 @@ func (x *FileUploadResult) Reset() {
 	}
 }
 
-func (x *FileUploadResult) String() string {
+func (x *FileDownloadResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*FileUploadResult) ProtoMessage() {}
+func (*FileDownloadResponse) ProtoMessage() {}
 
-func (x *FileUploadResult) ProtoReflect() protoreflect.Message {
+func (x *FileDownloadResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_messages_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1021,16 +975,23 @@ func (x *FileUploadResult) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use FileUploadResult.ProtoReflect.Descriptor instead.
-func (*FileUploadResult) Descriptor() ([]byte, []int) {
+// Deprecated: Use FileDownloadResponse.ProtoReflect.Descriptor instead.
+func (*FileDownloadResponse) Descriptor() ([]byte, []int) {
 	return file_messages_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *FileUploadResult) GetOk() bool {
-	if x != nil && x.Ok != nil {
-		return *x.Ok
+func (x *FileDownloadResponse) GetDownload() *File {
+	if x != nil {
+		return x.Download
 	}
-	return false
+	return nil
+}
+
+func (x *FileDownloadResponse) GetErr() string {
+	if x != nil && x.Err != nil {
+		return *x.Err
+	}
+	return ""
 }
 
 // Generic is just a generic piece of text for debugging
@@ -1081,20 +1042,18 @@ func (x *GenericEvent) GetMessage() string {
 	return ""
 }
 
-// ProviderInfo is sent once at the beginning to identify the Provider
-type ProviderInfo struct {
+// ProviderHello is sent once at the beginning to identify the Provider
+type ProviderHello struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Name      *string            `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`           // a logging-friendly name of the provider
-	Platform  *string            `protobuf:"bytes,2,opt,name=platform" json:"platform,omitempty"`   // like the navigator.platform in browser
-	Useragent *string            `protobuf:"bytes,3,opt,name=useragent" json:"useragent,omitempty"` // like the navigator.useragent in browser
-	Pool      *ProviderResources `protobuf:"bytes,4,opt,name=pool" json:"pool,omitempty"`
+	Name      *string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`           // a logging-friendly name of the provider
+	Useragent *string `protobuf:"bytes,2,opt,name=useragent" json:"useragent,omitempty"` // like the navigator.useragent in browser
 }
 
-func (x *ProviderInfo) Reset() {
-	*x = ProviderInfo{}
+func (x *ProviderHello) Reset() {
+	*x = ProviderHello{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_messages_proto_msgTypes[15]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1102,13 +1061,13 @@ func (x *ProviderInfo) Reset() {
 	}
 }
 
-func (x *ProviderInfo) String() string {
+func (x *ProviderHello) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ProviderInfo) ProtoMessage() {}
+func (*ProviderHello) ProtoMessage() {}
 
-func (x *ProviderInfo) ProtoReflect() protoreflect.Message {
+func (x *ProviderHello) ProtoReflect() protoreflect.Message {
 	mi := &file_messages_proto_msgTypes[15]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1120,37 +1079,23 @@ func (x *ProviderInfo) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ProviderInfo.ProtoReflect.Descriptor instead.
-func (*ProviderInfo) Descriptor() ([]byte, []int) {
+// Deprecated: Use ProviderHello.ProtoReflect.Descriptor instead.
+func (*ProviderHello) Descriptor() ([]byte, []int) {
 	return file_messages_proto_rawDescGZIP(), []int{15}
 }
 
-func (x *ProviderInfo) GetName() string {
+func (x *ProviderHello) GetName() string {
 	if x != nil && x.Name != nil {
 		return *x.Name
 	}
 	return ""
 }
 
-func (x *ProviderInfo) GetPlatform() string {
-	if x != nil && x.Platform != nil {
-		return *x.Platform
-	}
-	return ""
-}
-
-func (x *ProviderInfo) GetUseragent() string {
+func (x *ProviderHello) GetUseragent() string {
 	if x != nil && x.Useragent != nil {
 		return *x.Useragent
 	}
 	return ""
-}
-
-func (x *ProviderInfo) GetPool() *ProviderResources {
-	if x != nil {
-		return x.Pool
-	}
-	return nil
 }
 
 // ProviderResources is information about the available resources in Worker pool
@@ -1159,7 +1104,7 @@ type ProviderResources struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Concurrency *uint32 `protobuf:"varint,1,opt,name=concurrency" json:"concurrency,omitempty"` // maximum possible concurrency
+	Concurrency *uint32 `protobuf:"varint,1,opt,name=concurrency" json:"concurrency,omitempty"` // maximum possible concurrency (~ number of Workers)
 	Tasks       *uint32 `protobuf:"varint,2,opt,name=tasks" json:"tasks,omitempty"`             // currently active tasks
 }
 
@@ -1263,7 +1208,8 @@ type Throughput struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Throughput *float32 `protobuf:"fixed32,1,opt,name=throughput" json:"throughput,omitempty"` // current overall tasks/s throughput
+	Overall *float32 `protobuf:"fixed32,1,opt,name=overall" json:"overall,omitempty"` // current overall tasks/s throughput
+	Yours   *float32 `protobuf:"fixed32,2,opt,name=yours" json:"yours,omitempty"`     // your contribution (identified by name)
 }
 
 func (x *Throughput) Reset() {
@@ -1298,11 +1244,422 @@ func (*Throughput) Descriptor() ([]byte, []int) {
 	return file_messages_proto_rawDescGZIP(), []int{18}
 }
 
-func (x *Throughput) GetThroughput() float32 {
-	if x != nil && x.Throughput != nil {
-		return *x.Throughput
+func (x *Throughput) GetOverall() float32 {
+	if x != nil && x.Overall != nil {
+		return *x.Overall
 	}
 	return 0
+}
+
+func (x *Throughput) GetYours() float32 {
+	if x != nil && x.Yours != nil {
+		return *x.Yours
+	}
+	return 0
+}
+
+// The simplest client upload is a POST request with the raw binary inside
+// and metadata in headers but I guess we can also use a message type.
+type ClientUploadArgs struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Name        *string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	ContentType *string `protobuf:"bytes,2,opt,name=contentType" json:"contentType,omitempty"`
+	Blob        []byte  `protobuf:"bytes,3,opt,name=blob" json:"blob,omitempty"`
+}
+
+func (x *ClientUploadArgs) Reset() {
+	*x = ClientUploadArgs{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_messages_proto_msgTypes[19]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ClientUploadArgs) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClientUploadArgs) ProtoMessage() {}
+
+func (x *ClientUploadArgs) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_proto_msgTypes[19]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClientUploadArgs.ProtoReflect.Descriptor instead.
+func (*ClientUploadArgs) Descriptor() ([]byte, []int) {
+	return file_messages_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ClientUploadArgs) GetName() string {
+	if x != nil && x.Name != nil {
+		return *x.Name
+	}
+	return ""
+}
+
+func (x *ClientUploadArgs) GetContentType() string {
+	if x != nil && x.ContentType != nil {
+		return *x.ContentType
+	}
+	return ""
+}
+
+func (x *ClientUploadArgs) GetBlob() []byte {
+	if x != nil {
+		return x.Blob
+	}
+	return nil
+}
+
+type ClientUploadResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Ref *string `protobuf:"bytes,1,opt,name=ref" json:"ref,omitempty"`
+	Err *string `protobuf:"bytes,2,opt,name=err" json:"err,omitempty"`
+}
+
+func (x *ClientUploadResponse) Reset() {
+	*x = ClientUploadResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_messages_proto_msgTypes[20]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ClientUploadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClientUploadResponse) ProtoMessage() {}
+
+func (x *ClientUploadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_proto_msgTypes[20]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClientUploadResponse.ProtoReflect.Descriptor instead.
+func (*ClientUploadResponse) Descriptor() ([]byte, []int) {
+	return file_messages_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ClientUploadResponse) GetRef() string {
+	if x != nil && x.Ref != nil {
+		return *x.Ref
+	}
+	return ""
+}
+
+func (x *ClientUploadResponse) GetErr() string {
+	if x != nil && x.Err != nil {
+		return *x.Err
+	}
+	return ""
+}
+
+// An offloading request specifies a binary to use, optionally some common
+// parent parameters and then a list of executions of this binary. There is
+// no magic in the parent parameter inheritance: anything in the parent gets
+// entirely replaced by the corresponding field in a task specification. Though
+// you could specify everything in the common parameters, at least one task
+// must be present; even if just an empty { }.
+type OffloadWasiJobArgs struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Binary *File `protobuf:"bytes,1,opt,name=binary" json:"binary,omitempty"`
+	// bool trace = 2; // TODO
+	Common *OffloadWasiTask   `protobuf:"bytes,3,opt,name=common" json:"common,omitempty"`
+	Tasks  []*OffloadWasiTask `protobuf:"bytes,4,rep,name=tasks" json:"tasks,omitempty"`
+}
+
+func (x *OffloadWasiJobArgs) Reset() {
+	*x = OffloadWasiJobArgs{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_messages_proto_msgTypes[21]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *OffloadWasiJobArgs) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OffloadWasiJobArgs) ProtoMessage() {}
+
+func (x *OffloadWasiJobArgs) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_proto_msgTypes[21]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OffloadWasiJobArgs.ProtoReflect.Descriptor instead.
+func (*OffloadWasiJobArgs) Descriptor() ([]byte, []int) {
+	return file_messages_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *OffloadWasiJobArgs) GetBinary() *File {
+	if x != nil {
+		return x.Binary
+	}
+	return nil
+}
+
+func (x *OffloadWasiJobArgs) GetCommon() *OffloadWasiTask {
+	if x != nil {
+		return x.Common
+	}
+	return nil
+}
+
+func (x *OffloadWasiJobArgs) GetTasks() []*OffloadWasiTask {
+	if x != nil {
+		return x.Tasks
+	}
+	return nil
+}
+
+type OffloadWasiJobResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Error *string `protobuf:"bytes,1,opt,name=error" json:"error,omitempty"`
+	// Trace trace = 2; // TODO
+	Results []*OffloadWasiTaskResult `protobuf:"bytes,3,rep,name=results" json:"results,omitempty"`
+}
+
+func (x *OffloadWasiJobResponse) Reset() {
+	*x = OffloadWasiJobResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_messages_proto_msgTypes[22]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *OffloadWasiJobResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OffloadWasiJobResponse) ProtoMessage() {}
+
+func (x *OffloadWasiJobResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_proto_msgTypes[22]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OffloadWasiJobResponse.ProtoReflect.Descriptor instead.
+func (*OffloadWasiJobResponse) Descriptor() ([]byte, []int) {
+	return file_messages_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *OffloadWasiJobResponse) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
+	}
+	return ""
+}
+
+func (x *OffloadWasiJobResponse) GetResults() []*OffloadWasiTaskResult {
+	if x != nil {
+		return x.Results
+	}
+	return nil
+}
+
+type OffloadWasiTask struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Args      []string `protobuf:"bytes,1,rep,name=args" json:"args,omitempty"`
+	Envs      []string `protobuf:"bytes,2,rep,name=envs" json:"envs,omitempty"`
+	Stdin     []byte   `protobuf:"bytes,3,opt,name=stdin" json:"stdin,omitempty"`
+	Rootfs    *File    `protobuf:"bytes,4,opt,name=rootfs" json:"rootfs,omitempty"`
+	Artifacts []string `protobuf:"bytes,5,rep,name=artifacts" json:"artifacts,omitempty"`
+}
+
+func (x *OffloadWasiTask) Reset() {
+	*x = OffloadWasiTask{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_messages_proto_msgTypes[23]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *OffloadWasiTask) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OffloadWasiTask) ProtoMessage() {}
+
+func (x *OffloadWasiTask) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_proto_msgTypes[23]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OffloadWasiTask.ProtoReflect.Descriptor instead.
+func (*OffloadWasiTask) Descriptor() ([]byte, []int) {
+	return file_messages_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *OffloadWasiTask) GetArgs() []string {
+	if x != nil {
+		return x.Args
+	}
+	return nil
+}
+
+func (x *OffloadWasiTask) GetEnvs() []string {
+	if x != nil {
+		return x.Envs
+	}
+	return nil
+}
+
+func (x *OffloadWasiTask) GetStdin() []byte {
+	if x != nil {
+		return x.Stdin
+	}
+	return nil
+}
+
+func (x *OffloadWasiTask) GetRootfs() *File {
+	if x != nil {
+		return x.Rootfs
+	}
+	return nil
+}
+
+func (x *OffloadWasiTask) GetArtifacts() []string {
+	if x != nil {
+		return x.Artifacts
+	}
+	return nil
+}
+
+type OffloadWasiTaskResult struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Error     *string `protobuf:"bytes,1,opt,name=error" json:"error,omitempty"`
+	Status    *int32  `protobuf:"varint,2,opt,name=status" json:"status,omitempty"`
+	Stdout    []byte  `protobuf:"bytes,3,opt,name=stdout" json:"stdout,omitempty"`
+	Stderr    []byte  `protobuf:"bytes,4,opt,name=stderr" json:"stderr,omitempty"`
+	Artifacts *File   `protobuf:"bytes,5,opt,name=artifacts" json:"artifacts,omitempty"`
+}
+
+func (x *OffloadWasiTaskResult) Reset() {
+	*x = OffloadWasiTaskResult{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_messages_proto_msgTypes[24]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *OffloadWasiTaskResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OffloadWasiTaskResult) ProtoMessage() {}
+
+func (x *OffloadWasiTaskResult) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_proto_msgTypes[24]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OffloadWasiTaskResult.ProtoReflect.Descriptor instead.
+func (*OffloadWasiTaskResult) Descriptor() ([]byte, []int) {
+	return file_messages_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *OffloadWasiTaskResult) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
+	}
+	return ""
+}
+
+func (x *OffloadWasiTaskResult) GetStatus() int32 {
+	if x != nil && x.Status != nil {
+		return *x.Status
+	}
+	return 0
+}
+
+func (x *OffloadWasiTaskResult) GetStdout() []byte {
+	if x != nil {
+		return x.Stdout
+	}
+	return nil
+}
+
+func (x *OffloadWasiTaskResult) GetStderr() []byte {
+	if x != nil {
+		return x.Stderr
+	}
+	return nil
+}
+
+func (x *OffloadWasiTaskResult) GetArtifacts() *File {
+	if x != nil {
+		return x.Artifacts
+	}
+	return nil
 }
 
 var File_messages_proto protoreflect.FileDescriptor
@@ -1330,108 +1687,129 @@ var file_messages_proto_rawDesc = []byte{
 	0x69, 0x6f, 0x6e, 0x52, 0x09, 0x64, 0x69, 0x72, 0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x1f,
 	0x0a, 0x09, 0x44, 0x69, 0x72, 0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x08, 0x0a, 0x04, 0x50,
 	0x69, 0x6e, 0x67, 0x10, 0x00, 0x12, 0x08, 0x0a, 0x04, 0x50, 0x6f, 0x6e, 0x67, 0x10, 0x01, 0x22,
-	0x4c, 0x0a, 0x0c, 0x54, 0x61, 0x73, 0x6b, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x12,
+	0x62, 0x0a, 0x0c, 0x54, 0x61, 0x73, 0x6b, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x12,
 	0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12,
 	0x16, 0x0a, 0x06, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
 	0x06, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x69, 0x6e, 0x64, 0x65, 0x78,
-	0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x52, 0x05, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x22, 0x4a, 0x0a,
-	0x0a, 0x45, 0x78, 0x65, 0x63, 0x75, 0x74, 0x61, 0x62, 0x6c, 0x65, 0x12, 0x1e, 0x0a, 0x09, 0x72,
-	0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00,
-	0x52, 0x09, 0x72, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x12, 0x12, 0x0a, 0x03, 0x72,
-	0x61, 0x77, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x48, 0x00, 0x52, 0x03, 0x72, 0x61, 0x77, 0x42,
-	0x08, 0x0a, 0x06, 0x62, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x22, 0xe1, 0x01, 0x0a, 0x0f, 0x45, 0x78,
-	0x65, 0x63, 0x75, 0x74, 0x65, 0x57, 0x61, 0x73, 0x69, 0x41, 0x72, 0x67, 0x73, 0x12, 0x21, 0x0a,
-	0x04, 0x74, 0x61, 0x73, 0x6b, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0d, 0x2e, 0x54, 0x61,
-	0x73, 0x6b, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x52, 0x04, 0x74, 0x61, 0x73, 0x6b,
-	0x12, 0x23, 0x0a, 0x06, 0x62, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b,
-	0x32, 0x0b, 0x2e, 0x45, 0x78, 0x65, 0x63, 0x75, 0x74, 0x61, 0x62, 0x6c, 0x65, 0x52, 0x06, 0x62,
-	0x69, 0x6e, 0x61, 0x72, 0x79, 0x12, 0x12, 0x0a, 0x04, 0x61, 0x72, 0x67, 0x73, 0x18, 0x03, 0x20,
-	0x03, 0x28, 0x09, 0x52, 0x04, 0x61, 0x72, 0x67, 0x73, 0x12, 0x12, 0x0a, 0x04, 0x65, 0x6e, 0x76,
-	0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x09, 0x52, 0x04, 0x65, 0x6e, 0x76, 0x73, 0x12, 0x14, 0x0a,
-	0x05, 0x73, 0x74, 0x64, 0x69, 0x6e, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x05, 0x73, 0x74,
-	0x64, 0x69, 0x6e, 0x12, 0x16, 0x0a, 0x06, 0x6c, 0x6f, 0x61, 0x64, 0x66, 0x73, 0x18, 0x06, 0x20,
-	0x03, 0x28, 0x09, 0x52, 0x06, 0x6c, 0x6f, 0x61, 0x64, 0x66, 0x73, 0x12, 0x1a, 0x0a, 0x08, 0x64,
-	0x61, 0x74, 0x61, 0x66, 0x69, 0x6c, 0x65, 0x18, 0x07, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x64,
-	0x61, 0x74, 0x61, 0x66, 0x69, 0x6c, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x72, 0x61, 0x63, 0x65,
-	0x18, 0x08, 0x20, 0x01, 0x28, 0x08, 0x52, 0x05, 0x74, 0x72, 0x61, 0x63, 0x65, 0x22, 0x9e, 0x01,
-	0x0a, 0x11, 0x45, 0x78, 0x65, 0x63, 0x75, 0x74, 0x65, 0x57, 0x61, 0x73, 0x69, 0x52, 0x65, 0x73,
-	0x75, 0x6c, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x05, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x16, 0x0a, 0x06, 0x73,
-	0x74, 0x64, 0x6f, 0x75, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x06, 0x73, 0x74, 0x64,
-	0x6f, 0x75, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x64, 0x65, 0x72, 0x72, 0x18, 0x03, 0x20,
-	0x01, 0x28, 0x0c, 0x52, 0x06, 0x73, 0x74, 0x64, 0x65, 0x72, 0x72, 0x12, 0x1a, 0x0a, 0x08, 0x64,
-	0x61, 0x74, 0x61, 0x66, 0x69, 0x6c, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x08, 0x64,
-	0x61, 0x74, 0x61, 0x66, 0x69, 0x6c, 0x65, 0x12, 0x25, 0x0a, 0x05, 0x74, 0x72, 0x61, 0x63, 0x65,
-	0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0f, 0x2e, 0x45, 0x78, 0x65, 0x63, 0x75, 0x74, 0x69,
-	0x6f, 0x6e, 0x54, 0x72, 0x61, 0x63, 0x65, 0x52, 0x05, 0x74, 0x72, 0x61, 0x63, 0x65, 0x22, 0x10,
-	0x0a, 0x0e, 0x45, 0x78, 0x65, 0x63, 0x75, 0x74, 0x69, 0x6f, 0x6e, 0x54, 0x72, 0x61, 0x63, 0x65,
-	0x22, 0x8a, 0x01, 0x0a, 0x08, 0x46, 0x69, 0x6c, 0x65, 0x53, 0x74, 0x61, 0x74, 0x12, 0x1a, 0x0a,
-	0x08, 0x66, 0x69, 0x6c, 0x65, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
-	0x08, 0x66, 0x69, 0x6c, 0x65, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x20, 0x0a, 0x0b, 0x63, 0x6f, 0x6e,
-	0x74, 0x65, 0x6e, 0x74, 0x74, 0x79, 0x70, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b,
-	0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x74, 0x79, 0x70, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x6c,
-	0x65, 0x6e, 0x67, 0x74, 0x68, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x52, 0x06, 0x6c, 0x65, 0x6e,
-	0x67, 0x74, 0x68, 0x12, 0x14, 0x0a, 0x05, 0x65, 0x70, 0x6f, 0x63, 0x68, 0x18, 0x05, 0x20, 0x01,
-	0x28, 0x03, 0x52, 0x05, 0x65, 0x70, 0x6f, 0x63, 0x68, 0x12, 0x12, 0x0a, 0x04, 0x68, 0x61, 0x73,
-	0x68, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x04, 0x68, 0x61, 0x73, 0x68, 0x22, 0x11, 0x0a,
-	0x0f, 0x46, 0x69, 0x6c, 0x65, 0x4c, 0x69, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x41, 0x72, 0x67, 0x73,
-	0x22, 0x34, 0x0a, 0x11, 0x46, 0x69, 0x6c, 0x65, 0x4c, 0x69, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x52,
-	0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x1f, 0x0a, 0x05, 0x66, 0x69, 0x6c, 0x65, 0x73, 0x18, 0x01,
-	0x20, 0x03, 0x28, 0x0b, 0x32, 0x09, 0x2e, 0x46, 0x69, 0x6c, 0x65, 0x53, 0x74, 0x61, 0x74, 0x52,
-	0x05, 0x66, 0x69, 0x6c, 0x65, 0x73, 0x22, 0x2e, 0x0a, 0x0d, 0x46, 0x69, 0x6c, 0x65, 0x50, 0x72,
-	0x6f, 0x62, 0x65, 0x41, 0x72, 0x67, 0x73, 0x12, 0x1d, 0x0a, 0x04, 0x73, 0x74, 0x61, 0x74, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x09, 0x2e, 0x46, 0x69, 0x6c, 0x65, 0x53, 0x74, 0x61, 0x74,
-	0x52, 0x04, 0x73, 0x74, 0x61, 0x74, 0x22, 0x21, 0x0a, 0x0f, 0x46, 0x69, 0x6c, 0x65, 0x50, 0x72,
-	0x6f, 0x62, 0x65, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x6f, 0x6b, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x02, 0x6f, 0x6b, 0x22, 0x43, 0x0a, 0x0e, 0x46, 0x69, 0x6c,
-	0x65, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x41, 0x72, 0x67, 0x73, 0x12, 0x1d, 0x0a, 0x04, 0x73,
-	0x74, 0x61, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x09, 0x2e, 0x46, 0x69, 0x6c, 0x65,
-	0x53, 0x74, 0x61, 0x74, 0x52, 0x04, 0x73, 0x74, 0x61, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x66, 0x69,
-	0x6c, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x04, 0x66, 0x69, 0x6c, 0x65, 0x22, 0x22,
-	0x0a, 0x10, 0x46, 0x69, 0x6c, 0x65, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x73, 0x75,
-	0x6c, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x6f, 0x6b, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x02,
-	0x6f, 0x6b, 0x22, 0x28, 0x0a, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x72, 0x69, 0x63, 0x45, 0x76, 0x65,
-	0x6e, 0x74, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x84, 0x01, 0x0a,
-	0x0c, 0x50, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x12, 0x0a,
-	0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d,
-	0x65, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72, 0x6d, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x08, 0x70, 0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72, 0x6d, 0x12, 0x1c, 0x0a,
-	0x09, 0x75, 0x73, 0x65, 0x72, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09,
-	0x52, 0x09, 0x75, 0x73, 0x65, 0x72, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x12, 0x26, 0x0a, 0x04, 0x70,
-	0x6f, 0x6f, 0x6c, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x12, 0x2e, 0x50, 0x72, 0x6f, 0x76,
-	0x69, 0x64, 0x65, 0x72, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x52, 0x04, 0x70,
-	0x6f, 0x6f, 0x6c, 0x22, 0x4b, 0x0a, 0x11, 0x50, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x52,
-	0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x12, 0x20, 0x0a, 0x0b, 0x63, 0x6f, 0x6e, 0x63,
-	0x75, 0x72, 0x72, 0x65, 0x6e, 0x63, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x0b, 0x63,
-	0x6f, 0x6e, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x63, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x61,
-	0x73, 0x6b, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x05, 0x74, 0x61, 0x73, 0x6b, 0x73,
-	0x22, 0x2b, 0x0a, 0x0b, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f, 0x12,
-	0x1c, 0x0a, 0x09, 0x70, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x73, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x0d, 0x52, 0x09, 0x70, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x73, 0x22, 0x2c, 0x0a,
-	0x0a, 0x54, 0x68, 0x72, 0x6f, 0x75, 0x67, 0x68, 0x70, 0x75, 0x74, 0x12, 0x1e, 0x0a, 0x0a, 0x74,
-	0x68, 0x72, 0x6f, 0x75, 0x67, 0x68, 0x70, 0x75, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x02, 0x52,
-	0x0a, 0x74, 0x68, 0x72, 0x6f, 0x75, 0x67, 0x68, 0x70, 0x75, 0x74, 0x2a, 0x5c, 0x0a, 0x0b, 0x53,
-	0x75, 0x62, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x12, 0x0b, 0x0a, 0x07, 0x55, 0x4e,
-	0x4b, 0x4e, 0x4f, 0x57, 0x4e, 0x10, 0x00, 0x12, 0x21, 0x0a, 0x1d, 0x77, 0x61, 0x73, 0x69, 0x6d,
-	0x6f, 0x66, 0x66, 0x5f, 0x70, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x5f, 0x76, 0x31, 0x5f,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x10, 0x01, 0x12, 0x1d, 0x0a, 0x19, 0x77, 0x61,
-	0x73, 0x69, 0x6d, 0x6f, 0x66, 0x66, 0x5f, 0x70, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x5f,
-	0x76, 0x31, 0x5f, 0x6a, 0x73, 0x6f, 0x6e, 0x10, 0x02, 0x32, 0xd5, 0x01, 0x0a, 0x08, 0x50, 0x72,
-	0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x12, 0x33, 0x0a, 0x0b, 0x45, 0x78, 0x65, 0x63, 0x75, 0x74,
-	0x65, 0x57, 0x61, 0x73, 0x69, 0x12, 0x10, 0x2e, 0x45, 0x78, 0x65, 0x63, 0x75, 0x74, 0x65, 0x57,
-	0x61, 0x73, 0x69, 0x41, 0x72, 0x67, 0x73, 0x1a, 0x12, 0x2e, 0x45, 0x78, 0x65, 0x63, 0x75, 0x74,
-	0x65, 0x57, 0x61, 0x73, 0x69, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x2d, 0x0a, 0x09, 0x46,
-	0x69, 0x6c, 0x65, 0x50, 0x72, 0x6f, 0x62, 0x65, 0x12, 0x0e, 0x2e, 0x46, 0x69, 0x6c, 0x65, 0x50,
-	0x72, 0x6f, 0x62, 0x65, 0x41, 0x72, 0x67, 0x73, 0x1a, 0x10, 0x2e, 0x46, 0x69, 0x6c, 0x65, 0x50,
-	0x72, 0x6f, 0x62, 0x65, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x33, 0x0a, 0x0b, 0x46, 0x69,
-	0x6c, 0x65, 0x4c, 0x69, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x12, 0x10, 0x2e, 0x46, 0x69, 0x6c, 0x65,
-	0x4c, 0x69, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x41, 0x72, 0x67, 0x73, 0x1a, 0x12, 0x2e, 0x46, 0x69,
-	0x6c, 0x65, 0x4c, 0x69, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12,
-	0x30, 0x0a, 0x0a, 0x46, 0x69, 0x6c, 0x65, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x12, 0x0f, 0x2e,
-	0x46, 0x69, 0x6c, 0x65, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x41, 0x72, 0x67, 0x73, 0x1a, 0x11,
-	0x2e, 0x46, 0x69, 0x6c, 0x65, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x73, 0x75, 0x6c,
-	0x74, 0x62, 0x08, 0x65, 0x64, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x70, 0xe8, 0x07,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x52, 0x05, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x12, 0x14, 0x0a,
+	0x05, 0x74, 0x72, 0x61, 0x63, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x08, 0x52, 0x05, 0x74, 0x72,
+	0x61, 0x63, 0x65, 0x22, 0xce, 0x01, 0x0a, 0x0f, 0x45, 0x78, 0x65, 0x63, 0x75, 0x74, 0x65, 0x57,
+	0x61, 0x73, 0x69, 0x41, 0x72, 0x67, 0x73, 0x12, 0x21, 0x0a, 0x04, 0x74, 0x61, 0x73, 0x6b, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0d, 0x2e, 0x54, 0x61, 0x73, 0x6b, 0x4d, 0x65, 0x74, 0x61,
+	0x64, 0x61, 0x74, 0x61, 0x52, 0x04, 0x74, 0x61, 0x73, 0x6b, 0x12, 0x1d, 0x0a, 0x06, 0x62, 0x69,
+	0x6e, 0x61, 0x72, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x46, 0x69, 0x6c,
+	0x65, 0x52, 0x06, 0x62, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x12, 0x12, 0x0a, 0x04, 0x61, 0x72, 0x67,
+	0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09, 0x52, 0x04, 0x61, 0x72, 0x67, 0x73, 0x12, 0x12, 0x0a,
+	0x04, 0x65, 0x6e, 0x76, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x09, 0x52, 0x04, 0x65, 0x6e, 0x76,
+	0x73, 0x12, 0x14, 0x0a, 0x05, 0x73, 0x74, 0x64, 0x69, 0x6e, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0c,
+	0x52, 0x05, 0x73, 0x74, 0x64, 0x69, 0x6e, 0x12, 0x1d, 0x0a, 0x06, 0x72, 0x6f, 0x6f, 0x74, 0x66,
+	0x73, 0x18, 0x06, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x46, 0x69, 0x6c, 0x65, 0x52, 0x06,
+	0x72, 0x6f, 0x6f, 0x74, 0x66, 0x73, 0x12, 0x1c, 0x0a, 0x09, 0x61, 0x72, 0x74, 0x69, 0x66, 0x61,
+	0x63, 0x74, 0x73, 0x18, 0x07, 0x20, 0x03, 0x28, 0x09, 0x52, 0x09, 0x61, 0x72, 0x74, 0x69, 0x66,
+	0x61, 0x63, 0x74, 0x73, 0x22, 0x98, 0x01, 0x0a, 0x13, 0x45, 0x78, 0x65, 0x63, 0x75, 0x74, 0x65,
+	0x57, 0x61, 0x73, 0x69, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x14, 0x0a, 0x05,
+	0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x65, 0x72, 0x72,
+	0x6f, 0x72, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x05, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74,
+	0x64, 0x6f, 0x75, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x06, 0x73, 0x74, 0x64, 0x6f,
+	0x75, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x64, 0x65, 0x72, 0x72, 0x18, 0x04, 0x20, 0x01,
+	0x28, 0x0c, 0x52, 0x06, 0x73, 0x74, 0x64, 0x65, 0x72, 0x72, 0x12, 0x23, 0x0a, 0x09, 0x61, 0x72,
+	0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x73, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x05, 0x2e,
+	0x46, 0x69, 0x6c, 0x65, 0x52, 0x09, 0x61, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x73, 0x22,
+	0x46, 0x0a, 0x04, 0x46, 0x69, 0x6c, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x72, 0x65, 0x66, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x72, 0x65, 0x66, 0x12, 0x18, 0x0a, 0x07, 0x63, 0x6f, 0x6e,
+	0x74, 0x65, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x63, 0x6f, 0x6e, 0x74,
+	0x65, 0x6e, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x62, 0x6c, 0x6f, 0x62, 0x18, 0x03, 0x20, 0x01, 0x28,
+	0x0c, 0x52, 0x04, 0x62, 0x6c, 0x6f, 0x62, 0x22, 0x11, 0x0a, 0x0f, 0x46, 0x69, 0x6c, 0x65, 0x4c,
+	0x69, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x41, 0x72, 0x67, 0x73, 0x22, 0x2b, 0x0a, 0x13, 0x46, 0x69,
+	0x6c, 0x65, 0x4c, 0x69, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x14, 0x0a, 0x05, 0x66, 0x69, 0x6c, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09,
+	0x52, 0x05, 0x66, 0x69, 0x6c, 0x65, 0x73, 0x22, 0x23, 0x0a, 0x0d, 0x46, 0x69, 0x6c, 0x65, 0x50,
+	0x72, 0x6f, 0x62, 0x65, 0x41, 0x72, 0x67, 0x73, 0x12, 0x12, 0x0a, 0x04, 0x66, 0x69, 0x6c, 0x65,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x66, 0x69, 0x6c, 0x65, 0x22, 0x23, 0x0a, 0x11,
+	0x46, 0x69, 0x6c, 0x65, 0x50, 0x72, 0x6f, 0x62, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x0e, 0x0a, 0x02, 0x6f, 0x6b, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x02, 0x6f,
+	0x6b, 0x22, 0x2f, 0x0a, 0x0e, 0x46, 0x69, 0x6c, 0x65, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x41,
+	0x72, 0x67, 0x73, 0x12, 0x1d, 0x0a, 0x06, 0x75, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x46, 0x69, 0x6c, 0x65, 0x52, 0x06, 0x75, 0x70, 0x6c, 0x6f,
+	0x61, 0x64, 0x22, 0x26, 0x0a, 0x12, 0x46, 0x69, 0x6c, 0x65, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x65, 0x72, 0x72, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x65, 0x72, 0x72, 0x22, 0x26, 0x0a, 0x10, 0x46, 0x69,
+	0x6c, 0x65, 0x44, 0x6f, 0x77, 0x6e, 0x6c, 0x6f, 0x61, 0x64, 0x41, 0x72, 0x67, 0x73, 0x12, 0x12,
+	0x0a, 0x04, 0x66, 0x69, 0x6c, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x66, 0x69,
+	0x6c, 0x65, 0x22, 0x4b, 0x0a, 0x14, 0x46, 0x69, 0x6c, 0x65, 0x44, 0x6f, 0x77, 0x6e, 0x6c, 0x6f,
+	0x61, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x21, 0x0a, 0x08, 0x64, 0x6f,
+	0x77, 0x6e, 0x6c, 0x6f, 0x61, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x46,
+	0x69, 0x6c, 0x65, 0x52, 0x08, 0x64, 0x6f, 0x77, 0x6e, 0x6c, 0x6f, 0x61, 0x64, 0x12, 0x10, 0x0a,
+	0x03, 0x65, 0x72, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x65, 0x72, 0x72, 0x22,
+	0x28, 0x0a, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x72, 0x69, 0x63, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x12,
+	0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x41, 0x0a, 0x0d, 0x50, 0x72, 0x6f,
+	0x76, 0x69, 0x64, 0x65, 0x72, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61,
+	0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x1c,
+	0x0a, 0x09, 0x75, 0x73, 0x65, 0x72, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x09, 0x75, 0x73, 0x65, 0x72, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x22, 0x4b, 0x0a, 0x11,
+	0x50, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65,
+	0x73, 0x12, 0x20, 0x0a, 0x0b, 0x63, 0x6f, 0x6e, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x63, 0x79,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x0b, 0x63, 0x6f, 0x6e, 0x63, 0x75, 0x72, 0x72, 0x65,
+	0x6e, 0x63, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x61, 0x73, 0x6b, 0x73, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x0d, 0x52, 0x05, 0x74, 0x61, 0x73, 0x6b, 0x73, 0x22, 0x2b, 0x0a, 0x0b, 0x43, 0x6c, 0x75,
+	0x73, 0x74, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x1c, 0x0a, 0x09, 0x70, 0x72, 0x6f, 0x76,
+	0x69, 0x64, 0x65, 0x72, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x09, 0x70, 0x72, 0x6f,
+	0x76, 0x69, 0x64, 0x65, 0x72, 0x73, 0x22, 0x3c, 0x0a, 0x0a, 0x54, 0x68, 0x72, 0x6f, 0x75, 0x67,
+	0x68, 0x70, 0x75, 0x74, 0x12, 0x18, 0x0a, 0x07, 0x6f, 0x76, 0x65, 0x72, 0x61, 0x6c, 0x6c, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x02, 0x52, 0x07, 0x6f, 0x76, 0x65, 0x72, 0x61, 0x6c, 0x6c, 0x12, 0x14,
+	0x0a, 0x05, 0x79, 0x6f, 0x75, 0x72, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x02, 0x52, 0x05, 0x79,
+	0x6f, 0x75, 0x72, 0x73, 0x22, 0x5c, 0x0a, 0x10, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x55, 0x70,
+	0x6c, 0x6f, 0x61, 0x64, 0x41, 0x72, 0x67, 0x73, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x20, 0x0a, 0x0b,
+	0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x54, 0x79, 0x70, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x0b, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x54, 0x79, 0x70, 0x65, 0x12, 0x12,
+	0x0a, 0x04, 0x62, 0x6c, 0x6f, 0x62, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x04, 0x62, 0x6c,
+	0x6f, 0x62, 0x22, 0x3a, 0x0a, 0x14, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x55, 0x70, 0x6c, 0x6f,
+	0x61, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x72, 0x65,
+	0x66, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x72, 0x65, 0x66, 0x12, 0x10, 0x0a, 0x03,
+	0x65, 0x72, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x65, 0x72, 0x72, 0x22, 0x85,
+	0x01, 0x0a, 0x12, 0x4f, 0x66, 0x66, 0x6c, 0x6f, 0x61, 0x64, 0x57, 0x61, 0x73, 0x69, 0x4a, 0x6f,
+	0x62, 0x41, 0x72, 0x67, 0x73, 0x12, 0x1d, 0x0a, 0x06, 0x62, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x46, 0x69, 0x6c, 0x65, 0x52, 0x06, 0x62, 0x69,
+	0x6e, 0x61, 0x72, 0x79, 0x12, 0x28, 0x0a, 0x06, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x18, 0x03,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x10, 0x2e, 0x4f, 0x66, 0x66, 0x6c, 0x6f, 0x61, 0x64, 0x57, 0x61,
+	0x73, 0x69, 0x54, 0x61, 0x73, 0x6b, 0x52, 0x06, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x12, 0x26,
+	0x0a, 0x05, 0x74, 0x61, 0x73, 0x6b, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x10, 0x2e,
+	0x4f, 0x66, 0x66, 0x6c, 0x6f, 0x61, 0x64, 0x57, 0x61, 0x73, 0x69, 0x54, 0x61, 0x73, 0x6b, 0x52,
+	0x05, 0x74, 0x61, 0x73, 0x6b, 0x73, 0x22, 0x60, 0x0a, 0x16, 0x4f, 0x66, 0x66, 0x6c, 0x6f, 0x61,
+	0x64, 0x57, 0x61, 0x73, 0x69, 0x4a, 0x6f, 0x62, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x14, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x12, 0x30, 0x0a, 0x07, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74,
+	0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x4f, 0x66, 0x66, 0x6c, 0x6f, 0x61,
+	0x64, 0x57, 0x61, 0x73, 0x69, 0x54, 0x61, 0x73, 0x6b, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x52,
+	0x07, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x73, 0x22, 0x8c, 0x01, 0x0a, 0x0f, 0x4f, 0x66, 0x66,
+	0x6c, 0x6f, 0x61, 0x64, 0x57, 0x61, 0x73, 0x69, 0x54, 0x61, 0x73, 0x6b, 0x12, 0x12, 0x0a, 0x04,
+	0x61, 0x72, 0x67, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x04, 0x61, 0x72, 0x67, 0x73,
+	0x12, 0x12, 0x0a, 0x04, 0x65, 0x6e, 0x76, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x09, 0x52, 0x04,
+	0x65, 0x6e, 0x76, 0x73, 0x12, 0x14, 0x0a, 0x05, 0x73, 0x74, 0x64, 0x69, 0x6e, 0x18, 0x03, 0x20,
+	0x01, 0x28, 0x0c, 0x52, 0x05, 0x73, 0x74, 0x64, 0x69, 0x6e, 0x12, 0x1d, 0x0a, 0x06, 0x72, 0x6f,
+	0x6f, 0x74, 0x66, 0x73, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x46, 0x69, 0x6c,
+	0x65, 0x52, 0x06, 0x72, 0x6f, 0x6f, 0x74, 0x66, 0x73, 0x12, 0x1c, 0x0a, 0x09, 0x61, 0x72, 0x74,
+	0x69, 0x66, 0x61, 0x63, 0x74, 0x73, 0x18, 0x05, 0x20, 0x03, 0x28, 0x09, 0x52, 0x09, 0x61, 0x72,
+	0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x73, 0x22, 0x9a, 0x01, 0x0a, 0x15, 0x4f, 0x66, 0x66, 0x6c,
+	0x6f, 0x61, 0x64, 0x57, 0x61, 0x73, 0x69, 0x54, 0x61, 0x73, 0x6b, 0x52, 0x65, 0x73, 0x75, 0x6c,
+	0x74, 0x12, 0x14, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75,
+	0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12,
+	0x16, 0x0a, 0x06, 0x73, 0x74, 0x64, 0x6f, 0x75, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x52,
+	0x06, 0x73, 0x74, 0x64, 0x6f, 0x75, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x64, 0x65, 0x72,
+	0x72, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x06, 0x73, 0x74, 0x64, 0x65, 0x72, 0x72, 0x12,
+	0x23, 0x0a, 0x09, 0x61, 0x72, 0x74, 0x69, 0x66, 0x61, 0x63, 0x74, 0x73, 0x18, 0x05, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x05, 0x2e, 0x46, 0x69, 0x6c, 0x65, 0x52, 0x09, 0x61, 0x72, 0x74, 0x69, 0x66,
+	0x61, 0x63, 0x74, 0x73, 0x2a, 0x5c, 0x0a, 0x0b, 0x53, 0x75, 0x62, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x63, 0x6f, 0x6c, 0x12, 0x0b, 0x0a, 0x07, 0x55, 0x4e, 0x4b, 0x4e, 0x4f, 0x57, 0x4e, 0x10, 0x00,
+	0x12, 0x21, 0x0a, 0x1d, 0x77, 0x61, 0x73, 0x69, 0x6d, 0x6f, 0x66, 0x66, 0x5f, 0x70, 0x72, 0x6f,
+	0x76, 0x69, 0x64, 0x65, 0x72, 0x5f, 0x76, 0x31, 0x5f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75,
+	0x66, 0x10, 0x01, 0x12, 0x1d, 0x0a, 0x19, 0x77, 0x61, 0x73, 0x69, 0x6d, 0x6f, 0x66, 0x66, 0x5f,
+	0x70, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x5f, 0x76, 0x31, 0x5f, 0x6a, 0x73, 0x6f, 0x6e,
+	0x10, 0x02, 0x62, 0x08, 0x65, 0x64, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x70, 0xe8, 0x07,
 }
 
 var (
@@ -1447,56 +1825,59 @@ func file_messages_proto_rawDescGZIP() []byte {
 }
 
 var file_messages_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_messages_proto_goTypes = []any{
-	(Subprotocol)(0),          // 0: Subprotocol
-	(Envelope_MessageType)(0), // 1: Envelope.MessageType
-	(Ping_Direction)(0),       // 2: Ping.Direction
-	(*Envelope)(nil),          // 3: Envelope
-	(*Ping)(nil),              // 4: Ping
-	(*TaskMetadata)(nil),      // 5: TaskMetadata
-	(*Executable)(nil),        // 6: Executable
-	(*ExecuteWasiArgs)(nil),   // 7: ExecuteWasiArgs
-	(*ExecuteWasiResult)(nil), // 8: ExecuteWasiResult
-	(*ExecutionTrace)(nil),    // 9: ExecutionTrace
-	(*FileStat)(nil),          // 10: FileStat
-	(*FileListingArgs)(nil),   // 11: FileListingArgs
-	(*FileListingResult)(nil), // 12: FileListingResult
-	(*FileProbeArgs)(nil),     // 13: FileProbeArgs
-	(*FileProbeResult)(nil),   // 14: FileProbeResult
-	(*FileUploadArgs)(nil),    // 15: FileUploadArgs
-	(*FileUploadResult)(nil),  // 16: FileUploadResult
-	(*GenericEvent)(nil),      // 17: GenericEvent
-	(*ProviderInfo)(nil),      // 18: ProviderInfo
-	(*ProviderResources)(nil), // 19: ProviderResources
-	(*ClusterInfo)(nil),       // 20: ClusterInfo
-	(*Throughput)(nil),        // 21: Throughput
-	(*anypb.Any)(nil),         // 22: google.protobuf.Any
+	(Subprotocol)(0),               // 0: Subprotocol
+	(Envelope_MessageType)(0),      // 1: Envelope.MessageType
+	(Ping_Direction)(0),            // 2: Ping.Direction
+	(*Envelope)(nil),               // 3: Envelope
+	(*Ping)(nil),                   // 4: Ping
+	(*TaskMetadata)(nil),           // 5: TaskMetadata
+	(*ExecuteWasiArgs)(nil),        // 6: ExecuteWasiArgs
+	(*ExecuteWasiResponse)(nil),    // 7: ExecuteWasiResponse
+	(*File)(nil),                   // 8: File
+	(*FileListingArgs)(nil),        // 9: FileListingArgs
+	(*FileListingResponse)(nil),    // 10: FileListingResponse
+	(*FileProbeArgs)(nil),          // 11: FileProbeArgs
+	(*FileProbeResponse)(nil),      // 12: FileProbeResponse
+	(*FileUploadArgs)(nil),         // 13: FileUploadArgs
+	(*FileUploadResponse)(nil),     // 14: FileUploadResponse
+	(*FileDownloadArgs)(nil),       // 15: FileDownloadArgs
+	(*FileDownloadResponse)(nil),   // 16: FileDownloadResponse
+	(*GenericEvent)(nil),           // 17: GenericEvent
+	(*ProviderHello)(nil),          // 18: ProviderHello
+	(*ProviderResources)(nil),      // 19: ProviderResources
+	(*ClusterInfo)(nil),            // 20: ClusterInfo
+	(*Throughput)(nil),             // 21: Throughput
+	(*ClientUploadArgs)(nil),       // 22: ClientUploadArgs
+	(*ClientUploadResponse)(nil),   // 23: ClientUploadResponse
+	(*OffloadWasiJobArgs)(nil),     // 24: OffloadWasiJobArgs
+	(*OffloadWasiJobResponse)(nil), // 25: OffloadWasiJobResponse
+	(*OffloadWasiTask)(nil),        // 26: OffloadWasiTask
+	(*OffloadWasiTaskResult)(nil),  // 27: OffloadWasiTaskResult
+	(*anypb.Any)(nil),              // 28: google.protobuf.Any
 }
 var file_messages_proto_depIdxs = []int32{
 	1,  // 0: Envelope.type:type_name -> Envelope.MessageType
-	22, // 1: Envelope.payload:type_name -> google.protobuf.Any
+	28, // 1: Envelope.payload:type_name -> google.protobuf.Any
 	2,  // 2: Ping.direction:type_name -> Ping.Direction
 	5,  // 3: ExecuteWasiArgs.task:type_name -> TaskMetadata
-	6,  // 4: ExecuteWasiArgs.binary:type_name -> Executable
-	9,  // 5: ExecuteWasiResult.trace:type_name -> ExecutionTrace
-	10, // 6: FileListingResult.files:type_name -> FileStat
-	10, // 7: FileProbeArgs.stat:type_name -> FileStat
-	10, // 8: FileUploadArgs.stat:type_name -> FileStat
-	19, // 9: ProviderInfo.pool:type_name -> ProviderResources
-	7,  // 10: Provider.ExecuteWasi:input_type -> ExecuteWasiArgs
-	13, // 11: Provider.FileProbe:input_type -> FileProbeArgs
-	11, // 12: Provider.FileListing:input_type -> FileListingArgs
-	15, // 13: Provider.FileUpload:input_type -> FileUploadArgs
-	8,  // 14: Provider.ExecuteWasi:output_type -> ExecuteWasiResult
-	14, // 15: Provider.FileProbe:output_type -> FileProbeResult
-	12, // 16: Provider.FileListing:output_type -> FileListingResult
-	16, // 17: Provider.FileUpload:output_type -> FileUploadResult
-	14, // [14:18] is the sub-list for method output_type
-	10, // [10:14] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	8,  // 4: ExecuteWasiArgs.binary:type_name -> File
+	8,  // 5: ExecuteWasiArgs.rootfs:type_name -> File
+	8,  // 6: ExecuteWasiResponse.artifacts:type_name -> File
+	8,  // 7: FileUploadArgs.upload:type_name -> File
+	8,  // 8: FileDownloadResponse.download:type_name -> File
+	8,  // 9: OffloadWasiJobArgs.binary:type_name -> File
+	26, // 10: OffloadWasiJobArgs.common:type_name -> OffloadWasiTask
+	26, // 11: OffloadWasiJobArgs.tasks:type_name -> OffloadWasiTask
+	27, // 12: OffloadWasiJobResponse.results:type_name -> OffloadWasiTaskResult
+	8,  // 13: OffloadWasiTask.rootfs:type_name -> File
+	8,  // 14: OffloadWasiTaskResult.artifacts:type_name -> File
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_messages_proto_init() }
@@ -1542,18 +1923,6 @@ func file_messages_proto_init() {
 			}
 		}
 		file_messages_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*Executable); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_messages_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*ExecuteWasiArgs); i {
 			case 0:
 				return &v.state
@@ -1565,8 +1934,20 @@ func file_messages_proto_init() {
 				return nil
 			}
 		}
+		file_messages_proto_msgTypes[4].Exporter = func(v any, i int) any {
+			switch v := v.(*ExecuteWasiResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 		file_messages_proto_msgTypes[5].Exporter = func(v any, i int) any {
-			switch v := v.(*ExecuteWasiResult); i {
+			switch v := v.(*File); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1578,30 +1959,6 @@ func file_messages_proto_init() {
 			}
 		}
 		file_messages_proto_msgTypes[6].Exporter = func(v any, i int) any {
-			switch v := v.(*ExecutionTrace); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_messages_proto_msgTypes[7].Exporter = func(v any, i int) any {
-			switch v := v.(*FileStat); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_messages_proto_msgTypes[8].Exporter = func(v any, i int) any {
 			switch v := v.(*FileListingArgs); i {
 			case 0:
 				return &v.state
@@ -1613,8 +1970,8 @@ func file_messages_proto_init() {
 				return nil
 			}
 		}
-		file_messages_proto_msgTypes[9].Exporter = func(v any, i int) any {
-			switch v := v.(*FileListingResult); i {
+		file_messages_proto_msgTypes[7].Exporter = func(v any, i int) any {
+			switch v := v.(*FileListingResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1625,7 +1982,7 @@ func file_messages_proto_init() {
 				return nil
 			}
 		}
-		file_messages_proto_msgTypes[10].Exporter = func(v any, i int) any {
+		file_messages_proto_msgTypes[8].Exporter = func(v any, i int) any {
 			switch v := v.(*FileProbeArgs); i {
 			case 0:
 				return &v.state
@@ -1637,8 +1994,8 @@ func file_messages_proto_init() {
 				return nil
 			}
 		}
-		file_messages_proto_msgTypes[11].Exporter = func(v any, i int) any {
-			switch v := v.(*FileProbeResult); i {
+		file_messages_proto_msgTypes[9].Exporter = func(v any, i int) any {
+			switch v := v.(*FileProbeResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1649,7 +2006,7 @@ func file_messages_proto_init() {
 				return nil
 			}
 		}
-		file_messages_proto_msgTypes[12].Exporter = func(v any, i int) any {
+		file_messages_proto_msgTypes[10].Exporter = func(v any, i int) any {
 			switch v := v.(*FileUploadArgs); i {
 			case 0:
 				return &v.state
@@ -1661,8 +2018,32 @@ func file_messages_proto_init() {
 				return nil
 			}
 		}
+		file_messages_proto_msgTypes[11].Exporter = func(v any, i int) any {
+			switch v := v.(*FileUploadResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_messages_proto_msgTypes[12].Exporter = func(v any, i int) any {
+			switch v := v.(*FileDownloadArgs); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 		file_messages_proto_msgTypes[13].Exporter = func(v any, i int) any {
-			switch v := v.(*FileUploadResult); i {
+			switch v := v.(*FileDownloadResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1686,7 +2067,7 @@ func file_messages_proto_init() {
 			}
 		}
 		file_messages_proto_msgTypes[15].Exporter = func(v any, i int) any {
-			switch v := v.(*ProviderInfo); i {
+			switch v := v.(*ProviderHello); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1733,10 +2114,78 @@ func file_messages_proto_init() {
 				return nil
 			}
 		}
-	}
-	file_messages_proto_msgTypes[3].OneofWrappers = []any{
-		(*Executable_Reference)(nil),
-		(*Executable_Raw)(nil),
+		file_messages_proto_msgTypes[19].Exporter = func(v any, i int) any {
+			switch v := v.(*ClientUploadArgs); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_messages_proto_msgTypes[20].Exporter = func(v any, i int) any {
+			switch v := v.(*ClientUploadResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_messages_proto_msgTypes[21].Exporter = func(v any, i int) any {
+			switch v := v.(*OffloadWasiJobArgs); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_messages_proto_msgTypes[22].Exporter = func(v any, i int) any {
+			switch v := v.(*OffloadWasiJobResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_messages_proto_msgTypes[23].Exporter = func(v any, i int) any {
+			switch v := v.(*OffloadWasiTask); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_messages_proto_msgTypes[24].Exporter = func(v any, i int) any {
+			switch v := v.(*OffloadWasiTaskResult); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1744,9 +2193,9 @@ func file_messages_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_messages_proto_rawDesc,
 			NumEnums:      3,
-			NumMessages:   19,
+			NumMessages:   25,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   0,
 		},
 		GoTypes:           file_messages_proto_goTypes,
 		DependencyIndexes: file_messages_proto_depIdxs,

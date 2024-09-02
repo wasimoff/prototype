@@ -40,22 +40,13 @@ func WebSocketHandler(server *server.Server, store *ProviderStore, origins []str
 		// handle incoming event messages
 		go provider.eventTransmitter()
 
-		// TODO: replace this up-front pushing with on-demand fetching by Providers (needs scheduler change, too!)
 		// get the list of available files on provider
-		if err = provider.ListFiles(); err != nil {
+		if _, err = provider.ListFiles(); err != nil {
 			log.Printf("[%s] New Provider: %s", addr, err)
 			return
 		}
-		// upload all known files to the provider
-		for _, file := range store.Storage.Files {
-			err = provider.Upload(file)
-			if err != nil {
-				log.Printf("[%s] New Provider: initial Upload failed: %q: %s", addr, file.Name, err)
-				return
-			}
-		}
 
-		// add ourselves to the available provider store
+		// add provider to the store
 		log.Printf("[%s] New Provider connected using WebSocket", addr)
 		store.Add(provider)
 		defer store.Remove(provider)
@@ -96,19 +87,13 @@ func (p *Provider) eventTransmitter() {
 			case *pb.GenericEvent:
 				log.Printf("[%s] says: %s", p.Get(Address), ev.GetMessage())
 
-			case *pb.ProviderInfo:
+			case *pb.ProviderHello:
 				if v := ev.GetName(); v != "" {
 					p.info[Name] = v
 				}
 				if v := ev.GetUseragent(); v != "" {
 					p.info[UserAgent] = v
 					log.Printf("[%s] UserAgent: %s", p.Get(Address), v)
-				}
-				pool := ev.GetPool()
-				// TODO: set active tasks .. see below
-				if pool != nil && pool.Concurrency != nil {
-					log.Printf("[%s] Workers: %d", p.Get(Address), *pool.Concurrency)
-					p.limiter.SetLimit(int(*pool.Concurrency))
 				}
 
 			case *pb.ProviderResources:

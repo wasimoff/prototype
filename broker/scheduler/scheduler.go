@@ -9,8 +9,6 @@ import (
 // Scheduler is a generic interface which must be fulfilled by a concrete scheduler,
 // i.e. the type that selects suitable providers given task information and submits the task.
 type Scheduler interface {
-	// Check if the selector is OK in general (e.g. there is at least one provider)
-	Ok() error
 	// The Schedule function tries to submit a Task to a suitable Provider's queue and returns the WasmTask struct
 	Schedule(ctx context.Context, task *Task) (*provider.PendingWasiCall, error)
 	// Called on task completion to measure overall throughput

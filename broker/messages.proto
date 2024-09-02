@@ -55,22 +55,6 @@ message Ping {
 // to name the Request and Result pairs absolutely clearly. Avoid using a generic
 // response message for different requests, even if their fields are identical.
 
-// We aren't using gRPC (yet) but we can codify the expected message pairs anyway.
-// This service lists the requests that a Broker can send to the Provider, i.e. the
-// Provider (the browser) takes the role of a server here!
-service Provider {
-
-  // execute
-  rpc ExecuteWasi (ExecuteWasiArgs) returns (ExecuteWasiResult);
-  // rpc ExecuteWasm (ExecuteWasmArgs) returns (ExecuteWasmResult); // TODO
-
-  // filesystem
-  rpc FileProbe (FileProbeArgs) returns (FileProbeResult);
-  rpc FileListing (FileListingArgs) returns (FileListingResult);
-  rpc FileUpload (FileUploadArgs) returns (FileUploadResult);
-
-}
-
 
 // ---> execute
 
@@ -79,73 +63,70 @@ message TaskMetadata {
   string id = 1; // overall job ID
   string client = 2; // info about the requesting client
   uint64 index = 3; // index within a job with multiple tasks
-}
-
-// Executable can be either a string reference or the raw binary itself
-message Executable {
-  oneof binary {
-    string reference = 1;
-    bytes raw = 2;
-  }
+  bool trace = 4; // request a trace of task execution, TODO
 }
 
 // ExecuteWasi runs a webassembly/wasi binary on the Provider
 message ExecuteWasiArgs {
   TaskMetadata task = 1;
-  Executable binary = 2;
+  File binary = 2;
   repeated string args = 3;
   repeated string envs = 4;
   bytes stdin = 5;
-  repeated string loadfs = 6;
-  string datafile = 7;
-  bool trace = 8;
+  File rootfs = 6;
+  repeated string artifacts = 7;
 }
-message ExecuteWasiResult {
-  int32 status = 1;
-  bytes stdout = 2;
-  bytes stderr = 3;
-  bytes datafile = 4;
-  ExecutionTrace trace = 5;
-}
-message ExecutionTrace {
-  // TODO
+message ExecuteWasiResponse {
+  string error = 1;
+  int32 status = 2;
+  bytes stdout = 3;
+  bytes stderr = 4;
+  File artifacts = 5;
 }
 
 
 // ---> filesystem
 
-// FileStat contains metadata about a file for identification in other messages
-message FileStat {
-  string filename = 1;
-  string contenttype = 2;
-  uint64 length = 3;
-  int64 epoch = 5;
-  bytes hash = 4;
+// File is a file reference with optional mime-type and length. The reference
+// can be a plain filename, a prefixed hash digest or a URL to fetch from. When
+// stored, a hash digest should be computed to have a stable identifier.
+message File {
+  string ref = 1; // filename, encoded digest or URL
+  string content = 2; // content-type in MIME notation
+  bytes blob = 3; // the actual file contents
 }
 
 // FileListing asks for a listing of all available files on Provider
 message FileListingArgs {
   // empty
 }
-message FileListingResult {
-  repeated FileStat files = 1;
+message FileListingResponse {
+  repeated string files = 1;
 }
 
 // FileProbe checks if a certain file exists on provider
 message FileProbeArgs {
-  FileStat stat = 1;
+  string file = 1;
 }
-message FileProbeResult {
+message FileProbeResponse {
   bool ok = 1;
 }
 
 // FileUpload pushes a file to the Provider.
 message FileUploadArgs {
-  FileStat stat = 1;
-  bytes file = 2;
+  File upload = 1;
 }
-message FileUploadResult {
-  bool ok = 1;
+message FileUploadResponse {
+  string err = 1;
+}
+
+// FileDownload can be sent by the Provider to request a file download.
+message FileDownloadArgs {
+  string file = 1;
+}
+message FileDownloadResponse {
+  File download = 1;
+  string err = 2;
 }
 
 
@@ -156,17 +137,15 @@ message GenericEvent {
   string message = 1;
 }
 
-// ProviderInfo is sent once at the beginning to identify the Provider
-message ProviderInfo {
+// ProviderHello is sent once at the beginning to identify the Provider
+message ProviderHello {
   string name = 1; // a logging-friendly name of the provider
-  string platform = 2;  // like the navigator.platform in browser
-  string useragent = 3; // like the navigator.useragent in browser
-  ProviderResources pool = 4;
+  string useragent = 2; // like the navigator.useragent in browser
 }
 
 // ProviderResources is information about the available resources in Worker pool
 message ProviderResources {
-  uint32 concurrency = 1; // maximum possible concurrency
+  uint32 concurrency = 1; // maximum possible concurrency (~ number of Workers)
   uint32 tasks = 2; // currently active tasks
 }
 
@@ -177,10 +156,63 @@ message ClusterInfo {
 
 // Throughput contains information about overall cluster throughput
 message Throughput {
-  float throughput = 1; // current overall tasks/s throughput
+  float overall = 1; // current overall tasks/s throughput
+  float yours = 2; // your contribution (identified by name)
 }
 
 
 // ---------- client interface ---------- //
 
-// TODO
+// The client interface specifies the messages that the offloading clients
+// are expected to send. As a first step, they should just formalize the
+// ad-hoc JSON structs that are already used, so at least the Broker can
+// use pbjson to parse messages.
+
+// These client requests will arrive on predefined routes, so a normal RPC
+// library could be used an no Envelope wrapping is necessary.
+
+// The simplest client upload is a POST request with the raw binary inside
+// and metadata in headers but I guess we can also use a message type.
+message ClientUploadArgs {
+  string name = 1;
+  string contentType = 2;
+  bytes blob = 3;
+}
+message ClientUploadResponse {
+  string ref = 1;
+  string err = 2;
+}
+
+// An offloading request specifies a binary to use, optionally some common
+// parent parameters and then a list of executions of this binary. There is
+// no magic in the parent parameter inheritance: anything in the parent gets
+// entirely replaced by the corresponding field in a task specification. Though
+// you could specify everything in the common parameters, at least one task
+// must be present; even if just an empty { }.
+message OffloadWasiJobArgs {
+  File binary = 1;
+  // bool trace = 2; // TODO
+  OffloadWasiTask common = 3;
+  repeated OffloadWasiTask tasks = 4;
+}
+message OffloadWasiJobResponse {
+  string error = 1;
+  // Trace trace = 2; // TODO
+  repeated OffloadWasiTaskResult results = 3;
+}
+
+message OffloadWasiTask {
+  repeated string args = 1;
+  repeated string envs = 2;
+  bytes stdin = 3;
+  File rootfs = 4;
+  repeated string artifacts = 5;
+}
+
+message OffloadWasiTaskResult {
+  string error = 1;
+  int32 status = 2;
+  bytes stdout = 3;
+  bytes stderr = 4;
+  File artifacts = 5;
+}

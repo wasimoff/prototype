@@ -22,18 +22,12 @@ func NewRoundRobinSelector(store *provider.ProviderStore) RoundRobinSelector {
 	return RoundRobinSelector{store, -1} // will increment to 0 on first use
 }
 
-func (s *RoundRobinSelector) Ok() (err error) {
-	if s.store.Size() == 0 {
-		return fmt.Errorf("provider store is empty")
-	}
-	return
-}
-
 func (s *RoundRobinSelector) selectCandidates(task *Task) (candidates []*provider.Provider, err error) {
 	// round-robin actually got *harder* since using a map for the store ...
 
 	// if the list is empty, return nil
-	if err = s.Ok(); err != nil {
+	if s.store.Size() == 0 {
+		err = fmt.Errorf("provider store is empty")
 		return
 	}
 
@@ -54,8 +48,6 @@ func (s *RoundRobinSelector) selectCandidates(task *Task) (candidates []*provide
 }
 
 func (s *RoundRobinSelector) Schedule(ctx context.Context, task *Task) (call *provider.PendingWasiCall, err error) {
-	run := requestFromTask(task)
-	call = provider.NewPendingWasiCall(run)
 
 	providers, err := s.selectCandidates(task)
 	if err != nil {
@@ -64,6 +56,7 @@ func (s *RoundRobinSelector) Schedule(ctx context.Context, task *Task) (call *pr
 		return nil, fmt.Errorf("RoundRobinSelector.Select() did not return exactly one Provider")
 	}
 
+	call = provider.NewPendingWasiCall(task.Args, task.Result)
 	err = dynamicSubmit(ctx, call, providers)
 	return
 

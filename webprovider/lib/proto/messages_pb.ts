@@ -4,8 +4,8 @@
 // @generated from file messages.proto (edition 2023)
 /* eslint-disable */
 
-import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv1";
-import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv1";
+import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
+import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import type { Any, AnyJson } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_any } from "@bufbuild/protobuf/wkt";
 import type { Message } from "@bufbuild/protobuf";
@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file messages.proto.
  */
 export const file_messages: GenFile = /*@__PURE__*/
-  fileDesc("Cg5tZXNzYWdlcy5wcm90byK5AQoIRW52ZWxvcGUSEAoIc2VxdWVuY2UYASABKAQSIwoEdHlwZRgCIAEoDjIVLkVudmVsb3BlLk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADIksKBFBpbmcSIgoJZGlyZWN0aW9uGAEgASgOMg8uUGluZy5EaXJlY3Rpb24iHwoJRGlyZWN0aW9uEggKBFBpbmcQABIICgRQb25nEAEiOQoMVGFza01ldGFkYXRhEgoKAmlkGAEgASgJEg4KBmNsaWVudBgCIAEoCRINCgVpbmRleBgDIAEoBCI6CgpFeGVjdXRhYmxlEhMKCXJlZmVyZW5jZRgBIAEoCUgAEg0KA3JhdxgCIAEoDEgAQggKBmJpbmFyeSKnAQoPRXhlY3V0ZVdhc2lBcmdzEhsKBHRhc2sYASABKAsyDS5UYXNrTWV0YWRhdGESGwoGYmluYXJ5GAIgASgLMgsuRXhlY3V0YWJsZRIMCgRhcmdzGAMgAygJEgwKBGVudnMYBCADKAkSDQoFc3RkaW4YBSABKAwSDgoGbG9hZGZzGAYgAygJEhAKCGRhdGFmaWxlGAcgASgJEg0KBXRyYWNlGAggASgIInUKEUV4ZWN1dGVXYXNpUmVzdWx0Eg4KBnN0YXR1cxgBIAEoBRIOCgZzdGRvdXQYAiABKAwSDgoGc3RkZXJyGAMgASgMEhAKCGRhdGFmaWxlGAQgASgMEh4KBXRyYWNlGAUgASgLMg8uRXhlY3V0aW9uVHJhY2UiEAoORXhlY3V0aW9uVHJhY2UiXgoIRmlsZVN0YXQSEAoIZmlsZW5hbWUYASABKAkSEwoLY29udGVudHR5cGUYAiABKAkSDgoGbGVuZ3RoGAMgASgEEg0KBWVwb2NoGAUgASgDEgwKBGhhc2gYBCABKAwiEQoPRmlsZUxpc3RpbmdBcmdzIi0KEUZpbGVMaXN0aW5nUmVzdWx0EhgKBWZpbGVzGAEgAygLMgkuRmlsZVN0YXQiKAoNRmlsZVByb2JlQXJncxIXCgRzdGF0GAEgASgLMgkuRmlsZVN0YXQiHQoPRmlsZVByb2JlUmVzdWx0EgoKAm9rGAEgASgIIjcKDkZpbGVVcGxvYWRBcmdzEhcKBHN0YXQYASABKAsyCS5GaWxlU3RhdBIMCgRmaWxlGAIgASgMIh4KEEZpbGVVcGxvYWRSZXN1bHQSCgoCb2sYASABKAgiHwoMR2VuZXJpY0V2ZW50Eg8KB21lc3NhZ2UYASABKAkiYwoMUHJvdmlkZXJJbmZvEgwKBG5hbWUYASABKAkSEAoIcGxhdGZvcm0YAiABKAkSEQoJdXNlcmFnZW50GAMgASgJEiAKBHBvb2wYBCABKAsyEi5Qcm92aWRlclJlc291cmNlcyI3ChFQcm92aWRlclJlc291cmNlcxITCgtjb25jdXJyZW5jeRgBIAEoDRINCgV0YXNrcxgCIAEoDSIgCgtDbHVzdGVySW5mbxIRCglwcm92aWRlcnMYASABKA0iIAoKVGhyb3VnaHB1dBISCgp0aHJvdWdocHV0GAEgASgCKlwKC1N1YnByb3RvY29sEgsKB1VOS05PV04QABIhCh13YXNpbW9mZl9wcm92aWRlcl92MV9wcm90b2J1ZhABEh0KGXdhc2ltb2ZmX3Byb3ZpZGVyX3YxX2pzb24QAjLVAQoIUHJvdmlkZXISMwoLRXhlY3V0ZVdhc2kSEC5FeGVjdXRlV2FzaUFyZ3MaEi5FeGVjdXRlV2FzaVJlc3VsdBItCglGaWxlUHJvYmUSDi5GaWxlUHJvYmVBcmdzGhAuRmlsZVByb2JlUmVzdWx0EjMKC0ZpbGVMaXN0aW5nEhAuRmlsZUxpc3RpbmdBcmdzGhIuRmlsZUxpc3RpbmdSZXN1bHQSMAoKRmlsZVVwbG9hZBIPLkZpbGVVcGxvYWRBcmdzGhEuRmlsZVVwbG9hZFJlc3VsdGIIZWRpdGlvbnNw6Ac", [file_google_protobuf_any]);
+  fileDesc("Cg5tZXNzYWdlcy5wcm90byK5AQoIRW52ZWxvcGUSEAoIc2VxdWVuY2UYASABKAQSIwoEdHlwZRgCIAEoDjIVLkVudmVsb3BlLk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADIksKBFBpbmcSIgoJZGlyZWN0aW9uGAEgASgOMg8uUGluZy5EaXJlY3Rpb24iHwoJRGlyZWN0aW9uEggKBFBpbmcQABIICgRQb25nEAEiSAoMVGFza01ldGFkYXRhEgoKAmlkGAEgASgJEg4KBmNsaWVudBgCIAEoCRINCgVpbmRleBgDIAEoBBINCgV0cmFjZRgEIAEoCCKaAQoPRXhlY3V0ZVdhc2lBcmdzEhsKBHRhc2sYASABKAsyDS5UYXNrTWV0YWRhdGESFQoGYmluYXJ5GAIgASgLMgUuRmlsZRIMCgRhcmdzGAMgAygJEgwKBGVudnMYBCADKAkSDQoFc3RkaW4YBSABKAwSFQoGcm9vdGZzGAYgASgLMgUuRmlsZRIRCglhcnRpZmFjdHMYByADKAkibgoTRXhlY3V0ZVdhc2lSZXNwb25zZRINCgVlcnJvchgBIAEoCRIOCgZzdGF0dXMYAiABKAUSDgoGc3Rkb3V0GAMgASgMEg4KBnN0ZGVychgEIAEoDBIYCglhcnRpZmFjdHMYBSABKAsyBS5GaWxlIjIKBEZpbGUSCwoDcmVmGAEgASgJEg8KB2NvbnRlbnQYAiABKAkSDAoEYmxvYhgDIAEoDCIRCg9GaWxlTGlzdGluZ0FyZ3MiJAoTRmlsZUxpc3RpbmdSZXNwb25zZRINCgVmaWxlcxgBIAMoCSIdCg1GaWxlUHJvYmVBcmdzEgwKBGZpbGUYASABKAkiHwoRRmlsZVByb2JlUmVzcG9uc2USCgoCb2sYASABKAgiJwoORmlsZVVwbG9hZEFyZ3MSFQoGdXBsb2FkGAEgASgLMgUuRmlsZSIhChJGaWxlVXBsb2FkUmVzcG9uc2USCwoDZXJyGAEgASgJIiAKEEZpbGVEb3dubG9hZEFyZ3MSDAoEZmlsZRgBIAEoCSI8ChRGaWxlRG93bmxvYWRSZXNwb25zZRIXCghkb3dubG9hZBgBIAEoCzIFLkZpbGUSCwoDZXJyGAIgASgJIh8KDEdlbmVyaWNFdmVudBIPCgdtZXNzYWdlGAEgASgJIjAKDVByb3ZpZGVySGVsbG8SDAoEbmFtZRgBIAEoCRIRCgl1c2VyYWdlbnQYAiABKAkiNwoRUHJvdmlkZXJSZXNvdXJjZXMSEwoLY29uY3VycmVuY3kYASABKA0SDQoFdGFza3MYAiABKA0iIAoLQ2x1c3RlckluZm8SEQoJcHJvdmlkZXJzGAEgASgNIiwKClRocm91Z2hwdXQSDwoHb3ZlcmFsbBgBIAEoAhINCgV5b3VycxgCIAEoAiJDChBDbGllbnRVcGxvYWRBcmdzEgwKBG5hbWUYASABKAkSEwoLY29udGVudFR5cGUYAiABKAkSDAoEYmxvYhgDIAEoDCIwChRDbGllbnRVcGxvYWRSZXNwb25zZRILCgNyZWYYASABKAkSCwoDZXJyGAIgASgJIm4KEk9mZmxvYWRXYXNpSm9iQXJncxIVCgZiaW5hcnkYASABKAsyBS5GaWxlEiAKBmNvbW1vbhgDIAEoCzIQLk9mZmxvYWRXYXNpVGFzaxIfCgV0YXNrcxgEIAMoCzIQLk9mZmxvYWRXYXNpVGFzayJQChZPZmZsb2FkV2FzaUpvYlJlc3BvbnNlEg0KBWVycm9yGAEgASgJEicKB3Jlc3VsdHMYAyADKAsyFi5PZmZsb2FkV2FzaVRhc2tSZXN1bHQiZgoPT2ZmbG9hZFdhc2lUYXNrEgwKBGFyZ3MYASADKAkSDAoEZW52cxgCIAMoCRINCgVzdGRpbhgDIAEoDBIVCgZyb290ZnMYBCABKAsyBS5GaWxlEhEKCWFydGlmYWN0cxgFIAMoCSJwChVPZmZsb2FkV2FzaVRhc2tSZXN1bHQSDQoFZXJyb3IYASABKAkSDgoGc3RhdHVzGAIgASgFEg4KBnN0ZG91dBgDIAEoDBIOCgZzdGRlcnIYBCABKAwSGAoJYXJ0aWZhY3RzGAUgASgLMgUuRmlsZSpcCgtTdWJwcm90b2NvbBILCgdVTktOT1dOEAASIQodd2FzaW1vZmZfcHJvdmlkZXJfdjFfcHJvdG9idWYQARIdChl3YXNpbW9mZl9wcm92aWRlcl92MV9qc29uEAJiCGVkaXRpb25zcOgH", [file_google_protobuf_any]);
 
 /**
  * Envelope is a generic message wrapper with a sequence counter and message type.
@@ -207,6 +207,13 @@ export type TaskMetadata = Message<"TaskMetadata"> & {
    * @generated from field: uint64 index = 3;
    */
   index: bigint;
+
+  /**
+   * request a trace of task execution, TODO
+   *
+   * @generated from field: bool trace = 4;
+   */
+  trace: boolean;
 };
 
 /**
@@ -227,6 +234,11 @@ export type TaskMetadataJson = {
    * @generated from field: uint64 index = 3;
    */
   index?: string;
+
+  /**
+   * @generated from field: bool trace = 4;
+   */
+  trace?: boolean;
 };
 
 /**
@@ -235,52 +247,6 @@ export type TaskMetadataJson = {
  */
 export const TaskMetadataSchema: GenMessage<TaskMetadata, TaskMetadataJson> = /*@__PURE__*/
   messageDesc(file_messages, 2);
-
-/**
- * Executable can be either a string reference or the raw binary itself
- *
- * @generated from message Executable
- */
-export type Executable = Message<"Executable"> & {
-  /**
-   * @generated from oneof Executable.binary
-   */
-  binary: {
-    /**
-     * @generated from field: string reference = 1;
-     */
-    value: string;
-    case: "reference";
-  } | {
-    /**
-     * @generated from field: bytes raw = 2;
-     */
-    value: Uint8Array;
-    case: "raw";
-  } | { case: undefined; value?: undefined };
-};
-
-/**
- * JSON type for the message Executable.
- */
-export type ExecutableJson = {
-  /**
-   * @generated from field: string reference = 1;
-   */
-  reference?: string;
-
-  /**
-   * @generated from field: bytes raw = 2;
-   */
-  raw?: string;
-};
-
-/**
- * Describes the message Executable.
- * Use `create(ExecutableSchema)` to create a new message.
- */
-export const ExecutableSchema: GenMessage<Executable, ExecutableJson> = /*@__PURE__*/
-  messageDesc(file_messages, 3);
 
 /**
  * ExecuteWasi runs a webassembly/wasi binary on the Provider
@@ -294,9 +260,9 @@ export type ExecuteWasiArgs = Message<"ExecuteWasiArgs"> & {
   task?: TaskMetadata;
 
   /**
-   * @generated from field: Executable binary = 2;
+   * @generated from field: File binary = 2;
    */
-  binary?: Executable;
+  binary?: File;
 
   /**
    * @generated from field: repeated string args = 3;
@@ -314,19 +280,14 @@ export type ExecuteWasiArgs = Message<"ExecuteWasiArgs"> & {
   stdin: Uint8Array;
 
   /**
-   * @generated from field: repeated string loadfs = 6;
+   * @generated from field: File rootfs = 6;
    */
-  loadfs: string[];
+  rootfs?: File;
 
   /**
-   * @generated from field: string datafile = 7;
+   * @generated from field: repeated string artifacts = 7;
    */
-  datafile: string;
-
-  /**
-   * @generated from field: bool trace = 8;
-   */
-  trace: boolean;
+  artifacts: string[];
 };
 
 /**
@@ -339,9 +300,9 @@ export type ExecuteWasiArgsJson = {
   task?: TaskMetadataJson;
 
   /**
-   * @generated from field: Executable binary = 2;
+   * @generated from field: File binary = 2;
    */
-  binary?: ExecutableJson;
+  binary?: FileJson;
 
   /**
    * @generated from field: repeated string args = 3;
@@ -359,19 +320,14 @@ export type ExecuteWasiArgsJson = {
   stdin?: string;
 
   /**
-   * @generated from field: repeated string loadfs = 6;
+   * @generated from field: File rootfs = 6;
    */
-  loadfs?: string[];
+  rootfs?: FileJson;
 
   /**
-   * @generated from field: string datafile = 7;
+   * @generated from field: repeated string artifacts = 7;
    */
-  datafile?: string;
-
-  /**
-   * @generated from field: bool trace = 8;
-   */
-  trace?: boolean;
+  artifacts?: string[];
 };
 
 /**
@@ -379,164 +335,131 @@ export type ExecuteWasiArgsJson = {
  * Use `create(ExecuteWasiArgsSchema)` to create a new message.
  */
 export const ExecuteWasiArgsSchema: GenMessage<ExecuteWasiArgs, ExecuteWasiArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 4);
+  messageDesc(file_messages, 3);
 
 /**
- * @generated from message ExecuteWasiResult
+ * @generated from message ExecuteWasiResponse
  */
-export type ExecuteWasiResult = Message<"ExecuteWasiResult"> & {
+export type ExecuteWasiResponse = Message<"ExecuteWasiResponse"> & {
   /**
-   * @generated from field: int32 status = 1;
+   * @generated from field: string error = 1;
+   */
+  error: string;
+
+  /**
+   * @generated from field: int32 status = 2;
    */
   status: number;
 
   /**
-   * @generated from field: bytes stdout = 2;
+   * @generated from field: bytes stdout = 3;
    */
   stdout: Uint8Array;
 
   /**
-   * @generated from field: bytes stderr = 3;
+   * @generated from field: bytes stderr = 4;
    */
   stderr: Uint8Array;
 
   /**
-   * @generated from field: bytes datafile = 4;
+   * @generated from field: File artifacts = 5;
    */
-  datafile: Uint8Array;
-
-  /**
-   * @generated from field: ExecutionTrace trace = 5;
-   */
-  trace?: ExecutionTrace;
+  artifacts?: File;
 };
 
 /**
- * JSON type for the message ExecuteWasiResult.
+ * JSON type for the message ExecuteWasiResponse.
  */
-export type ExecuteWasiResultJson = {
+export type ExecuteWasiResponseJson = {
   /**
-   * @generated from field: int32 status = 1;
+   * @generated from field: string error = 1;
+   */
+  error?: string;
+
+  /**
+   * @generated from field: int32 status = 2;
    */
   status?: number;
 
   /**
-   * @generated from field: bytes stdout = 2;
+   * @generated from field: bytes stdout = 3;
    */
   stdout?: string;
 
   /**
-   * @generated from field: bytes stderr = 3;
+   * @generated from field: bytes stderr = 4;
    */
   stderr?: string;
 
   /**
-   * @generated from field: bytes datafile = 4;
+   * @generated from field: File artifacts = 5;
    */
-  datafile?: string;
-
-  /**
-   * @generated from field: ExecutionTrace trace = 5;
-   */
-  trace?: ExecutionTraceJson;
+  artifacts?: FileJson;
 };
 
 /**
- * Describes the message ExecuteWasiResult.
- * Use `create(ExecuteWasiResultSchema)` to create a new message.
+ * Describes the message ExecuteWasiResponse.
+ * Use `create(ExecuteWasiResponseSchema)` to create a new message.
  */
-export const ExecuteWasiResultSchema: GenMessage<ExecuteWasiResult, ExecuteWasiResultJson> = /*@__PURE__*/
+export const ExecuteWasiResponseSchema: GenMessage<ExecuteWasiResponse, ExecuteWasiResponseJson> = /*@__PURE__*/
+  messageDesc(file_messages, 4);
+
+/**
+ * File is a file reference with optional mime-type and length. The reference
+ * can be a plain filename, a prefixed hash digest or a URL to fetch from. When
+ * stored, a hash digest should be computed to have a stable identifier.
+ *
+ * @generated from message File
+ */
+export type File = Message<"File"> & {
+  /**
+   * filename, encoded digest or URL
+   *
+   * @generated from field: string ref = 1;
+   */
+  ref: string;
+
+  /**
+   * content-type in MIME notation
+   *
+   * @generated from field: string content = 2;
+   */
+  content: string;
+
+  /**
+   * the actual file contents
+   *
+   * @generated from field: bytes blob = 3;
+   */
+  blob: Uint8Array;
+};
+
+/**
+ * JSON type for the message File.
+ */
+export type FileJson = {
+  /**
+   * @generated from field: string ref = 1;
+   */
+  ref?: string;
+
+  /**
+   * @generated from field: string content = 2;
+   */
+  content?: string;
+
+  /**
+   * @generated from field: bytes blob = 3;
+   */
+  blob?: string;
+};
+
+/**
+ * Describes the message File.
+ * Use `create(FileSchema)` to create a new message.
+ */
+export const FileSchema: GenMessage<File, FileJson> = /*@__PURE__*/
   messageDesc(file_messages, 5);
-
-/**
- * TODO
- *
- * @generated from message ExecutionTrace
- */
-export type ExecutionTrace = Message<"ExecutionTrace"> & {
-};
-
-/**
- * JSON type for the message ExecutionTrace.
- */
-export type ExecutionTraceJson = {
-};
-
-/**
- * Describes the message ExecutionTrace.
- * Use `create(ExecutionTraceSchema)` to create a new message.
- */
-export const ExecutionTraceSchema: GenMessage<ExecutionTrace, ExecutionTraceJson> = /*@__PURE__*/
-  messageDesc(file_messages, 6);
-
-/**
- * FileStat contains metadata about a file for identification in other messages
- *
- * @generated from message FileStat
- */
-export type FileStat = Message<"FileStat"> & {
-  /**
-   * @generated from field: string filename = 1;
-   */
-  filename: string;
-
-  /**
-   * @generated from field: string contenttype = 2;
-   */
-  contenttype: string;
-
-  /**
-   * @generated from field: uint64 length = 3;
-   */
-  length: bigint;
-
-  /**
-   * @generated from field: int64 epoch = 5;
-   */
-  epoch: bigint;
-
-  /**
-   * @generated from field: bytes hash = 4;
-   */
-  hash: Uint8Array;
-};
-
-/**
- * JSON type for the message FileStat.
- */
-export type FileStatJson = {
-  /**
-   * @generated from field: string filename = 1;
-   */
-  filename?: string;
-
-  /**
-   * @generated from field: string contenttype = 2;
-   */
-  contenttype?: string;
-
-  /**
-   * @generated from field: uint64 length = 3;
-   */
-  length?: string;
-
-  /**
-   * @generated from field: int64 epoch = 5;
-   */
-  epoch?: string;
-
-  /**
-   * @generated from field: bytes hash = 4;
-   */
-  hash?: string;
-};
-
-/**
- * Describes the message FileStat.
- * Use `create(FileStatSchema)` to create a new message.
- */
-export const FileStatSchema: GenMessage<FileStat, FileStatJson> = /*@__PURE__*/
-  messageDesc(file_messages, 7);
 
 /**
  * FileListing asks for a listing of all available files on Provider
@@ -559,34 +482,34 @@ export type FileListingArgsJson = {
  * Use `create(FileListingArgsSchema)` to create a new message.
  */
 export const FileListingArgsSchema: GenMessage<FileListingArgs, FileListingArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 8);
+  messageDesc(file_messages, 6);
 
 /**
- * @generated from message FileListingResult
+ * @generated from message FileListingResponse
  */
-export type FileListingResult = Message<"FileListingResult"> & {
+export type FileListingResponse = Message<"FileListingResponse"> & {
   /**
-   * @generated from field: repeated FileStat files = 1;
+   * @generated from field: repeated string files = 1;
    */
-  files: FileStat[];
+  files: string[];
 };
 
 /**
- * JSON type for the message FileListingResult.
+ * JSON type for the message FileListingResponse.
  */
-export type FileListingResultJson = {
+export type FileListingResponseJson = {
   /**
-   * @generated from field: repeated FileStat files = 1;
+   * @generated from field: repeated string files = 1;
    */
-  files?: FileStatJson[];
+  files?: string[];
 };
 
 /**
- * Describes the message FileListingResult.
- * Use `create(FileListingResultSchema)` to create a new message.
+ * Describes the message FileListingResponse.
+ * Use `create(FileListingResponseSchema)` to create a new message.
  */
-export const FileListingResultSchema: GenMessage<FileListingResult, FileListingResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 9);
+export const FileListingResponseSchema: GenMessage<FileListingResponse, FileListingResponseJson> = /*@__PURE__*/
+  messageDesc(file_messages, 7);
 
 /**
  * FileProbe checks if a certain file exists on provider
@@ -595,9 +518,9 @@ export const FileListingResultSchema: GenMessage<FileListingResult, FileListingR
  */
 export type FileProbeArgs = Message<"FileProbeArgs"> & {
   /**
-   * @generated from field: FileStat stat = 1;
+   * @generated from field: string file = 1;
    */
-  stat?: FileStat;
+  file: string;
 };
 
 /**
@@ -605,9 +528,9 @@ export type FileProbeArgs = Message<"FileProbeArgs"> & {
  */
 export type FileProbeArgsJson = {
   /**
-   * @generated from field: FileStat stat = 1;
+   * @generated from field: string file = 1;
    */
-  stat?: FileStatJson;
+  file?: string;
 };
 
 /**
@@ -615,12 +538,12 @@ export type FileProbeArgsJson = {
  * Use `create(FileProbeArgsSchema)` to create a new message.
  */
 export const FileProbeArgsSchema: GenMessage<FileProbeArgs, FileProbeArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 10);
+  messageDesc(file_messages, 8);
 
 /**
- * @generated from message FileProbeResult
+ * @generated from message FileProbeResponse
  */
-export type FileProbeResult = Message<"FileProbeResult"> & {
+export type FileProbeResponse = Message<"FileProbeResponse"> & {
   /**
    * @generated from field: bool ok = 1;
    */
@@ -628,9 +551,9 @@ export type FileProbeResult = Message<"FileProbeResult"> & {
 };
 
 /**
- * JSON type for the message FileProbeResult.
+ * JSON type for the message FileProbeResponse.
  */
-export type FileProbeResultJson = {
+export type FileProbeResponseJson = {
   /**
    * @generated from field: bool ok = 1;
    */
@@ -638,11 +561,11 @@ export type FileProbeResultJson = {
 };
 
 /**
- * Describes the message FileProbeResult.
- * Use `create(FileProbeResultSchema)` to create a new message.
+ * Describes the message FileProbeResponse.
+ * Use `create(FileProbeResponseSchema)` to create a new message.
  */
-export const FileProbeResultSchema: GenMessage<FileProbeResult, FileProbeResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 11);
+export const FileProbeResponseSchema: GenMessage<FileProbeResponse, FileProbeResponseJson> = /*@__PURE__*/
+  messageDesc(file_messages, 9);
 
 /**
  * FileUpload pushes a file to the Provider.
@@ -651,14 +574,9 @@ export const FileProbeResultSchema: GenMessage<FileProbeResult, FileProbeResultJ
  */
 export type FileUploadArgs = Message<"FileUploadArgs"> & {
   /**
-   * @generated from field: FileStat stat = 1;
+   * @generated from field: File upload = 1;
    */
-  stat?: FileStat;
-
-  /**
-   * @generated from field: bytes file = 2;
-   */
-  file: Uint8Array;
+  upload?: File;
 };
 
 /**
@@ -666,14 +584,9 @@ export type FileUploadArgs = Message<"FileUploadArgs"> & {
  */
 export type FileUploadArgsJson = {
   /**
-   * @generated from field: FileStat stat = 1;
+   * @generated from field: File upload = 1;
    */
-  stat?: FileStatJson;
-
-  /**
-   * @generated from field: bytes file = 2;
-   */
-  file?: string;
+  upload?: FileJson;
 };
 
 /**
@@ -681,33 +594,99 @@ export type FileUploadArgsJson = {
  * Use `create(FileUploadArgsSchema)` to create a new message.
  */
 export const FileUploadArgsSchema: GenMessage<FileUploadArgs, FileUploadArgsJson> = /*@__PURE__*/
+  messageDesc(file_messages, 10);
+
+/**
+ * @generated from message FileUploadResponse
+ */
+export type FileUploadResponse = Message<"FileUploadResponse"> & {
+  /**
+   * @generated from field: string err = 1;
+   */
+  err: string;
+};
+
+/**
+ * JSON type for the message FileUploadResponse.
+ */
+export type FileUploadResponseJson = {
+  /**
+   * @generated from field: string err = 1;
+   */
+  err?: string;
+};
+
+/**
+ * Describes the message FileUploadResponse.
+ * Use `create(FileUploadResponseSchema)` to create a new message.
+ */
+export const FileUploadResponseSchema: GenMessage<FileUploadResponse, FileUploadResponseJson> = /*@__PURE__*/
+  messageDesc(file_messages, 11);
+
+/**
+ * FileDownload can be sent by the Provider to request a file download.
+ *
+ * @generated from message FileDownloadArgs
+ */
+export type FileDownloadArgs = Message<"FileDownloadArgs"> & {
+  /**
+   * @generated from field: string file = 1;
+   */
+  file: string;
+};
+
+/**
+ * JSON type for the message FileDownloadArgs.
+ */
+export type FileDownloadArgsJson = {
+  /**
+   * @generated from field: string file = 1;
+   */
+  file?: string;
+};
+
+/**
+ * Describes the message FileDownloadArgs.
+ * Use `create(FileDownloadArgsSchema)` to create a new message.
+ */
+export const FileDownloadArgsSchema: GenMessage<FileDownloadArgs, FileDownloadArgsJson> = /*@__PURE__*/
   messageDesc(file_messages, 12);
 
 /**
- * @generated from message FileUploadResult
+ * @generated from message FileDownloadResponse
  */
-export type FileUploadResult = Message<"FileUploadResult"> & {
+export type FileDownloadResponse = Message<"FileDownloadResponse"> & {
   /**
-   * @generated from field: bool ok = 1;
+   * @generated from field: File download = 1;
    */
-  ok: boolean;
+  download?: File;
+
+  /**
+   * @generated from field: string err = 2;
+   */
+  err: string;
 };
 
 /**
- * JSON type for the message FileUploadResult.
+ * JSON type for the message FileDownloadResponse.
  */
-export type FileUploadResultJson = {
+export type FileDownloadResponseJson = {
   /**
-   * @generated from field: bool ok = 1;
+   * @generated from field: File download = 1;
    */
-  ok?: boolean;
+  download?: FileJson;
+
+  /**
+   * @generated from field: string err = 2;
+   */
+  err?: string;
 };
 
 /**
- * Describes the message FileUploadResult.
- * Use `create(FileUploadResultSchema)` to create a new message.
+ * Describes the message FileDownloadResponse.
+ * Use `create(FileDownloadResponseSchema)` to create a new message.
  */
-export const FileUploadResultSchema: GenMessage<FileUploadResult, FileUploadResultJson> = /*@__PURE__*/
+export const FileDownloadResponseSchema: GenMessage<FileDownloadResponse, FileDownloadResponseJson> = /*@__PURE__*/
   messageDesc(file_messages, 13);
 
 /**
@@ -740,11 +719,11 @@ export const GenericEventSchema: GenMessage<GenericEvent, GenericEventJson> = /*
   messageDesc(file_messages, 14);
 
 /**
- * ProviderInfo is sent once at the beginning to identify the Provider
+ * ProviderHello is sent once at the beginning to identify the Provider
  *
- * @generated from message ProviderInfo
+ * @generated from message ProviderHello
  */
-export type ProviderInfo = Message<"ProviderInfo"> & {
+export type ProviderHello = Message<"ProviderHello"> & {
   /**
    * a logging-friendly name of the provider
    *
@@ -753,55 +732,33 @@ export type ProviderInfo = Message<"ProviderInfo"> & {
   name: string;
 
   /**
-   * like the navigator.platform in browser
-   *
-   * @generated from field: string platform = 2;
-   */
-  platform: string;
-
-  /**
    * like the navigator.useragent in browser
    *
-   * @generated from field: string useragent = 3;
+   * @generated from field: string useragent = 2;
    */
   useragent: string;
-
-  /**
-   * @generated from field: ProviderResources pool = 4;
-   */
-  pool?: ProviderResources;
 };
 
 /**
- * JSON type for the message ProviderInfo.
+ * JSON type for the message ProviderHello.
  */
-export type ProviderInfoJson = {
+export type ProviderHelloJson = {
   /**
    * @generated from field: string name = 1;
    */
   name?: string;
 
   /**
-   * @generated from field: string platform = 2;
-   */
-  platform?: string;
-
-  /**
-   * @generated from field: string useragent = 3;
+   * @generated from field: string useragent = 2;
    */
   useragent?: string;
-
-  /**
-   * @generated from field: ProviderResources pool = 4;
-   */
-  pool?: ProviderResourcesJson;
 };
 
 /**
- * Describes the message ProviderInfo.
- * Use `create(ProviderInfoSchema)` to create a new message.
+ * Describes the message ProviderHello.
+ * Use `create(ProviderHelloSchema)` to create a new message.
  */
-export const ProviderInfoSchema: GenMessage<ProviderInfo, ProviderInfoJson> = /*@__PURE__*/
+export const ProviderHelloSchema: GenMessage<ProviderHello, ProviderHelloJson> = /*@__PURE__*/
   messageDesc(file_messages, 15);
 
 /**
@@ -811,7 +768,7 @@ export const ProviderInfoSchema: GenMessage<ProviderInfo, ProviderInfoJson> = /*
  */
 export type ProviderResources = Message<"ProviderResources"> & {
   /**
-   * maximum possible concurrency
+   * maximum possible concurrency (~ number of Workers)
    *
    * @generated from field: uint32 concurrency = 1;
    */
@@ -887,9 +844,16 @@ export type Throughput = Message<"Throughput"> & {
   /**
    * current overall tasks/s throughput
    *
-   * @generated from field: float throughput = 1;
+   * @generated from field: float overall = 1;
    */
-  throughput: number;
+  overall: number;
+
+  /**
+   * your contribution (identified by name)
+   *
+   * @generated from field: float yours = 2;
+   */
+  yours: number;
 };
 
 /**
@@ -897,9 +861,14 @@ export type Throughput = Message<"Throughput"> & {
  */
 export type ThroughputJson = {
   /**
-   * @generated from field: float throughput = 1;
+   * @generated from field: float overall = 1;
    */
-  throughput?: number | "NaN" | "Infinity" | "-Infinity";
+  overall?: number | "NaN" | "Infinity" | "-Infinity";
+
+  /**
+   * @generated from field: float yours = 2;
+   */
+  yours?: number | "NaN" | "Infinity" | "-Infinity";
 };
 
 /**
@@ -908,6 +877,322 @@ export type ThroughputJson = {
  */
 export const ThroughputSchema: GenMessage<Throughput, ThroughputJson> = /*@__PURE__*/
   messageDesc(file_messages, 18);
+
+/**
+ * The simplest client upload is a POST request with the raw binary inside
+ * and metadata in headers but I guess we can also use a message type.
+ *
+ * @generated from message ClientUploadArgs
+ */
+export type ClientUploadArgs = Message<"ClientUploadArgs"> & {
+  /**
+   * @generated from field: string name = 1;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string contentType = 2;
+   */
+  contentType: string;
+
+  /**
+   * @generated from field: bytes blob = 3;
+   */
+  blob: Uint8Array;
+};
+
+/**
+ * JSON type for the message ClientUploadArgs.
+ */
+export type ClientUploadArgsJson = {
+  /**
+   * @generated from field: string name = 1;
+   */
+  name?: string;
+
+  /**
+   * @generated from field: string contentType = 2;
+   */
+  contentType?: string;
+
+  /**
+   * @generated from field: bytes blob = 3;
+   */
+  blob?: string;
+};
+
+/**
+ * Describes the message ClientUploadArgs.
+ * Use `create(ClientUploadArgsSchema)` to create a new message.
+ */
+export const ClientUploadArgsSchema: GenMessage<ClientUploadArgs, ClientUploadArgsJson> = /*@__PURE__*/
+  messageDesc(file_messages, 19);
+
+/**
+ * @generated from message ClientUploadResponse
+ */
+export type ClientUploadResponse = Message<"ClientUploadResponse"> & {
+  /**
+   * @generated from field: string ref = 1;
+   */
+  ref: string;
+
+  /**
+   * @generated from field: string err = 2;
+   */
+  err: string;
+};
+
+/**
+ * JSON type for the message ClientUploadResponse.
+ */
+export type ClientUploadResponseJson = {
+  /**
+   * @generated from field: string ref = 1;
+   */
+  ref?: string;
+
+  /**
+   * @generated from field: string err = 2;
+   */
+  err?: string;
+};
+
+/**
+ * Describes the message ClientUploadResponse.
+ * Use `create(ClientUploadResponseSchema)` to create a new message.
+ */
+export const ClientUploadResponseSchema: GenMessage<ClientUploadResponse, ClientUploadResponseJson> = /*@__PURE__*/
+  messageDesc(file_messages, 20);
+
+/**
+ * An offloading request specifies a binary to use, optionally some common
+ * parent parameters and then a list of executions of this binary. There is
+ * no magic in the parent parameter inheritance: anything in the parent gets
+ * entirely replaced by the corresponding field in a task specification. Though
+ * you could specify everything in the common parameters, at least one task
+ * must be present; even if just an empty { }.
+ *
+ * @generated from message OffloadWasiJobArgs
+ */
+export type OffloadWasiJobArgs = Message<"OffloadWasiJobArgs"> & {
+  /**
+   * @generated from field: File binary = 1;
+   */
+  binary?: File;
+
+  /**
+   * bool trace = 2; // TODO
+   *
+   * @generated from field: OffloadWasiTask common = 3;
+   */
+  common?: OffloadWasiTask;
+
+  /**
+   * @generated from field: repeated OffloadWasiTask tasks = 4;
+   */
+  tasks: OffloadWasiTask[];
+};
+
+/**
+ * JSON type for the message OffloadWasiJobArgs.
+ */
+export type OffloadWasiJobArgsJson = {
+  /**
+   * @generated from field: File binary = 1;
+   */
+  binary?: FileJson;
+
+  /**
+   * @generated from field: OffloadWasiTask common = 3;
+   */
+  common?: OffloadWasiTaskJson;
+
+  /**
+   * @generated from field: repeated OffloadWasiTask tasks = 4;
+   */
+  tasks?: OffloadWasiTaskJson[];
+};
+
+/**
+ * Describes the message OffloadWasiJobArgs.
+ * Use `create(OffloadWasiJobArgsSchema)` to create a new message.
+ */
+export const OffloadWasiJobArgsSchema: GenMessage<OffloadWasiJobArgs, OffloadWasiJobArgsJson> = /*@__PURE__*/
+  messageDesc(file_messages, 21);
+
+/**
+ * @generated from message OffloadWasiJobResponse
+ */
+export type OffloadWasiJobResponse = Message<"OffloadWasiJobResponse"> & {
+  /**
+   * @generated from field: string error = 1;
+   */
+  error: string;
+
+  /**
+   * Trace trace = 2; // TODO
+   *
+   * @generated from field: repeated OffloadWasiTaskResult results = 3;
+   */
+  results: OffloadWasiTaskResult[];
+};
+
+/**
+ * JSON type for the message OffloadWasiJobResponse.
+ */
+export type OffloadWasiJobResponseJson = {
+  /**
+   * @generated from field: string error = 1;
+   */
+  error?: string;
+
+  /**
+   * @generated from field: repeated OffloadWasiTaskResult results = 3;
+   */
+  results?: OffloadWasiTaskResultJson[];
+};
+
+/**
+ * Describes the message OffloadWasiJobResponse.
+ * Use `create(OffloadWasiJobResponseSchema)` to create a new message.
+ */
+export const OffloadWasiJobResponseSchema: GenMessage<OffloadWasiJobResponse, OffloadWasiJobResponseJson> = /*@__PURE__*/
+  messageDesc(file_messages, 22);
+
+/**
+ * @generated from message OffloadWasiTask
+ */
+export type OffloadWasiTask = Message<"OffloadWasiTask"> & {
+  /**
+   * @generated from field: repeated string args = 1;
+   */
+  args: string[];
+
+  /**
+   * @generated from field: repeated string envs = 2;
+   */
+  envs: string[];
+
+  /**
+   * @generated from field: bytes stdin = 3;
+   */
+  stdin: Uint8Array;
+
+  /**
+   * @generated from field: File rootfs = 4;
+   */
+  rootfs?: File;
+
+  /**
+   * @generated from field: repeated string artifacts = 5;
+   */
+  artifacts: string[];
+};
+
+/**
+ * JSON type for the message OffloadWasiTask.
+ */
+export type OffloadWasiTaskJson = {
+  /**
+   * @generated from field: repeated string args = 1;
+   */
+  args?: string[];
+
+  /**
+   * @generated from field: repeated string envs = 2;
+   */
+  envs?: string[];
+
+  /**
+   * @generated from field: bytes stdin = 3;
+   */
+  stdin?: string;
+
+  /**
+   * @generated from field: File rootfs = 4;
+   */
+  rootfs?: FileJson;
+
+  /**
+   * @generated from field: repeated string artifacts = 5;
+   */
+  artifacts?: string[];
+};
+
+/**
+ * Describes the message OffloadWasiTask.
+ * Use `create(OffloadWasiTaskSchema)` to create a new message.
+ */
+export const OffloadWasiTaskSchema: GenMessage<OffloadWasiTask, OffloadWasiTaskJson> = /*@__PURE__*/
+  messageDesc(file_messages, 23);
+
+/**
+ * @generated from message OffloadWasiTaskResult
+ */
+export type OffloadWasiTaskResult = Message<"OffloadWasiTaskResult"> & {
+  /**
+   * @generated from field: string error = 1;
+   */
+  error: string;
+
+  /**
+   * @generated from field: int32 status = 2;
+   */
+  status: number;
+
+  /**
+   * @generated from field: bytes stdout = 3;
+   */
+  stdout: Uint8Array;
+
+  /**
+   * @generated from field: bytes stderr = 4;
+   */
+  stderr: Uint8Array;
+
+  /**
+   * @generated from field: File artifacts = 5;
+   */
+  artifacts?: File;
+};
+
+/**
+ * JSON type for the message OffloadWasiTaskResult.
+ */
+export type OffloadWasiTaskResultJson = {
+  /**
+   * @generated from field: string error = 1;
+   */
+  error?: string;
+
+  /**
+   * @generated from field: int32 status = 2;
+   */
+  status?: number;
+
+  /**
+   * @generated from field: bytes stdout = 3;
+   */
+  stdout?: string;
+
+  /**
+   * @generated from field: bytes stderr = 4;
+   */
+  stderr?: string;
+
+  /**
+   * @generated from field: File artifacts = 5;
+   */
+  artifacts?: FileJson;
+};
+
+/**
+ * Describes the message OffloadWasiTaskResult.
+ * Use `create(OffloadWasiTaskResultSchema)` to create a new message.
+ */
+export const OffloadWasiTaskResultSchema: GenMessage<OffloadWasiTaskResult, OffloadWasiTaskResultJson> = /*@__PURE__*/
+  messageDesc(file_messages, 24);
 
 /**
  * Subprotocol is used to identify the concrete encoding on the wire.
@@ -945,53 +1230,4 @@ export type SubprotocolJson = "UNKNOWN" | "wasimoff_provider_v1_protobuf" | "was
  */
 export const SubprotocolSchema: GenEnum<Subprotocol, SubprotocolJson> = /*@__PURE__*/
   enumDesc(file_messages, 0);
-
-/**
- * We aren't using gRPC (yet) but we can codify the expected message pairs anyway.
- * This service lists the requests that a Broker can send to the Provider, i.e. the
- * Provider (the browser) takes the role of a server here!
- *
- * @generated from service Provider
- */
-export const Provider: GenService<{
-  /**
-   * execute
-   *
-   * rpc ExecuteWasm (ExecuteWasmArgs) returns (ExecuteWasmResult); // TODO
-   *
-   * @generated from rpc Provider.ExecuteWasi
-   */
-  executeWasi: {
-    methodKind: "unary";
-    input: typeof ExecuteWasiArgsSchema;
-    output: typeof ExecuteWasiResultSchema;
-  },
-  /**
-   * filesystem
-   *
-   * @generated from rpc Provider.FileProbe
-   */
-  fileProbe: {
-    methodKind: "unary";
-    input: typeof FileProbeArgsSchema;
-    output: typeof FileProbeResultSchema;
-  },
-  /**
-   * @generated from rpc Provider.FileListing
-   */
-  fileListing: {
-    methodKind: "unary";
-    input: typeof FileListingArgsSchema;
-    output: typeof FileListingResultSchema;
-  },
-  /**
-   * @generated from rpc Provider.FileUpload
-   */
-  fileUpload: {
-    methodKind: "unary";
-    input: typeof FileUploadArgsSchema;
-    output: typeof FileUploadResultSchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_messages, 0);
 

@@ -2,46 +2,87 @@ package storage
 
 import (
 	"crypto/sha256"
-	"time"
+	"errors"
+	"fmt"
+	"mime"
+	"regexp"
 )
 
-type File struct {
-	Name   string   `msgpack:"filename"`
-	Hash   [32]byte `msgpack:"hash"`
-	Bytes  []byte   `msgpack:"bytes,omitempty"`
-	Length uint64   `msgpack:"length"`
-	Epoch  int64    `msgpack:"epoch"`
-}
-
-func (f *File) CloneWithoutBytes() *File {
-	return &File{f.Name, f.Hash, nil, f.Length, f.Epoch}
-}
+// TODO: use SQLite, BoltDB or just filesystem for persistence
 
 type FileStorage struct {
-	// TODO: use SQLite or BoltDB database for persistence
+	// collection of files in storage. the string here is a content-address, so
+	// the files should be effectively deduplicated
 	Files map[string]*File
+	// a lookup table of plain names to content-addresses
+	Lookup map[string]string
 }
 
 func NewFileStorage() FileStorage {
 	return FileStorage{
-		Files: make(map[string]*File),
+		Files:  make(map[string]*File),
+		Lookup: make(map[string]string),
 	}
 }
 
-func NewFile(name string, buf []byte) *File {
-	return &File{
-		Name:   name,
-		Hash:   filehash(buf),
-		Bytes:  buf,
-		Length: uint64(len(buf)),
-		Epoch:  time.Now().UnixMilli(),
+func (fs *FileStorage) Insert(name, content string, blob []byte) (addr string, err error) {
+	// check the content-type first because that's cheapest
+	content, err = CheckContentType(content)
+	if err != nil {
+		return "", fmt.Errorf("parsing content-type failed: %w", err)
 	}
+	// we could check if the file exists already here but since we operate on
+	// memory for now, we can just overwrite whatever is there cheaply
+	addr = Address(blob)
+	fs.Files[addr] = &File{addr, content, blob}
+	// insert in lookup map, if friendly name was given
+	if name != "" {
+		fs.Lookup[name] = addr
+	}
+	return
 }
 
-func (fs *FileStorage) Insert(file *File) {
-	fs.Files[file.Name] = file
+type File struct {
+	Name    string
+	Content string // content-type
+	Bytes   []byte
 }
 
-func filehash(buf []byte) [32]byte {
-	return sha256.Sum256(buf)
+// Take a file blob and its content-type, calculate the digest for content
+// address and return a *File for the storage.
+func NewFile(mimetype string, blob []byte) (*File, error) {
+	mt, _, err := mime.ParseMediaType(mimetype)
+	if err != nil {
+		return nil, err
+	}
+	file := &File{
+		Name:    Address(blob),
+		Content: mt,
+		Bytes:   blob,
+	}
+	return file, err
+}
+
+// Address takes file contents, calculates a SHA256 digest
+// and returns a string encoding with hash prefix (sha256:hex).
+func Address(bytes []byte) string {
+	digest := sha256.Sum256(bytes)
+	return fmt.Sprintf("sha256:%x", digest)
+}
+
+// IsAddr uses a regexp to check if the string is a sha256: content address.
+func IsAddr(name string) bool {
+	return reSha256Addr.MatchString(name)
+}
+
+var reSha256Addr = regexp.MustCompile("^sha256:[0-9a-f]{64}$")
+
+// CheckContentType tries to parse the given mime type to see
+// if it's valid and discards all additional params.
+func CheckContentType(content string) (string, error) {
+	mt, _, err := mime.ParseMediaType(content)
+	if errors.Is(err, mime.ErrInvalidMediaParameter) {
+		err = nil // ignore parameters
+	}
+	return mt, err
 }
