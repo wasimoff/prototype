@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"log"
 	"sync"
 	"wasimoff/broker/net/pb"
 	"wasimoff/broker/net/transport"
@@ -19,7 +20,7 @@ type Provider struct {
 	closeOnce sync.Once
 
 	// unbuffered channel to submit tasks; can be `nil` if nobody's listening
-	Submit chan *PendingWasiCall
+	Submit chan *AsyncWasiTask
 
 	// resizeable semaphore to limit number of concurrent tasks
 	limiter semaphore.Semaphore
@@ -105,31 +106,35 @@ func (p *Provider) CurrentLimit() int {
 
 // -------------------- task channel -------------------- >>
 
-// PendingWasiCall represents an asynchronous WebAssembly exec call
-type PendingWasiCall struct {
-	Request *pb.ExecuteWasiArgs     // arguments to the call
-	Result  *pb.ExecuteWasiResponse // response from the Provider
-	Error   error                   // error encountered during the call
-	Done    chan *PendingWasiCall   // receives itself when request completes
+// AsyncWasiTask is a parametrized WebAssembly task from an offloading job that
+// can be submitted to a Provider's Submit() channel.
+// TODO: add additional context information about task requirements here
+type AsyncWasiTask struct {
+	Args     *pb.ExecuteWasiArgs     // arguments to the call
+	Response *pb.ExecuteWasiResponse // response from the Provider
+	Error    error                   // error encountered during scheduling or RPC
+	Done     chan *AsyncWasiTask     // receives itself when request completes
 }
 
-// NewPendingWasiCall creates a new call struct for the Submit chan
-func NewPendingWasiCall(args *pb.ExecuteWasiArgs, res *pb.ExecuteWasiResponse) *PendingWasiCall {
-	// TODO: very duplicate with a *Task and at the same time an RPC *Call ...
-	return &PendingWasiCall{
-		Request: args,
-		Result:  res,
-		Done:    make(chan *PendingWasiCall, 1),
+// NewAsyncWasiTask creates a new call struct for a scheduler
+func NewAsyncWasiTask(args *pb.ExecuteWasiArgs, res *pb.ExecuteWasiResponse, done chan *AsyncWasiTask) *AsyncWasiTask {
+	if done == nil {
+		done = make(chan *AsyncWasiTask, 1)
 	}
+	if cap(done) == 0 {
+		log.Panic("done channel is unbuffered")
+	}
+	return &AsyncWasiTask{args, res, nil, done}
 }
 
-// done signals on the channel that this call is complete
-func (call *PendingWasiCall) done() *PendingWasiCall {
+// Signal signals on the channel that this call is complete
+func (t *AsyncWasiTask) Signal() *AsyncWasiTask {
 	select {
-	case call.Done <- call: // ok
+	case t.Done <- t: // ok
 	default: // never block here
+		log.Printf("WARN: AsyncWasiTask %s was blocked when signalling Done", t.Args.Info.TaskID())
 	}
-	return call
+	return t
 }
 
 // Accept tasks on an unbuffered channel to submit to the Provider. Channels can
@@ -139,7 +144,7 @@ func (p *Provider) acceptTasks() (err error) {
 
 	// initialize the channel
 	if p.Submit == nil {
-		p.Submit = make(chan *PendingWasiCall) // unbuffered by design
+		p.Submit = make(chan *AsyncWasiTask) // unbuffered by design
 	}
 
 	// close Provider if the loop exits
@@ -167,9 +172,9 @@ func (p *Provider) acceptTasks() (err error) {
 				panic("call.Done is nil, nobody is listening for this result")
 			}
 			// the Request and Result most not be nil
-			if call.Request == nil || call.Result == nil {
+			if call.Args == nil || call.Response == nil {
 				call.Error = fmt.Errorf("call.Request and call.Result must not be nil")
-				call.done()
+				call.Signal()
 				p.limiter.Release(1)
 				continue
 			}
@@ -177,8 +182,8 @@ func (p *Provider) acceptTasks() (err error) {
 			// run the Request in a goroutine asynchronously
 			// TODO: avoid gofunc by using a second listener on a `chan *PendingCall`
 			go func() {
-				call.Error = p.run(call.Request, call.Result)
-				call.done()
+				call.Error = p.run(call.Args, call.Response)
+				call.Signal()
 				p.limiter.Release(1)
 			}()
 

@@ -1,88 +1,107 @@
 package storage
 
 import (
-	"crypto/sha256"
-	"errors"
 	"fmt"
-	"mime"
-	"regexp"
+	"log"
+	"wasimoff/broker/net/pb"
 )
 
 // TODO: use SQLite, BoltDB or just filesystem for persistence
 
 type FileStorage struct {
-	// collection of files in storage. the string here is a content-address, so
-	// the files should be effectively deduplicated
-	Files map[string]*File
-	// a lookup table of plain names to content-addresses
-	Lookup map[string]string
+	// collection of files in storage, keyed by content address
+	files map[string]*File
+	// a lookup table of plain names to content addresses
+	lookup map[string]string
 }
 
 func NewFileStorage() FileStorage {
 	return FileStorage{
-		Files:  make(map[string]*File),
-		Lookup: make(map[string]string),
+		files:  make(map[string]*File),
+		lookup: make(map[string]string),
 	}
 }
 
-func (fs *FileStorage) Insert(name, content string, blob []byte) (addr string, err error) {
-	// check the content-type first because that's cheapest
-	content, err = CheckContentType(content)
+// Insert a new file into the Storage. The optional `name` will be inserted
+// into the lookup table and can be used to resolve the file later.
+func (fs *FileStorage) Insert(name, media string, blob []byte) (ref string, err error) {
+
+	// check the media type first because that's cheapest
+	media, err = CheckMediaType(media)
 	if err != nil {
-		return "", fmt.Errorf("parsing content-type failed: %w", err)
+		return "", fmt.Errorf("media: %w", err)
 	}
+
 	// we could check if the file exists already here but since we operate on
 	// memory for now, we can just overwrite whatever is there cheaply
-	addr = Address(blob)
-	fs.Files[addr] = &File{addr, content, blob}
-	// insert in lookup map, if friendly name was given
+	f := NewFile(media, blob)
+	ref = f.Ref()
+	fs.files[ref] = f
+
+	// maybe insert name in lookup map, if given
 	if name != "" {
-		fs.Lookup[name] = addr
+		fs.lookup[name] = ref
 	}
+	fs.debug()
 	return
 }
 
-type File struct {
-	Name    string
-	Content string // content-type
-	Bytes   []byte
-}
-
-// Take a file blob and its content-type, calculate the digest for content
-// address and return a *File for the storage.
-func NewFile(mimetype string, blob []byte) (*File, error) {
-	mt, _, err := mime.ParseMediaType(mimetype)
-	if err != nil {
-		return nil, err
+// Get a File from Storage, either by Ref or a friendly name in lookup map.
+func (fs *FileStorage) Get(nameOrRef string) *File {
+	// try from files directly first
+	if file := fs.files[nameOrRef]; file != nil {
+		return file
 	}
-	file := &File{
-		Name:    Address(blob),
-		Content: mt,
-		Bytes:   blob,
+	// or lookup a friendly name
+	if ref, ok := fs.lookup[nameOrRef]; ok {
+		return fs.files[ref]
 	}
-	return file, err
+	return nil
 }
 
-// Address takes file contents, calculates a SHA256 digest
-// and returns a string encoding with hash prefix (sha256:hex).
-func Address(bytes []byte) string {
-	digest := sha256.Sum256(bytes)
-	return fmt.Sprintf("sha256:%x", digest)
-}
+// ResolvePbFile checks if this file is usable as an argument in offloading
+// requests, i.e. if it either contains a blob or is a known file in the
+// storage. If so, set the resolved Ref on the file.
+func (fs *FileStorage) ResolvePbFile(pbf *pb.File) error {
 
-// IsAddr uses a regexp to check if the string is a sha256: content address.
-func IsAddr(name string) bool {
-	return reSha256Addr.MatchString(name)
-}
-
-var reSha256Addr = regexp.MustCompile("^sha256:[0-9a-f]{64}$")
-
-// CheckContentType tries to parse the given mime type to see
-// if it's valid and discards all additional params.
-func CheckContentType(content string) (string, error) {
-	mt, _, err := mime.ParseMediaType(content)
-	if errors.Is(err, mime.ErrInvalidMediaParameter) {
-		err = nil // ignore parameters
+	// trivial errors when both are nil or both are given
+	if pbf.Blob == nil && pbf.Ref == nil {
+		return fmt.Errorf("both Blob and Ref are nil")
 	}
-	return mt, err
+	if pbf.Blob != nil && pbf.Ref != nil {
+		return fmt.Errorf("don't use both Blob and Ref together")
+	}
+
+	// Blob is given directly, ok ...
+	if pbf.Blob != nil {
+		// check the media type, if given
+		if mt := pbf.GetMedia(); mt != "" {
+			mt, err := CheckMediaType(mt)
+			if err != nil {
+				return fmt.Errorf("invalid Media type")
+			}
+			pbf.Media = &mt
+		}
+		return nil
+	}
+
+	// Ref is given, look it up in Storage
+	if file := fs.Get(*pbf.Ref); file != nil {
+		pbf.Media = &file.Media
+		pbf.Ref = &file.ref
+	}
+
+	// couldn't resolve the file
+	return fmt.Errorf("Ref not found in storage")
+
+}
+
+func (fs *FileStorage) debug() {
+	log.Println("Inserted in FileStorage:")
+	for k, v := range fs.lookup {
+		fmt.Printf(" %s => %s\n", k, v)
+	}
+	for k, f := range fs.files {
+		fmt.Printf("+ %s => %s, %d bytes\n", k, f.Media, len(f.Bytes))
+	}
 }

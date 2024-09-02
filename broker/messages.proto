@@ -58,41 +58,54 @@ message Ping {
 
 // ---> execute
 
-// TaskMetadata contains some information about the originating task for logging
-message TaskMetadata {
-  string id = 1; // overall job ID
-  string client = 2; // info about the requesting client
-  uint64 index = 3; // index within a job with multiple tasks
-  bool trace = 4; // request a trace of task execution, TODO
-}
-
 // ExecuteWasi runs a webassembly/wasi binary on the Provider
 message ExecuteWasiArgs {
-  TaskMetadata task = 1;
-  File binary = 2;
-  repeated string args = 3;
-  repeated string envs = 4;
-  bytes stdin = 5;
-  File rootfs = 6;
-  repeated string artifacts = 7;
+  TaskMetadata info = 1; // metadata about this task
+  WasiTaskArgs task = 2; // arguments for the WebAssembly module
 }
 message ExecuteWasiResponse {
-  string error = 1;
-  int32 status = 2;
-  bytes stdout = 3;
-  bytes stderr = 4;
-  File artifacts = 5;
+  string error = 1; // error leading up to the instantiation
+  WasiTaskResult result = 2; // result of the execution
+}
+
+// TaskMetadata contains some information about the originating job request.
+message TaskMetadata {
+  string jobID = 1; // overall job ID
+  uint64 index = 3; // index within a job with multiple tasks
+  string client = 2; // info about the requesting client
+}
+
+// WasiTaskArgs should not be sent as a toplevel message directly and instead
+// contains necessary references and execution arguments to instantiate a single
+// WebAssembly task on the Provider.
+message WasiTaskArgs {
+  File binary = 1;
+  repeated string args = 2;
+  repeated string envs = 3;
+  bytes stdin = 4;
+  File rootfs = 5;
+  repeated string artifacts = 6;
+}
+
+// WasiTaskResult is the result of an execution from a WasiTaskArgs. It should
+// only be returned if the module was instantiated successfully at all, i.e. any
+// errors leading up to that should be returned higher up.
+message WasiTaskResult {
+  int32 status = 1;
+  bytes stdout = 2;
+  bytes stderr = 3;
+  File artifacts = 4;
 }
 
 
 // ---> filesystem
 
-// File is a file reference with optional mime-type and length. The reference
-// can be a plain filename, a prefixed hash digest or a URL to fetch from. When
-// stored, a hash digest should be computed to have a stable identifier.
+// File is a file reference with optional mime-type. The ref could be a plain
+// filename, a prefixed hash digest or a URL to fetch from. When stored, a hash
+// digest should be computed to have a stable identifier.
 message File {
   string ref = 1; // filename, encoded digest or URL
-  string content = 2; // content-type in MIME notation
+  string media = 2; // media type in MIME notation
   bytes blob = 3; // the actual file contents
 }
 
@@ -169,50 +182,32 @@ message Throughput {
 // use pbjson to parse messages.
 
 // These client requests will arrive on predefined routes, so a normal RPC
-// library could be used an no Envelope wrapping is necessary.
+// library could be used and no Envelope wrapping is necessary.
 
-// The simplest client upload is a POST request with the raw binary inside
-// and metadata in headers but I guess we can also use a message type.
+// The client upload is a POST request with the binary data as the body, media
+// type in the Contet-Type header and the optional friendly name in a query
+// parameter. So this message type isn't actually used anywhere yet.
 message ClientUploadArgs {
-  string name = 1;
-  string contentType = 2;
-  bytes blob = 3;
+  string name = 1; // friendly name for lookup
+  string media = 2; // media type
+  bytes body = 3; // binary file contents
 }
 message ClientUploadResponse {
-  string ref = 1;
-  string err = 2;
+  string ref = 1; // the hashed ref the file was stored under
+  string err = 2; // any errors during file insertion
 }
 
-// An offloading request specifies a binary to use, optionally some common
-// parent parameters and then a list of executions of this binary. There is
-// no magic in the parent parameter inheritance: anything in the parent gets
-// entirely replaced by the corresponding field in a task specification. Though
-// you could specify everything in the common parameters, at least one task
-// must be present; even if just an empty { }.
+// An offloading request specifies a list of WasiTaskArgs, each possibly
+// containing a binary to use, args, envs etc. An optional common parent can
+// be given to fill values in tasks. There is no magic in the parameter
+// inheritance though: anything in the parent gets entirely replaced by the
+// corresponding field in a task spec. At least one task must always be present,
+// even if just an empty { } with all parameters inherited from the parent.
 message OffloadWasiJobArgs {
-  File binary = 1;
-  // bool trace = 2; // TODO
-  OffloadWasiTask common = 3;
-  repeated OffloadWasiTask tasks = 4;
+  WasiTaskArgs parent = 1; // inherit common task parameters
+  repeated WasiTaskArgs tasks = 2; // list of task arguments
 }
 message OffloadWasiJobResponse {
-  string error = 1;
-  // Trace trace = 2; // TODO
-  repeated OffloadWasiTaskResult results = 3;
-}
-
-message OffloadWasiTask {
-  repeated string args = 1;
-  repeated string envs = 2;
-  bytes stdin = 3;
-  File rootfs = 4;
-  repeated string artifacts = 5;
-}
-
-message OffloadWasiTaskResult {
-  string error = 1;
-  int32 status = 2;
-  bytes stdout = 3;
-  bytes stderr = 4;
-  File artifacts = 5;
+  string failure = 1; // the complete job failed
+  repeated ExecuteWasiResponse tasks = 2; // list of task results
 }

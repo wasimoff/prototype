@@ -17,7 +17,7 @@ func NewAnyFreeSelector(store *provider.ProviderStore) AnyFreeSelector {
 	return AnyFreeSelector{store}
 }
 
-func (s *AnyFreeSelector) selectCandidates(task *Task) (candidates []*provider.Provider, err error) {
+func (s *AnyFreeSelector) selectCandidates(task *provider.AsyncWasiTask) (candidates []*provider.Provider, err error) {
 
 	// if the list is empty, return nil
 	if s.store.Size() == 0 {
@@ -29,15 +29,14 @@ func (s *AnyFreeSelector) selectCandidates(task *Task) (candidates []*provider.P
 	return s.store.Values(), nil
 }
 
-func (s *AnyFreeSelector) Schedule(ctx context.Context, task *Task) (call *provider.PendingWasiCall, err error) {
+func (s *AnyFreeSelector) Schedule(ctx context.Context, task *provider.AsyncWasiTask) (call *provider.AsyncWasiTask, err error) {
 
 	providers, err := s.selectCandidates(task)
 	if err != nil {
 		return nil, err
 	}
 
-	call = provider.NewPendingWasiCall(task.Args, task.Result)
-	err = dynamicSubmit(ctx, call, providers)
+	err = dynamicSubmit(ctx, task, providers)
 	return
 
 }

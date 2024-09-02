@@ -10,16 +10,43 @@ import (
 // i.e. the type that selects suitable providers given task information and submits the task.
 type Scheduler interface {
 	// The Schedule function tries to submit a Task to a suitable Provider's queue and returns the WasmTask struct
-	Schedule(ctx context.Context, task *Task) (*provider.PendingWasiCall, error)
+	Schedule(ctx context.Context, task *provider.AsyncWasiTask) error
 	// Called on task completion to measure overall throughput
 	TaskDone()
+}
+
+// The Dispatcher takes a task queue and a provider selector strategy and then
+// decides which task to send to which provider for computation.
+func Dispatcher(selector Scheduler, queue chan *provider.AsyncWasiTask) {
+	for task := range queue {
+
+		// each task is handled in a separate goroutine
+		go func(task *provider.AsyncWasiTask) {
+
+			// schedule the task with a provider
+			err := selector.Schedule(context.TODO(), task)
+			if err != nil {
+				// TODO: retry task depending on error here
+				task.Error = err
+				task.Signal()
+				return
+			}
+
+			// signal completion to measure throughput
+			// TODO: hijack the chan somewhere
+			// if task.Result.Error == nil {
+			// 	selector.TaskDone()
+			// }
+
+		}(task)
+	}
 }
 
 // dynamicSubmit uses `reflect.Select` to dynamically select a Provider to submit a task to.
 // This uses the Providers' unbuffered Queue, so that a task can only be submitted to a Provider
 // when it currently has free capacity, without needing to busy-loop and recheck capacity yourself.
 // Based on StackOverflow answer by Dave C. on https://stackoverflow.com/a/32381409.
-func dynamicSubmit(ctx context.Context, call *provider.PendingWasiCall, providers []*provider.Provider) error {
+func dynamicSubmit(ctx context.Context, call *provider.AsyncWasiTask, providers []*provider.Provider) error {
 
 	// setup select cases
 	cases := make([]reflect.SelectCase, len(providers), len(providers)+1)

@@ -2,11 +2,8 @@ package scheduler
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"log"
 	"time"
-	"wasimoff/broker/net/pb"
 	"wasimoff/broker/provider"
 )
 
@@ -21,23 +18,16 @@ func NewSimpleMatchSelector(store *provider.ProviderStore) SimpleMatchSelector {
 	return SimpleMatchSelector{store}
 }
 
-func (s *SimpleMatchSelector) selectCandidates(task *Task) (candidates []*provider.Provider, err error) {
-
-	// check if all the files are either raw binaries or known refs
-	// TODO: this should really happen in the dispatcher already
-	err = errors.Join(err, s.checkFile(task.Args.Binary))
-	err = errors.Join(err, s.checkFile(task.Args.Rootfs))
-	if err != nil {
-		return nil, err
-	}
+func (s *SimpleMatchSelector) selectCandidates(task *provider.AsyncWasiTask) (candidates []*provider.Provider, err error) {
 
 	// create a list of needed files to check with the providers
+	targ := task.Args.Task
 	requiredFiles := make([]string, 0, 2)
-	if task.Args.Binary.Ref != nil {
-		requiredFiles = append(requiredFiles, *task.Args.Binary.Ref)
+	if targ.Binary.Ref != nil {
+		requiredFiles = append(requiredFiles, *targ.Binary.Ref)
 	}
-	if task.Args.Rootfs.Ref != nil {
-		requiredFiles = append(requiredFiles, *task.Args.Rootfs.Ref)
+	if targ.Rootfs.Ref != nil {
+		requiredFiles = append(requiredFiles, *targ.Rootfs.Ref)
 	}
 
 	// find suitable candidates
@@ -57,27 +47,26 @@ func (s *SimpleMatchSelector) selectCandidates(task *Task) (candidates []*provid
 
 	// no candidates found?
 	if len(candidates) == 0 {
-		log.Printf("Task %s/%d couldn't find a Provider which satisfies: %v", task.Job.RequestID, task.Args.Task.Index, requiredFiles)
+		log.Printf("Task %s couldn't find a Provider which satisfies: %v", task.Args.Info.TaskID(), requiredFiles)
 		// err = fmt.Errorf("no suitable provider found which satisfies all requirements")
 	}
 	return
 
 }
 
-func (s *SimpleMatchSelector) Schedule(ctx context.Context, task *Task) (call *provider.PendingWasiCall, err error) {
-	call = provider.NewPendingWasiCall(task.Args, task.Result)
+func (s *SimpleMatchSelector) Schedule(ctx context.Context, task *provider.AsyncWasiTask) (err error) {
 	for {
 
 		providers, err := s.selectCandidates(task)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		// wrap parent context in a short timeout
 		timeout, cancel := context.WithTimeout(ctx, time.Second)
 
 		// submit the task normally with new context
-		err = dynamicSubmit(timeout, call, providers)
+		err = dynamicSubmit(timeout, task, providers)
 		if err != nil && ctx.Err() == nil && timeout.Err() == err {
 			// parent context not cancelled and err == our timeout,
 			// so reschedule in hopes of picking up changes in provider store
@@ -85,36 +74,11 @@ func (s *SimpleMatchSelector) Schedule(ctx context.Context, task *Task) (call *p
 			continue // retry
 		}
 		cancel()
-		return call, err
+		return err
 
 	}
 }
 
 func (s *SimpleMatchSelector) TaskDone() {
 	s.store.RateTick()
-}
-
-func (s *SimpleMatchSelector) checkFile(f *pb.File) error {
-	// TODO: move this check to a Storage method
-	// can't both be nil
-	if f.Blob == nil && f.Ref == nil {
-		return fmt.Errorf("can't use this file: both blob and ref are nil")
-	}
-	// blob is given directly, ok
-	if f.Blob != nil {
-		return nil
-	}
-	// ref is given and a known sha256 in storage, ok
-	ref := f.GetRef()
-	if s.store.Storage.Files[ref] != nil {
-		return nil
-	}
-	// ref is given and can be looked-up, ok
-	ref, ok := s.store.Storage.Lookup[ref]
-	if ok && s.store.Storage.Files[ref] != nil {
-		f.Ref = &ref
-		return nil
-	}
-	// couldn't resolve the file
-	return fmt.Errorf("can't use this file: not found in storage")
 }

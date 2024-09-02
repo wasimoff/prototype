@@ -23,7 +23,7 @@ func printdbg(format string, v ...any) {
 // run is the internal detail, which executes a WASI binary on the Provider without semaphore guards
 func (p *Provider) run(args *pb.ExecuteWasiArgs, result *pb.ExecuteWasiResponse) (err error) {
 	addr := p.Get(Address)
-	task := fmt.Sprintf("%s/%d", *args.Task.Id, *args.Task.Index)
+	task := args.Info.TaskID()
 	printdbg("scheduled >> %s >> %s", task, addr)
 	if err := p.messenger.RequestSync(context.TODO(), args, result); err != nil {
 		printdbg("ERROR!    << %s << %s", task, addr)
@@ -83,19 +83,20 @@ func (p *Provider) ProbeFile(addr string) (has bool, err error) {
 	return response.GetOk(), nil
 }
 
-// Upload a file to this Provider; the file.Name should be a content-address!
+// Upload a file from Storage to this Provider
 func (p *Provider) Upload(file *storage.File) (err error) {
+	ref := file.Ref()
 
 	// when returning without error, add the file to provider's list
 	// (either probe was ok or upload successful)
 	defer func() {
 		if err == nil {
-			p.files = append(p.files, file.Name)
+			p.files = append(p.files, ref)
 		}
 	}()
 
 	// always probe for file first
-	if has, err := p.ProbeFile(file.Name); err != nil {
+	if has, err := p.ProbeFile(ref); err != nil {
 		return fmt.Errorf("provider.Upload failed probe before upload: %w", err)
 	} else if has {
 		return nil // ok, provider has this file already
@@ -103,16 +104,16 @@ func (p *Provider) Upload(file *storage.File) (err error) {
 
 	// otherwise upload it
 	args := pb.FileUploadArgs{Upload: &pb.File{
-		Ref:     &file.Name,
-		Content: &file.Content,
-		Blob:    file.Bytes,
+		Ref:   &ref,
+		Media: &file.Media,
+		Blob:  file.Bytes,
 	}}
 	response := pb.FileUploadResponse{}
 	if err := p.messenger.RequestSync(context.TODO(), &args, &response); err != nil {
-		return fmt.Errorf("provider.Upload %q failed: %w", file.Name, err)
+		return fmt.Errorf("provider.Upload %q failed: %w", ref, err)
 	}
 	if response.GetErr() != "" {
-		return fmt.Errorf("provider.Upload %q failed at Provider: %s", file.Name, *response.Err)
+		return fmt.Errorf("provider.Upload %q failed at Provider: %s", ref, *response.Err)
 	}
 	return
 }

@@ -12,6 +12,7 @@ import (
 	"sync/atomic"
 	"wasimoff/broker/net/pb"
 	"wasimoff/broker/provider"
+	"wasimoff/broker/storage"
 
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
@@ -26,7 +27,7 @@ var jobSequence atomic.Uint64
 // An OffloadingJob holds the pb.OffloadWasiArgs from the request along with
 // some internal information about the requesting client.
 type OffloadingJob struct {
-	RequestID  string // used to track all tasks of this request
+	JobID      string // used to track all tasks of this request
 	ClientAddr string // remote address of the requesting client
 	JobSpec    *pb.OffloadWasiJobArgs
 }
@@ -34,12 +35,13 @@ type OffloadingJob struct {
 // The ExecHandler returns a HTTP handler, which accepts run configurations for
 // existing WASM binaries and dispatches them to available providers. Upon task
 // completion, the results are returned to the HTTP requester.
-func ExecHandler(selector Scheduler, benchmode bool) http.HandlerFunc {
+// MARK: ExecHdl
+func ExecHandler(store *provider.ProviderStore, selector Scheduler) http.HandlerFunc {
 
 	// create a queue for the tasks and start the dispatcher
-	// TODO: reuse the ticketing from benchmode to limit concurrent scheduler jobs?
-	queue := make(chan *Task, 10)
-	go Dispatcher(queue, selector)
+	// TODO: reuse the ticketing from benchmode to limit concurrent scheduler jobs
+	queue := make(chan *provider.AsyncWasiTask, 10)
+	go Dispatcher(selector, queue)
 
 	// return the http handler to register as a route
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -69,38 +71,109 @@ func ExecHandler(selector Scheduler, benchmode bool) http.HandlerFunc {
 
 		// read the job specification from the request body
 		job := OffloadingJob{JobSpec: &pb.OffloadWasiJobArgs{}}
-		err = ReadJobArgs(body, mt, job.JobSpec)
+		err = UnmarshalJobArgs(body, mt, job.JobSpec)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			WriteResponse(w, mt, &pb.OffloadWasiJobResponse{
-				Error: proto.String(err.Error()),
+			MarshalJobResponse(w, mt, &pb.OffloadWasiJobResponse{
+				Failure: proto.String(err.Error()),
 			})
 			err = nil // don't log this
 			return
 		}
 
 		// amend the job with information about client
-		job.RequestID = fmt.Sprintf("%05d", jobSequence.Add(1))
+		job.JobID = fmt.Sprintf("%05d", jobSequence.Add(1))
 		job.ClientAddr = r.RemoteAddr
-		log.Printf("OffloadingJob [%s] from %q: %s, %d tasks\n",
-			job.RequestID, job.ClientAddr, job.JobSpec.Binary.GetRef(), len(job.JobSpec.Tasks))
+		log.Printf("OffloadingJob [%s] from %q: %d tasks\n",
+			job.JobID, job.ClientAddr, len(job.JobSpec.Tasks))
 
 		// compute all the tasks of a request
-		results := DispatchTasks(&job, queue)
+		results := DispatchTasks(store, &job, queue)
 		// for i, task := range tasks {
 		// 	log.Printf("task[%d]: %v, result: %v", i, task, task.Result)
 		// }
 
 		// send the result back
-		if results.GetError() != "" {
+		if results.GetFailure() != "" {
 			// set an error code, if there's an error; we don't want a "200 Failed Successfully"
 			w.WriteHeader(http.StatusFailedDependency)
 		}
-		err = WriteResponse(w, mt, results)
+		err = MarshalJobResponse(w, mt, results)
 	}
 }
 
-func ReadJobArgs(body []byte, mt string, spec *pb.OffloadWasiJobArgs) (err error) {
+// DispatchTasks takes a run configuration, generates individual tasks from it,
+// schedules them in the queue and eventually returns with the results of all
+// those tasks.
+// TODO: accept a Context, so pending tasks can be cancelled from ExecHandler
+// MARK: Dispat.
+func DispatchTasks(
+	store *provider.ProviderStore,
+	job *OffloadingJob,
+	queue chan *provider.AsyncWasiTask,
+) *pb.OffloadWasiJobResponse {
+
+	// go through all the *pb.Files and resolve them from storage
+	errs := []error{}
+	errs = append(errs, store.Storage.ResolvePbFile(job.JobSpec.Parent.Binary))
+	errs = append(errs, store.Storage.ResolvePbFile(job.JobSpec.Parent.Rootfs))
+	for _, task := range job.JobSpec.Tasks {
+		errs = append(errs, store.Storage.ResolvePbFile(task.Binary))
+		errs = append(errs, store.Storage.ResolvePbFile(task.Rootfs))
+	}
+	if err := errors.Join(errs...); err != nil {
+		return &pb.OffloadWasiJobResponse{
+			Failure: proto.String(err.Error()),
+		}
+	}
+
+	// create slice for queued tasks and a sufficiently large channel for done signals
+	pending := make([]*provider.AsyncWasiTask, len(job.JobSpec.Tasks))
+	doneChan := make(chan *provider.AsyncWasiTask, len(pending)+10)
+
+	for i, spec := range job.JobSpec.Tasks {
+
+		// create the request+response for remote procedure call
+		response := pb.ExecuteWasiResponse{}
+		request := pb.ExecuteWasiArgs{
+			// common task metadata with index counter
+			Info: &pb.TaskMetadata{
+				JobID:  &job.JobID,
+				Index:  proto.Uint64(uint64(i)),
+				Client: &job.ClientAddr,
+			},
+			// inherit empty parameters from the parent job
+			Task: spec.InheritNil(job.JobSpec.Parent),
+		}
+
+		// create the async task with the common done channel and queue it for dispatch
+		task := provider.NewAsyncWasiTask(&request, &response, doneChan)
+		pending = append(pending, task)
+		queue <- task
+	}
+
+	// wait for all tasks to finish
+	done := 0
+	for range doneChan {
+		done++
+		if done == len(pending) {
+			break
+		}
+	}
+
+	// collect the task responses
+	jobResponse := &pb.OffloadWasiJobResponse{
+		Tasks: make([]*pb.ExecuteWasiResponse, len(pending)),
+	}
+	for i, task := range pending {
+		jobResponse.Tasks[i] = task.Response
+	}
+
+	return jobResponse
+}
+
+// MARK: Marshal
+func UnmarshalJobArgs(body []byte, mt string, spec *pb.OffloadWasiJobArgs) (err error) {
 
 	// try to decode the body to the expected job spec
 	switch mt {
@@ -116,17 +189,13 @@ func ReadJobArgs(body []byte, mt string, spec *pb.OffloadWasiJobArgs) (err error
 	}
 
 	// check the basic job specification requirements
-	if spec.Binary == nil || (spec.Binary.GetRef() == "" && spec.Binary.Blob == nil) {
-		err = errors.Join(err, fmt.Errorf("JobSpec: did not specify a binary"))
-	}
-	if spec.Tasks == nil || len(spec.Tasks) == 0 {
+	if len(spec.Tasks) == 0 {
 		err = errors.Join(err, fmt.Errorf("JobSpec: no tasks specified"))
 	}
 	return err
-
 }
 
-func WriteResponse(w http.ResponseWriter, mt string, result *pb.OffloadWasiJobResponse) (err error) {
+func MarshalJobResponse(w http.ResponseWriter, mt string, result *pb.OffloadWasiJobResponse) (err error) {
 
 	// marshal the response to desired format
 	var body []byte
@@ -159,6 +228,7 @@ func WriteResponse(w http.ResponseWriter, mt string, result *pb.OffloadWasiJobRe
 // The UploadHandler returns a HTTP handler, which takes the POSTed body
 // and uploads it to the available providers. The providers get marked
 // having this file "available" for selection during task execution.
+// MARK: Upload
 func UploadHandler(store *provider.ProviderStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -166,13 +236,13 @@ func UploadHandler(store *provider.ProviderStore) http.HandlerFunc {
 		var err error
 		defer func() {
 			if err != nil {
-				log.Printf("ERR: Upload [%s]: %s", err)
+				log.Printf("ERR: Upload [%s]: %s", r.RemoteAddr, err)
 			}
 		}()
 
 		// check the content-type of the request: accept zip or wasm
-		ft, _, _ := mime.ParseMediaType(r.Header.Get("content-type"))
-		if ft != "application/wasm" && ft != "application/zip" {
+		ft, err := storage.CheckMediaType(r.Header.Get("content-type"))
+		if err != nil {
 			http.Error(w, "unsupported filetype", http.StatusUnsupportedMediaType)
 			return
 		}
@@ -199,7 +269,7 @@ func UploadHandler(store *provider.ProviderStore) http.HandlerFunc {
 		// return the content address to client
 		w.WriteHeader(http.StatusOK)
 		w.Header().Add("content-type", "text/plain")
-		w.Write([]byte(addr))
+		fmt.Fprintln(w, addr)
 
 	}
 }

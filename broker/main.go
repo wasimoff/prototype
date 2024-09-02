@@ -42,10 +42,11 @@ func main() {
 	selector := scheduler.NewSimpleMatchSelector(&store)
 
 	// run request handler
-	mux.HandleFunc(apiPrefix+"/run", scheduler.ExecHandler(&selector, conf.Benchmode))
+	mux.HandleFunc(apiPrefix+"/run", scheduler.ExecHandler(&store, &selector))
 
 	// upload wasm binaries to providers
 	mux.HandleFunc(apiPrefix+"/upload", scheduler.UploadHandler(&store))
+	log.Printf("API routes at %s%s/{run,upload}", broker.Addr(), apiPrefix)
 
 	// provider transports
 	providerSocket := "/websocket/provider"
@@ -54,28 +55,6 @@ func main() {
 
 	// serve static files for frontend
 	mux.Handle("/", http.FileServer(http.Dir(conf.StaticFiles)))
-
-	// DEBUG: print an example of a new client offloading request JSON
-	// off := pb.OffloadWasiJobArgs{
-	// 	Binary: &pb.File{
-	// 		Ref:     proto.String("tsp.wasm"),
-	// 		Content: proto.String("application/wasm"),
-	// 		Blob:    []byte{'R', 'A', 'W', 0, 'B', 'L', 'O', 'B'},
-	// 	},
-	// 	Common: &pb.OffloadWasiTask{
-	// 		Envs: []string{"PROJECT=wasimoff"},
-	// 		Rootfs: &pb.File{
-	// 			Ref: proto.String("sha256:asdfghjkl..."),
-	// 		},
-	// 	},
-	// 	Tasks: []*pb.OffloadWasiTask{
-	// 		{
-	// 			Args:      []string{"tsp.wasm", "rand", "10"},
-	// 			Artifacts: []string{"/hello.txt"},
-	// 		},
-	// 	},
-	// }
-	// fmt.Printf("DEBUG: %s\n", protojson.Format(&off))
 
 	// start listening http server
 	log.Printf("Broker listening on %s", broker.Addr())

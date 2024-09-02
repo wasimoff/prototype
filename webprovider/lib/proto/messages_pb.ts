@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file messages.proto.
  */
 export const file_messages: GenFile = /*@__PURE__*/
-  fileDesc("Cg5tZXNzYWdlcy5wcm90byK5AQoIRW52ZWxvcGUSEAoIc2VxdWVuY2UYASABKAQSIwoEdHlwZRgCIAEoDjIVLkVudmVsb3BlLk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADIksKBFBpbmcSIgoJZGlyZWN0aW9uGAEgASgOMg8uUGluZy5EaXJlY3Rpb24iHwoJRGlyZWN0aW9uEggKBFBpbmcQABIICgRQb25nEAEiSAoMVGFza01ldGFkYXRhEgoKAmlkGAEgASgJEg4KBmNsaWVudBgCIAEoCRINCgVpbmRleBgDIAEoBBINCgV0cmFjZRgEIAEoCCKaAQoPRXhlY3V0ZVdhc2lBcmdzEhsKBHRhc2sYASABKAsyDS5UYXNrTWV0YWRhdGESFQoGYmluYXJ5GAIgASgLMgUuRmlsZRIMCgRhcmdzGAMgAygJEgwKBGVudnMYBCADKAkSDQoFc3RkaW4YBSABKAwSFQoGcm9vdGZzGAYgASgLMgUuRmlsZRIRCglhcnRpZmFjdHMYByADKAkibgoTRXhlY3V0ZVdhc2lSZXNwb25zZRINCgVlcnJvchgBIAEoCRIOCgZzdGF0dXMYAiABKAUSDgoGc3Rkb3V0GAMgASgMEg4KBnN0ZGVychgEIAEoDBIYCglhcnRpZmFjdHMYBSABKAsyBS5GaWxlIjIKBEZpbGUSCwoDcmVmGAEgASgJEg8KB2NvbnRlbnQYAiABKAkSDAoEYmxvYhgDIAEoDCIRCg9GaWxlTGlzdGluZ0FyZ3MiJAoTRmlsZUxpc3RpbmdSZXNwb25zZRINCgVmaWxlcxgBIAMoCSIdCg1GaWxlUHJvYmVBcmdzEgwKBGZpbGUYASABKAkiHwoRRmlsZVByb2JlUmVzcG9uc2USCgoCb2sYASABKAgiJwoORmlsZVVwbG9hZEFyZ3MSFQoGdXBsb2FkGAEgASgLMgUuRmlsZSIhChJGaWxlVXBsb2FkUmVzcG9uc2USCwoDZXJyGAEgASgJIiAKEEZpbGVEb3dubG9hZEFyZ3MSDAoEZmlsZRgBIAEoCSI8ChRGaWxlRG93bmxvYWRSZXNwb25zZRIXCghkb3dubG9hZBgBIAEoCzIFLkZpbGUSCwoDZXJyGAIgASgJIh8KDEdlbmVyaWNFdmVudBIPCgdtZXNzYWdlGAEgASgJIjAKDVByb3ZpZGVySGVsbG8SDAoEbmFtZRgBIAEoCRIRCgl1c2VyYWdlbnQYAiABKAkiNwoRUHJvdmlkZXJSZXNvdXJjZXMSEwoLY29uY3VycmVuY3kYASABKA0SDQoFdGFza3MYAiABKA0iIAoLQ2x1c3RlckluZm8SEQoJcHJvdmlkZXJzGAEgASgNIiwKClRocm91Z2hwdXQSDwoHb3ZlcmFsbBgBIAEoAhINCgV5b3VycxgCIAEoAiJDChBDbGllbnRVcGxvYWRBcmdzEgwKBG5hbWUYASABKAkSEwoLY29udGVudFR5cGUYAiABKAkSDAoEYmxvYhgDIAEoDCIwChRDbGllbnRVcGxvYWRSZXNwb25zZRILCgNyZWYYASABKAkSCwoDZXJyGAIgASgJIm4KEk9mZmxvYWRXYXNpSm9iQXJncxIVCgZiaW5hcnkYASABKAsyBS5GaWxlEiAKBmNvbW1vbhgDIAEoCzIQLk9mZmxvYWRXYXNpVGFzaxIfCgV0YXNrcxgEIAMoCzIQLk9mZmxvYWRXYXNpVGFzayJQChZPZmZsb2FkV2FzaUpvYlJlc3BvbnNlEg0KBWVycm9yGAEgASgJEicKB3Jlc3VsdHMYAyADKAsyFi5PZmZsb2FkV2FzaVRhc2tSZXN1bHQiZgoPT2ZmbG9hZFdhc2lUYXNrEgwKBGFyZ3MYASADKAkSDAoEZW52cxgCIAMoCRINCgVzdGRpbhgDIAEoDBIVCgZyb290ZnMYBCABKAsyBS5GaWxlEhEKCWFydGlmYWN0cxgFIAMoCSJwChVPZmZsb2FkV2FzaVRhc2tSZXN1bHQSDQoFZXJyb3IYASABKAkSDgoGc3RhdHVzGAIgASgFEg4KBnN0ZG91dBgDIAEoDBIOCgZzdGRlcnIYBCABKAwSGAoJYXJ0aWZhY3RzGAUgASgLMgUuRmlsZSpcCgtTdWJwcm90b2NvbBILCgdVTktOT1dOEAASIQodd2FzaW1vZmZfcHJvdmlkZXJfdjFfcHJvdG9idWYQARIdChl3YXNpbW9mZl9wcm92aWRlcl92MV9qc29uEAJiCGVkaXRpb25zcOgH", [file_google_protobuf_any]);
+  fileDesc("Cg5tZXNzYWdlcy5wcm90byK5AQoIRW52ZWxvcGUSEAoIc2VxdWVuY2UYASABKAQSIwoEdHlwZRgCIAEoDjIVLkVudmVsb3BlLk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADIksKBFBpbmcSIgoJZGlyZWN0aW9uGAEgASgOMg8uUGluZy5EaXJlY3Rpb24iHwoJRGlyZWN0aW9uEggKBFBpbmcQABIICgRQb25nEAEiSwoPRXhlY3V0ZVdhc2lBcmdzEhsKBGluZm8YASABKAsyDS5UYXNrTWV0YWRhdGESGwoEdGFzaxgCIAEoCzINLldhc2lUYXNrQXJncyJFChNFeGVjdXRlV2FzaVJlc3BvbnNlEg0KBWVycm9yGAEgASgJEh8KBnJlc3VsdBgCIAEoCzIPLldhc2lUYXNrUmVzdWx0IjwKDFRhc2tNZXRhZGF0YRINCgVqb2JJRBgBIAEoCRINCgVpbmRleBgDIAEoBBIOCgZjbGllbnQYAiABKAkiegoMV2FzaVRhc2tBcmdzEhUKBmJpbmFyeRgBIAEoCzIFLkZpbGUSDAoEYXJncxgCIAMoCRIMCgRlbnZzGAMgAygJEg0KBXN0ZGluGAQgASgMEhUKBnJvb3RmcxgFIAEoCzIFLkZpbGUSEQoJYXJ0aWZhY3RzGAYgAygJIloKDldhc2lUYXNrUmVzdWx0Eg4KBnN0YXR1cxgBIAEoBRIOCgZzdGRvdXQYAiABKAwSDgoGc3RkZXJyGAMgASgMEhgKCWFydGlmYWN0cxgEIAEoCzIFLkZpbGUiMAoERmlsZRILCgNyZWYYASABKAkSDQoFbWVkaWEYAiABKAkSDAoEYmxvYhgDIAEoDCIRCg9GaWxlTGlzdGluZ0FyZ3MiJAoTRmlsZUxpc3RpbmdSZXNwb25zZRINCgVmaWxlcxgBIAMoCSIdCg1GaWxlUHJvYmVBcmdzEgwKBGZpbGUYASABKAkiHwoRRmlsZVByb2JlUmVzcG9uc2USCgoCb2sYASABKAgiJwoORmlsZVVwbG9hZEFyZ3MSFQoGdXBsb2FkGAEgASgLMgUuRmlsZSIhChJGaWxlVXBsb2FkUmVzcG9uc2USCwoDZXJyGAEgASgJIiAKEEZpbGVEb3dubG9hZEFyZ3MSDAoEZmlsZRgBIAEoCSI8ChRGaWxlRG93bmxvYWRSZXNwb25zZRIXCghkb3dubG9hZBgBIAEoCzIFLkZpbGUSCwoDZXJyGAIgASgJIh8KDEdlbmVyaWNFdmVudBIPCgdtZXNzYWdlGAEgASgJIjAKDVByb3ZpZGVySGVsbG8SDAoEbmFtZRgBIAEoCRIRCgl1c2VyYWdlbnQYAiABKAkiNwoRUHJvdmlkZXJSZXNvdXJjZXMSEwoLY29uY3VycmVuY3kYASABKA0SDQoFdGFza3MYAiABKA0iIAoLQ2x1c3RlckluZm8SEQoJcHJvdmlkZXJzGAEgASgNIiwKClRocm91Z2hwdXQSDwoHb3ZlcmFsbBgBIAEoAhINCgV5b3VycxgCIAEoAiI9ChBDbGllbnRVcGxvYWRBcmdzEgwKBG5hbWUYASABKAkSDQoFbWVkaWEYAiABKAkSDAoEYm9keRgDIAEoDCIwChRDbGllbnRVcGxvYWRSZXNwb25zZRILCgNyZWYYASABKAkSCwoDZXJyGAIgASgJIlEKEk9mZmxvYWRXYXNpSm9iQXJncxIdCgZwYXJlbnQYASABKAsyDS5XYXNpVGFza0FyZ3MSHAoFdGFza3MYAiADKAsyDS5XYXNpVGFza0FyZ3MiTgoWT2ZmbG9hZFdhc2lKb2JSZXNwb25zZRIPCgdmYWlsdXJlGAEgASgJEiMKBXRhc2tzGAIgAygLMhQuRXhlY3V0ZVdhc2lSZXNwb25zZSpcCgtTdWJwcm90b2NvbBILCgdVTktOT1dOEAASIQodd2FzaW1vZmZfcHJvdmlkZXJfdjFfcHJvdG9idWYQARIdChl3YXNpbW9mZl9wcm92aWRlcl92MV9qc29uEAJiCGVkaXRpb25zcOgH", [file_google_protobuf_any]);
 
 /**
  * Envelope is a generic message wrapper with a sequence counter and message type.
@@ -182,112 +182,24 @@ export const Ping_DirectionSchema: GenEnum<Ping_Direction, Ping_DirectionJson> =
   enumDesc(file_messages, 1, 0);
 
 /**
- * TaskMetadata contains some information about the originating task for logging
- *
- * @generated from message TaskMetadata
- */
-export type TaskMetadata = Message<"TaskMetadata"> & {
-  /**
-   * overall job ID
-   *
-   * @generated from field: string id = 1;
-   */
-  id: string;
-
-  /**
-   * info about the requesting client
-   *
-   * @generated from field: string client = 2;
-   */
-  client: string;
-
-  /**
-   * index within a job with multiple tasks
-   *
-   * @generated from field: uint64 index = 3;
-   */
-  index: bigint;
-
-  /**
-   * request a trace of task execution, TODO
-   *
-   * @generated from field: bool trace = 4;
-   */
-  trace: boolean;
-};
-
-/**
- * JSON type for the message TaskMetadata.
- */
-export type TaskMetadataJson = {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id?: string;
-
-  /**
-   * @generated from field: string client = 2;
-   */
-  client?: string;
-
-  /**
-   * @generated from field: uint64 index = 3;
-   */
-  index?: string;
-
-  /**
-   * @generated from field: bool trace = 4;
-   */
-  trace?: boolean;
-};
-
-/**
- * Describes the message TaskMetadata.
- * Use `create(TaskMetadataSchema)` to create a new message.
- */
-export const TaskMetadataSchema: GenMessage<TaskMetadata, TaskMetadataJson> = /*@__PURE__*/
-  messageDesc(file_messages, 2);
-
-/**
  * ExecuteWasi runs a webassembly/wasi binary on the Provider
  *
  * @generated from message ExecuteWasiArgs
  */
 export type ExecuteWasiArgs = Message<"ExecuteWasiArgs"> & {
   /**
-   * @generated from field: TaskMetadata task = 1;
+   * metadata about this task
+   *
+   * @generated from field: TaskMetadata info = 1;
    */
-  task?: TaskMetadata;
+  info?: TaskMetadata;
 
   /**
-   * @generated from field: File binary = 2;
+   * arguments for the WebAssembly module
+   *
+   * @generated from field: WasiTaskArgs task = 2;
    */
-  binary?: File;
-
-  /**
-   * @generated from field: repeated string args = 3;
-   */
-  args: string[];
-
-  /**
-   * @generated from field: repeated string envs = 4;
-   */
-  envs: string[];
-
-  /**
-   * @generated from field: bytes stdin = 5;
-   */
-  stdin: Uint8Array;
-
-  /**
-   * @generated from field: File rootfs = 6;
-   */
-  rootfs?: File;
-
-  /**
-   * @generated from field: repeated string artifacts = 7;
-   */
-  artifacts: string[];
+  task?: WasiTaskArgs;
 };
 
 /**
@@ -295,39 +207,14 @@ export type ExecuteWasiArgs = Message<"ExecuteWasiArgs"> & {
  */
 export type ExecuteWasiArgsJson = {
   /**
-   * @generated from field: TaskMetadata task = 1;
+   * @generated from field: TaskMetadata info = 1;
    */
-  task?: TaskMetadataJson;
+  info?: TaskMetadataJson;
 
   /**
-   * @generated from field: File binary = 2;
+   * @generated from field: WasiTaskArgs task = 2;
    */
-  binary?: FileJson;
-
-  /**
-   * @generated from field: repeated string args = 3;
-   */
-  args?: string[];
-
-  /**
-   * @generated from field: repeated string envs = 4;
-   */
-  envs?: string[];
-
-  /**
-   * @generated from field: bytes stdin = 5;
-   */
-  stdin?: string;
-
-  /**
-   * @generated from field: File rootfs = 6;
-   */
-  rootfs?: FileJson;
-
-  /**
-   * @generated from field: repeated string artifacts = 7;
-   */
-  artifacts?: string[];
+  task?: WasiTaskArgsJson;
 };
 
 /**
@@ -335,36 +222,25 @@ export type ExecuteWasiArgsJson = {
  * Use `create(ExecuteWasiArgsSchema)` to create a new message.
  */
 export const ExecuteWasiArgsSchema: GenMessage<ExecuteWasiArgs, ExecuteWasiArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 3);
+  messageDesc(file_messages, 2);
 
 /**
  * @generated from message ExecuteWasiResponse
  */
 export type ExecuteWasiResponse = Message<"ExecuteWasiResponse"> & {
   /**
+   * error leading up to the instantiation
+   *
    * @generated from field: string error = 1;
    */
   error: string;
 
   /**
-   * @generated from field: int32 status = 2;
+   * result of the execution
+   *
+   * @generated from field: WasiTaskResult result = 2;
    */
-  status: number;
-
-  /**
-   * @generated from field: bytes stdout = 3;
-   */
-  stdout: Uint8Array;
-
-  /**
-   * @generated from field: bytes stderr = 4;
-   */
-  stderr: Uint8Array;
-
-  /**
-   * @generated from field: File artifacts = 5;
-   */
-  artifacts?: File;
+  result?: WasiTaskResult;
 };
 
 /**
@@ -377,24 +253,9 @@ export type ExecuteWasiResponseJson = {
   error?: string;
 
   /**
-   * @generated from field: int32 status = 2;
+   * @generated from field: WasiTaskResult result = 2;
    */
-  status?: number;
-
-  /**
-   * @generated from field: bytes stdout = 3;
-   */
-  stdout?: string;
-
-  /**
-   * @generated from field: bytes stderr = 4;
-   */
-  stderr?: string;
-
-  /**
-   * @generated from field: File artifacts = 5;
-   */
-  artifacts?: FileJson;
+  result?: WasiTaskResultJson;
 };
 
 /**
@@ -402,12 +263,209 @@ export type ExecuteWasiResponseJson = {
  * Use `create(ExecuteWasiResponseSchema)` to create a new message.
  */
 export const ExecuteWasiResponseSchema: GenMessage<ExecuteWasiResponse, ExecuteWasiResponseJson> = /*@__PURE__*/
+  messageDesc(file_messages, 3);
+
+/**
+ * TaskMetadata contains some information about the originating job request.
+ *
+ * @generated from message TaskMetadata
+ */
+export type TaskMetadata = Message<"TaskMetadata"> & {
+  /**
+   * overall job ID
+   *
+   * @generated from field: string jobID = 1;
+   */
+  jobID: string;
+
+  /**
+   * index within a job with multiple tasks
+   *
+   * @generated from field: uint64 index = 3;
+   */
+  index: bigint;
+
+  /**
+   * info about the requesting client
+   *
+   * @generated from field: string client = 2;
+   */
+  client: string;
+};
+
+/**
+ * JSON type for the message TaskMetadata.
+ */
+export type TaskMetadataJson = {
+  /**
+   * @generated from field: string jobID = 1;
+   */
+  jobID?: string;
+
+  /**
+   * @generated from field: uint64 index = 3;
+   */
+  index?: string;
+
+  /**
+   * @generated from field: string client = 2;
+   */
+  client?: string;
+};
+
+/**
+ * Describes the message TaskMetadata.
+ * Use `create(TaskMetadataSchema)` to create a new message.
+ */
+export const TaskMetadataSchema: GenMessage<TaskMetadata, TaskMetadataJson> = /*@__PURE__*/
   messageDesc(file_messages, 4);
 
 /**
- * File is a file reference with optional mime-type and length. The reference
- * can be a plain filename, a prefixed hash digest or a URL to fetch from. When
- * stored, a hash digest should be computed to have a stable identifier.
+ * WasiTaskArgs should not be sent as a toplevel message directly and instead
+ * contains necessary references and execution arguments to instantiate a single
+ * WebAssembly task on the Provider.
+ *
+ * @generated from message WasiTaskArgs
+ */
+export type WasiTaskArgs = Message<"WasiTaskArgs"> & {
+  /**
+   * @generated from field: File binary = 1;
+   */
+  binary?: File;
+
+  /**
+   * @generated from field: repeated string args = 2;
+   */
+  args: string[];
+
+  /**
+   * @generated from field: repeated string envs = 3;
+   */
+  envs: string[];
+
+  /**
+   * @generated from field: bytes stdin = 4;
+   */
+  stdin: Uint8Array;
+
+  /**
+   * @generated from field: File rootfs = 5;
+   */
+  rootfs?: File;
+
+  /**
+   * @generated from field: repeated string artifacts = 6;
+   */
+  artifacts: string[];
+};
+
+/**
+ * JSON type for the message WasiTaskArgs.
+ */
+export type WasiTaskArgsJson = {
+  /**
+   * @generated from field: File binary = 1;
+   */
+  binary?: FileJson;
+
+  /**
+   * @generated from field: repeated string args = 2;
+   */
+  args?: string[];
+
+  /**
+   * @generated from field: repeated string envs = 3;
+   */
+  envs?: string[];
+
+  /**
+   * @generated from field: bytes stdin = 4;
+   */
+  stdin?: string;
+
+  /**
+   * @generated from field: File rootfs = 5;
+   */
+  rootfs?: FileJson;
+
+  /**
+   * @generated from field: repeated string artifacts = 6;
+   */
+  artifacts?: string[];
+};
+
+/**
+ * Describes the message WasiTaskArgs.
+ * Use `create(WasiTaskArgsSchema)` to create a new message.
+ */
+export const WasiTaskArgsSchema: GenMessage<WasiTaskArgs, WasiTaskArgsJson> = /*@__PURE__*/
+  messageDesc(file_messages, 5);
+
+/**
+ * WasiTaskResult is the result of an execution from a WasiTaskArgs. It should
+ * only be returned if the module was instantiated successfully at all, i.e. any
+ * errors leading up to that should be returned higher up.
+ *
+ * @generated from message WasiTaskResult
+ */
+export type WasiTaskResult = Message<"WasiTaskResult"> & {
+  /**
+   * @generated from field: int32 status = 1;
+   */
+  status: number;
+
+  /**
+   * @generated from field: bytes stdout = 2;
+   */
+  stdout: Uint8Array;
+
+  /**
+   * @generated from field: bytes stderr = 3;
+   */
+  stderr: Uint8Array;
+
+  /**
+   * @generated from field: File artifacts = 4;
+   */
+  artifacts?: File;
+};
+
+/**
+ * JSON type for the message WasiTaskResult.
+ */
+export type WasiTaskResultJson = {
+  /**
+   * @generated from field: int32 status = 1;
+   */
+  status?: number;
+
+  /**
+   * @generated from field: bytes stdout = 2;
+   */
+  stdout?: string;
+
+  /**
+   * @generated from field: bytes stderr = 3;
+   */
+  stderr?: string;
+
+  /**
+   * @generated from field: File artifacts = 4;
+   */
+  artifacts?: FileJson;
+};
+
+/**
+ * Describes the message WasiTaskResult.
+ * Use `create(WasiTaskResultSchema)` to create a new message.
+ */
+export const WasiTaskResultSchema: GenMessage<WasiTaskResult, WasiTaskResultJson> = /*@__PURE__*/
+  messageDesc(file_messages, 6);
+
+/**
+ * File is a file reference with optional mime-type. The ref could be a plain
+ * filename, a prefixed hash digest or a URL to fetch from. When stored, a hash
+ * digest should be computed to have a stable identifier.
  *
  * @generated from message File
  */
@@ -420,11 +478,11 @@ export type File = Message<"File"> & {
   ref: string;
 
   /**
-   * content-type in MIME notation
+   * media type in MIME notation
    *
-   * @generated from field: string content = 2;
+   * @generated from field: string media = 2;
    */
-  content: string;
+  media: string;
 
   /**
    * the actual file contents
@@ -444,9 +502,9 @@ export type FileJson = {
   ref?: string;
 
   /**
-   * @generated from field: string content = 2;
+   * @generated from field: string media = 2;
    */
-  content?: string;
+  media?: string;
 
   /**
    * @generated from field: bytes blob = 3;
@@ -459,7 +517,7 @@ export type FileJson = {
  * Use `create(FileSchema)` to create a new message.
  */
 export const FileSchema: GenMessage<File, FileJson> = /*@__PURE__*/
-  messageDesc(file_messages, 5);
+  messageDesc(file_messages, 7);
 
 /**
  * FileListing asks for a listing of all available files on Provider
@@ -482,7 +540,7 @@ export type FileListingArgsJson = {
  * Use `create(FileListingArgsSchema)` to create a new message.
  */
 export const FileListingArgsSchema: GenMessage<FileListingArgs, FileListingArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 6);
+  messageDesc(file_messages, 8);
 
 /**
  * @generated from message FileListingResponse
@@ -509,7 +567,7 @@ export type FileListingResponseJson = {
  * Use `create(FileListingResponseSchema)` to create a new message.
  */
 export const FileListingResponseSchema: GenMessage<FileListingResponse, FileListingResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 7);
+  messageDesc(file_messages, 9);
 
 /**
  * FileProbe checks if a certain file exists on provider
@@ -538,7 +596,7 @@ export type FileProbeArgsJson = {
  * Use `create(FileProbeArgsSchema)` to create a new message.
  */
 export const FileProbeArgsSchema: GenMessage<FileProbeArgs, FileProbeArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 8);
+  messageDesc(file_messages, 10);
 
 /**
  * @generated from message FileProbeResponse
@@ -565,7 +623,7 @@ export type FileProbeResponseJson = {
  * Use `create(FileProbeResponseSchema)` to create a new message.
  */
 export const FileProbeResponseSchema: GenMessage<FileProbeResponse, FileProbeResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 9);
+  messageDesc(file_messages, 11);
 
 /**
  * FileUpload pushes a file to the Provider.
@@ -594,7 +652,7 @@ export type FileUploadArgsJson = {
  * Use `create(FileUploadArgsSchema)` to create a new message.
  */
 export const FileUploadArgsSchema: GenMessage<FileUploadArgs, FileUploadArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 10);
+  messageDesc(file_messages, 12);
 
 /**
  * @generated from message FileUploadResponse
@@ -621,7 +679,7 @@ export type FileUploadResponseJson = {
  * Use `create(FileUploadResponseSchema)` to create a new message.
  */
 export const FileUploadResponseSchema: GenMessage<FileUploadResponse, FileUploadResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 11);
+  messageDesc(file_messages, 13);
 
 /**
  * FileDownload can be sent by the Provider to request a file download.
@@ -650,7 +708,7 @@ export type FileDownloadArgsJson = {
  * Use `create(FileDownloadArgsSchema)` to create a new message.
  */
 export const FileDownloadArgsSchema: GenMessage<FileDownloadArgs, FileDownloadArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 12);
+  messageDesc(file_messages, 14);
 
 /**
  * @generated from message FileDownloadResponse
@@ -687,7 +745,7 @@ export type FileDownloadResponseJson = {
  * Use `create(FileDownloadResponseSchema)` to create a new message.
  */
 export const FileDownloadResponseSchema: GenMessage<FileDownloadResponse, FileDownloadResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 13);
+  messageDesc(file_messages, 15);
 
 /**
  * Generic is just a generic piece of text for debugging
@@ -716,7 +774,7 @@ export type GenericEventJson = {
  * Use `create(GenericEventSchema)` to create a new message.
  */
 export const GenericEventSchema: GenMessage<GenericEvent, GenericEventJson> = /*@__PURE__*/
-  messageDesc(file_messages, 14);
+  messageDesc(file_messages, 16);
 
 /**
  * ProviderHello is sent once at the beginning to identify the Provider
@@ -759,7 +817,7 @@ export type ProviderHelloJson = {
  * Use `create(ProviderHelloSchema)` to create a new message.
  */
 export const ProviderHelloSchema: GenMessage<ProviderHello, ProviderHelloJson> = /*@__PURE__*/
-  messageDesc(file_messages, 15);
+  messageDesc(file_messages, 17);
 
 /**
  * ProviderResources is information about the available resources in Worker pool
@@ -802,7 +860,7 @@ export type ProviderResourcesJson = {
  * Use `create(ProviderResourcesSchema)` to create a new message.
  */
 export const ProviderResourcesSchema: GenMessage<ProviderResources, ProviderResourcesJson> = /*@__PURE__*/
-  messageDesc(file_messages, 16);
+  messageDesc(file_messages, 18);
 
 /**
  * ClusterInfo contains information about all connected Providers
@@ -833,7 +891,7 @@ export type ClusterInfoJson = {
  * Use `create(ClusterInfoSchema)` to create a new message.
  */
 export const ClusterInfoSchema: GenMessage<ClusterInfo, ClusterInfoJson> = /*@__PURE__*/
-  messageDesc(file_messages, 17);
+  messageDesc(file_messages, 19);
 
 /**
  * Throughput contains information about overall cluster throughput
@@ -876,29 +934,36 @@ export type ThroughputJson = {
  * Use `create(ThroughputSchema)` to create a new message.
  */
 export const ThroughputSchema: GenMessage<Throughput, ThroughputJson> = /*@__PURE__*/
-  messageDesc(file_messages, 18);
+  messageDesc(file_messages, 20);
 
 /**
- * The simplest client upload is a POST request with the raw binary inside
- * and metadata in headers but I guess we can also use a message type.
+ * The client upload is a POST request with the binary data as the body, media
+ * type in the Contet-Type header and the optional friendly name in a query
+ * parameter. So this message type isn't actually used anywhere yet.
  *
  * @generated from message ClientUploadArgs
  */
 export type ClientUploadArgs = Message<"ClientUploadArgs"> & {
   /**
+   * friendly name for lookup
+   *
    * @generated from field: string name = 1;
    */
   name: string;
 
   /**
-   * @generated from field: string contentType = 2;
+   * media type
+   *
+   * @generated from field: string media = 2;
    */
-  contentType: string;
+  media: string;
 
   /**
-   * @generated from field: bytes blob = 3;
+   * binary file contents
+   *
+   * @generated from field: bytes body = 3;
    */
-  blob: Uint8Array;
+  body: Uint8Array;
 };
 
 /**
@@ -911,14 +976,14 @@ export type ClientUploadArgsJson = {
   name?: string;
 
   /**
-   * @generated from field: string contentType = 2;
+   * @generated from field: string media = 2;
    */
-  contentType?: string;
+  media?: string;
 
   /**
-   * @generated from field: bytes blob = 3;
+   * @generated from field: bytes body = 3;
    */
-  blob?: string;
+  body?: string;
 };
 
 /**
@@ -926,18 +991,22 @@ export type ClientUploadArgsJson = {
  * Use `create(ClientUploadArgsSchema)` to create a new message.
  */
 export const ClientUploadArgsSchema: GenMessage<ClientUploadArgs, ClientUploadArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 19);
+  messageDesc(file_messages, 21);
 
 /**
  * @generated from message ClientUploadResponse
  */
 export type ClientUploadResponse = Message<"ClientUploadResponse"> & {
   /**
+   * the hashed ref the file was stored under
+   *
    * @generated from field: string ref = 1;
    */
   ref: string;
 
   /**
+   * any errors during file insertion
+   *
    * @generated from field: string err = 2;
    */
   err: string;
@@ -963,35 +1032,32 @@ export type ClientUploadResponseJson = {
  * Use `create(ClientUploadResponseSchema)` to create a new message.
  */
 export const ClientUploadResponseSchema: GenMessage<ClientUploadResponse, ClientUploadResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 20);
+  messageDesc(file_messages, 22);
 
 /**
- * An offloading request specifies a binary to use, optionally some common
- * parent parameters and then a list of executions of this binary. There is
- * no magic in the parent parameter inheritance: anything in the parent gets
- * entirely replaced by the corresponding field in a task specification. Though
- * you could specify everything in the common parameters, at least one task
- * must be present; even if just an empty { }.
+ * An offloading request specifies a list of WasiTaskArgs, each possibly
+ * containing a binary to use, args, envs etc. An optional common parent can
+ * be given to fill values in tasks. There is no magic in the parameter
+ * inheritance though: anything in the parent gets entirely replaced by the
+ * corresponding field in a task spec. At least one task must always be present,
+ * even if just an empty { } with all parameters inherited from the parent.
  *
  * @generated from message OffloadWasiJobArgs
  */
 export type OffloadWasiJobArgs = Message<"OffloadWasiJobArgs"> & {
   /**
-   * @generated from field: File binary = 1;
-   */
-  binary?: File;
-
-  /**
-   * bool trace = 2; // TODO
+   * inherit common task parameters
    *
-   * @generated from field: OffloadWasiTask common = 3;
+   * @generated from field: WasiTaskArgs parent = 1;
    */
-  common?: OffloadWasiTask;
+  parent?: WasiTaskArgs;
 
   /**
-   * @generated from field: repeated OffloadWasiTask tasks = 4;
+   * list of task arguments
+   *
+   * @generated from field: repeated WasiTaskArgs tasks = 2;
    */
-  tasks: OffloadWasiTask[];
+  tasks: WasiTaskArgs[];
 };
 
 /**
@@ -999,19 +1065,14 @@ export type OffloadWasiJobArgs = Message<"OffloadWasiJobArgs"> & {
  */
 export type OffloadWasiJobArgsJson = {
   /**
-   * @generated from field: File binary = 1;
+   * @generated from field: WasiTaskArgs parent = 1;
    */
-  binary?: FileJson;
+  parent?: WasiTaskArgsJson;
 
   /**
-   * @generated from field: OffloadWasiTask common = 3;
+   * @generated from field: repeated WasiTaskArgs tasks = 2;
    */
-  common?: OffloadWasiTaskJson;
-
-  /**
-   * @generated from field: repeated OffloadWasiTask tasks = 4;
-   */
-  tasks?: OffloadWasiTaskJson[];
+  tasks?: WasiTaskArgsJson[];
 };
 
 /**
@@ -1019,23 +1080,25 @@ export type OffloadWasiJobArgsJson = {
  * Use `create(OffloadWasiJobArgsSchema)` to create a new message.
  */
 export const OffloadWasiJobArgsSchema: GenMessage<OffloadWasiJobArgs, OffloadWasiJobArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 21);
+  messageDesc(file_messages, 23);
 
 /**
  * @generated from message OffloadWasiJobResponse
  */
 export type OffloadWasiJobResponse = Message<"OffloadWasiJobResponse"> & {
   /**
-   * @generated from field: string error = 1;
+   * the complete job failed
+   *
+   * @generated from field: string failure = 1;
    */
-  error: string;
+  failure: string;
 
   /**
-   * Trace trace = 2; // TODO
+   * list of task results
    *
-   * @generated from field: repeated OffloadWasiTaskResult results = 3;
+   * @generated from field: repeated ExecuteWasiResponse tasks = 2;
    */
-  results: OffloadWasiTaskResult[];
+  tasks: ExecuteWasiResponse[];
 };
 
 /**
@@ -1043,14 +1106,14 @@ export type OffloadWasiJobResponse = Message<"OffloadWasiJobResponse"> & {
  */
 export type OffloadWasiJobResponseJson = {
   /**
-   * @generated from field: string error = 1;
+   * @generated from field: string failure = 1;
    */
-  error?: string;
+  failure?: string;
 
   /**
-   * @generated from field: repeated OffloadWasiTaskResult results = 3;
+   * @generated from field: repeated ExecuteWasiResponse tasks = 2;
    */
-  results?: OffloadWasiTaskResultJson[];
+  tasks?: ExecuteWasiResponseJson[];
 };
 
 /**
@@ -1058,140 +1121,6 @@ export type OffloadWasiJobResponseJson = {
  * Use `create(OffloadWasiJobResponseSchema)` to create a new message.
  */
 export const OffloadWasiJobResponseSchema: GenMessage<OffloadWasiJobResponse, OffloadWasiJobResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 22);
-
-/**
- * @generated from message OffloadWasiTask
- */
-export type OffloadWasiTask = Message<"OffloadWasiTask"> & {
-  /**
-   * @generated from field: repeated string args = 1;
-   */
-  args: string[];
-
-  /**
-   * @generated from field: repeated string envs = 2;
-   */
-  envs: string[];
-
-  /**
-   * @generated from field: bytes stdin = 3;
-   */
-  stdin: Uint8Array;
-
-  /**
-   * @generated from field: File rootfs = 4;
-   */
-  rootfs?: File;
-
-  /**
-   * @generated from field: repeated string artifacts = 5;
-   */
-  artifacts: string[];
-};
-
-/**
- * JSON type for the message OffloadWasiTask.
- */
-export type OffloadWasiTaskJson = {
-  /**
-   * @generated from field: repeated string args = 1;
-   */
-  args?: string[];
-
-  /**
-   * @generated from field: repeated string envs = 2;
-   */
-  envs?: string[];
-
-  /**
-   * @generated from field: bytes stdin = 3;
-   */
-  stdin?: string;
-
-  /**
-   * @generated from field: File rootfs = 4;
-   */
-  rootfs?: FileJson;
-
-  /**
-   * @generated from field: repeated string artifacts = 5;
-   */
-  artifacts?: string[];
-};
-
-/**
- * Describes the message OffloadWasiTask.
- * Use `create(OffloadWasiTaskSchema)` to create a new message.
- */
-export const OffloadWasiTaskSchema: GenMessage<OffloadWasiTask, OffloadWasiTaskJson> = /*@__PURE__*/
-  messageDesc(file_messages, 23);
-
-/**
- * @generated from message OffloadWasiTaskResult
- */
-export type OffloadWasiTaskResult = Message<"OffloadWasiTaskResult"> & {
-  /**
-   * @generated from field: string error = 1;
-   */
-  error: string;
-
-  /**
-   * @generated from field: int32 status = 2;
-   */
-  status: number;
-
-  /**
-   * @generated from field: bytes stdout = 3;
-   */
-  stdout: Uint8Array;
-
-  /**
-   * @generated from field: bytes stderr = 4;
-   */
-  stderr: Uint8Array;
-
-  /**
-   * @generated from field: File artifacts = 5;
-   */
-  artifacts?: File;
-};
-
-/**
- * JSON type for the message OffloadWasiTaskResult.
- */
-export type OffloadWasiTaskResultJson = {
-  /**
-   * @generated from field: string error = 1;
-   */
-  error?: string;
-
-  /**
-   * @generated from field: int32 status = 2;
-   */
-  status?: number;
-
-  /**
-   * @generated from field: bytes stdout = 3;
-   */
-  stdout?: string;
-
-  /**
-   * @generated from field: bytes stderr = 4;
-   */
-  stderr?: string;
-
-  /**
-   * @generated from field: File artifacts = 5;
-   */
-  artifacts?: FileJson;
-};
-
-/**
- * Describes the message OffloadWasiTaskResult.
- * Use `create(OffloadWasiTaskResultSchema)` to create a new message.
- */
-export const OffloadWasiTaskResultSchema: GenMessage<OffloadWasiTaskResult, OffloadWasiTaskResultJson> = /*@__PURE__*/
   messageDesc(file_messages, 24);
 
 /**
