@@ -1,2 +1,0 @@
-Method,Name,Error,Occurrences
-POST,run/tsp(11),CatchResponseError('not successful'),2

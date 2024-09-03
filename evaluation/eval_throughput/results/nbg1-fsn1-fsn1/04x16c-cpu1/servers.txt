@@ -1,7 +1,0 @@
-ID         NAME         TYPE    LOCATION   IPV4             IPV6
-37858288   locust       ccx23   nbg1       128.140.4.185    2a01:4f8:c2c:3b04::/64
-37858293   broker       ccx23   fsn1       162.55.33.57     2a01:4f8:c17:c2a6::/64
-37862950   provider01   ccx43   fsn1       78.47.116.179    2a01:4f8:c012:12d::/64
-37862953   provider02   ccx43   fsn1       78.46.123.175    2a01:4f8:c012:61e8::/64
-37862969   provider03   ccx43   fsn1       116.202.18.210   2a01:4f8:c012:cdf::/64
-37862973   provider04   ccx43   fsn1       49.12.1.29       2a01:4f8:c17:9f28::/64

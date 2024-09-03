@@ -1,8 +1,0 @@
-[2023-09-29 20:29:31,045] locust/INFO/locust.main: Run time limit set to 180 seconds
-[2023-09-29 20:29:31,045] locust/INFO/locust.main: Starting Locust 2.16.1
-[2023-09-29 20:29:31,046] locust/INFO/locust.runners: Ramping to 64 users at a rate of 4.00 per second
-[2023-09-29 20:29:46,067] locust/INFO/locust.runners: All users spawned: {"WasimoffWorkload": 64} (64 total users)
-[2023-09-29 20:29:51,051] locust/WARNING/root: CPU usage above 90%! This may constrain your throughput and may even give inconsistent response time measurements! See https://docs.locust.io/en/stable/running-distributed.html for how to distribute the load over multiple CPU cores or machines
-[2023-09-29 20:32:30,901] locust/INFO/locust.main: --run-time limit reached, shutting down
-[2023-09-29 20:32:31,009] locust/WARNING/locust.runners: CPU usage was too high at some point during the test! See https://docs.locust.io/en/stable/running-distributed.html for how to distribute the load over multiple CPU cores or machines
-[2023-09-29 20:32:31,010] locust/INFO/locust.main: Shutting down (exit code 0)

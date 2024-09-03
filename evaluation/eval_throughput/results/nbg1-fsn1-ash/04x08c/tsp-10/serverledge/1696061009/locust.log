@@ -1,6 +1,0 @@
-[2023-09-30 08:03:30,037] locust/INFO/locust.main: Run time limit set to 180 seconds
-[2023-09-30 08:03:30,037] locust/INFO/locust.main: Starting Locust 2.16.1
-[2023-09-30 08:03:30,038] locust/INFO/locust.runners: Ramping to 64 users at a rate of 4.00 per second
-[2023-09-30 08:03:45,059] locust/INFO/locust.runners: All users spawned: {"ServerledgeWorkload": 64} (64 total users)
-[2023-09-30 08:06:29,893] locust/INFO/locust.main: --run-time limit reached, shutting down
-[2023-09-30 08:06:29,914] locust/INFO/locust.main: Shutting down (exit code 0)

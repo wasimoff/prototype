@@ -4,6 +4,4 @@ toolchain go1.21.0
 
 use (
 	./broker
-	./experiments/messagepack-comparison
-	./experiments/webtransport-go
 )
