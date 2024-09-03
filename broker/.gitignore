@@ -5,3 +5,4 @@
 
 # compiled binary
 broker
+__debug_bin*

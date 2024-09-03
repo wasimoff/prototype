@@ -2,7 +2,6 @@ package scheduler
 
 import (
 	"context"
-	"log"
 	"time"
 	"wasimoff/broker/provider"
 )
@@ -23,10 +22,10 @@ func (s *SimpleMatchSelector) selectCandidates(task *provider.AsyncWasiTask) (ca
 	// create a list of needed files to check with the providers
 	targ := task.Args.Task
 	requiredFiles := make([]string, 0, 2)
-	if targ.Binary.Ref != nil {
+	if targ.Binary != nil && targ.Binary.GetRef() != "" {
 		requiredFiles = append(requiredFiles, *targ.Binary.Ref)
 	}
-	if targ.Rootfs.Ref != nil {
+	if targ.Rootfs != nil && targ.Rootfs.GetRef() != "" {
 		requiredFiles = append(requiredFiles, *targ.Rootfs.Ref)
 	}
 
@@ -47,7 +46,7 @@ func (s *SimpleMatchSelector) selectCandidates(task *provider.AsyncWasiTask) (ca
 
 	// no candidates found?
 	if len(candidates) == 0 {
-		log.Printf("Task %s couldn't find a Provider which satisfies: %v", task.Args.Info.TaskID(), requiredFiles)
+		// log.Printf("Task %s couldn't find a Provider which satisfies: %v", task.Args.Info.TaskID(), requiredFiles)
 		// err = fmt.Errorf("no suitable provider found which satisfies all requirements")
 	}
 	return

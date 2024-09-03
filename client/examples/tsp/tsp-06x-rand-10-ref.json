@@ -1,0 +1,7 @@
+{
+  "parent": {
+    "binary": { "ref": "tsp.wasm" },
+    "args": ["tsp", "rand", "10"]
+  },
+  "tasks": [ { }, { }, { }, { }, { }, { } ]
+}

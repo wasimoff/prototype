@@ -8,8 +8,6 @@ import (
 	"wasimoff/broker/net/pb"
 	"wasimoff/broker/net/server"
 	"wasimoff/broker/net/transport"
-
-	"google.golang.org/protobuf/encoding/prototext"
 )
 
 // WebSocketHandler returns a http.HandlerFunc to be used on a route that shall serve
@@ -44,6 +42,15 @@ func WebSocketHandler(server *server.Server, store *ProviderStore, origins []str
 		if _, err = provider.ListFiles(); err != nil {
 			log.Printf("[%s] New Provider: %s", addr, err)
 			return
+		}
+
+		// upload all known files to provider
+		for _, file := range store.Storage.Files {
+			err = provider.Upload(file)
+			if err != nil {
+				log.Printf("[%s] New Provider: initial Upload failed: %q: %s", addr, file.Ref(), err)
+				return
+			}
 		}
 
 		// add provider to the store
@@ -97,7 +104,6 @@ func (p *Provider) eventTransmitter() {
 				}
 
 			case *pb.ProviderResources:
-				log.Printf("[%s] ProviderResources:\n%s", p.Get(Address), prototext.Format(ev))
 				// TODO: set active tasks
 				// The problem is that you can't really "set" a semaphore, so possibly
 				// need to switch to a manual atomic, when providers are allowed to receive

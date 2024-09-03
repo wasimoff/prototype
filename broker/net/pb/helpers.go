@@ -11,6 +11,13 @@ func (m *TaskMetadata) TaskID() string {
 
 // Fill any nil (!) task parameters from a parent task specification.
 func (wt *WasiTaskArgs) InheritNil(parent *WasiTaskArgs) *WasiTaskArgs {
+	if parent == nil {
+		// nothing to do when parent is nil
+		return wt
+	}
+	if wt.Binary == nil {
+		wt.Binary = parent.Binary
+	}
 	if wt.Args == nil {
 		wt.Args = parent.Args
 	}

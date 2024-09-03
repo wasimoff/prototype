@@ -49,7 +49,7 @@ export const useClusterState = defineStore("ClusterState", () => {
 
           // update throughput
           case isMessage(event, pb.ThroughputSchema):
-            throughput.value = event.throughput;
+            throughput.value = event.overall;
             break;
 
         };

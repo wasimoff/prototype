@@ -1,518 +1,4113 @@
 {
-  "bin": "tsp.wasm",
-  "exec": [
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "12"] },
-    { "args": ["rand", "9"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "11"] },
-    { "args": ["rand", "10"] },
-    { "args": ["rand", "10"] }
+  "parent": {
+    "binary": {
+      "ref": "tsp.wasm"
+    }
+  },
+  "tasks": [
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "12"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "9"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "11"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    },
+    {
+      "args": [
+        "tsp.wasm",
+        "rand",
+        "10"
+      ],
+      "stdin": "bnVsbA=="
+    }
   ]
 }

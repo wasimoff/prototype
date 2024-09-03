@@ -59,7 +59,7 @@ message Ping {
 // ---> execute
 
 // ExecuteWasi runs a webassembly/wasi binary on the Provider
-message ExecuteWasiArgs {
+message ExecuteWasiRequest {
   TaskMetadata info = 1; // metadata about this task
   WasiTaskArgs task = 2; // arguments for the WebAssembly module
 }
@@ -110,7 +110,7 @@ message File {
 }
 
 // FileListing asks for a listing of all available files on Provider
-message FileListingArgs {
+message FileListingRequest {
   // empty
 }
 message FileListingResponse {
@@ -118,7 +118,7 @@ message FileListingResponse {
 }
 
 // FileProbe checks if a certain file exists on provider
-message FileProbeArgs {
+message FileProbeRequest {
   string file = 1;
 }
 message FileProbeResponse {
@@ -126,7 +126,7 @@ message FileProbeResponse {
 }
 
 // FileUpload pushes a file to the Provider.
-message FileUploadArgs {
+message FileUploadRequest {
   File upload = 1;
 }
 message FileUploadResponse {
@@ -134,7 +134,7 @@ message FileUploadResponse {
 }
 
 // FileDownload can be sent by the Provider to request a file download.
-message FileDownloadArgs {
+message FileDownloadRequest {
   string file = 1;
 }
 message FileDownloadResponse {
@@ -187,7 +187,7 @@ message Throughput {
 // The client upload is a POST request with the binary data as the body, media
 // type in the Contet-Type header and the optional friendly name in a query
 // parameter. So this message type isn't actually used anywhere yet.
-message ClientUploadArgs {
+message ClientUploadRequest {
   string name = 1; // friendly name for lookup
   string media = 2; // media type
   bytes body = 3; // binary file contents
@@ -203,7 +203,7 @@ message ClientUploadResponse {
 // inheritance though: anything in the parent gets entirely replaced by the
 // corresponding field in a task spec. At least one task must always be present,
 // even if just an empty { } with all parameters inherited from the parent.
-message OffloadWasiJobArgs {
+message OffloadWasiJobRequest {
   WasiTaskArgs parent = 1; // inherit common task parameters
   repeated WasiTaskArgs tasks = 2; // list of task arguments
 }

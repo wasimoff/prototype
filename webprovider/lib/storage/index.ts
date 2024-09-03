@@ -9,6 +9,9 @@ export interface ProviderStorage {
   /** List all files in Storage. */
   lsf(): Promise<File[]>;
 
+  /** Get a specific file from Storage. */
+  getFile(filename: string): Promise<File | undefined>;
+
   /** Save a new file to the Storage. */
   store(buf: ArrayBuffer, filename: string): Promise<File>;
 
@@ -36,4 +39,16 @@ export { OpfsStorage } from "./opfs.ts";
 export async function digest(file: File): Promise<Uint8Array> {
   if (crypto.subtle) return new Uint8Array(await crypto.subtle.digest("SHA-256", await file.arrayBuffer()));
   else return new Uint8Array(32); // will always re-transfer
+}
+
+/** Check if a filename is a SHA256 content address aka. ref. */
+export function isRef(filename: string): boolean {
+  return filename.match(/^sha256:[0-9a-f]{64}$/i) !== null;
+}
+
+export async function getRef(file: File): Promise<string> {
+  if (!crypto.subtle) throw "cannot compute digest in an insecure context";
+  let hash = await digest(file);
+  let hex = [...hash].map(d => d.toString(16).padStart(2, "0")).join("");
+  return `sha256:${hex}`;
 }

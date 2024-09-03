@@ -110,14 +110,14 @@ func (p *Provider) CurrentLimit() int {
 // can be submitted to a Provider's Submit() channel.
 // TODO: add additional context information about task requirements here
 type AsyncWasiTask struct {
-	Args     *pb.ExecuteWasiArgs     // arguments to the call
+	Args     *pb.ExecuteWasiRequest  // arguments to the call
 	Response *pb.ExecuteWasiResponse // response from the Provider
 	Error    error                   // error encountered during scheduling or RPC
 	Done     chan *AsyncWasiTask     // receives itself when request completes
 }
 
 // NewAsyncWasiTask creates a new call struct for a scheduler
-func NewAsyncWasiTask(args *pb.ExecuteWasiArgs, res *pb.ExecuteWasiResponse, done chan *AsyncWasiTask) *AsyncWasiTask {
+func NewAsyncWasiTask(args *pb.ExecuteWasiRequest, res *pb.ExecuteWasiResponse, done chan *AsyncWasiTask) *AsyncWasiTask {
 	if done == nil {
 		done = make(chan *AsyncWasiTask, 1)
 	}

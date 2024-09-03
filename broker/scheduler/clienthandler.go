@@ -29,7 +29,7 @@ var jobSequence atomic.Uint64
 type OffloadingJob struct {
 	JobID      string // used to track all tasks of this request
 	ClientAddr string // remote address of the requesting client
-	JobSpec    *pb.OffloadWasiJobArgs
+	JobSpec    *pb.OffloadWasiJobRequest
 }
 
 // The ExecHandler returns a HTTP handler, which accepts run configurations for
@@ -50,7 +50,7 @@ func ExecHandler(store *provider.ProviderStore, selector Scheduler) http.Handler
 		var err error
 		defer func() {
 			if err != nil {
-				log.Printf("ERR: Client [%s]: %s", err)
+				log.Printf("ERR: Client [%s]: %s", r.RemoteAddr, err)
 			}
 		}()
 
@@ -70,7 +70,7 @@ func ExecHandler(store *provider.ProviderStore, selector Scheduler) http.Handler
 		}
 
 		// read the job specification from the request body
-		job := OffloadingJob{JobSpec: &pb.OffloadWasiJobArgs{}}
+		job := OffloadingJob{JobSpec: &pb.OffloadWasiJobRequest{}}
 		err = UnmarshalJobArgs(body, mt, job.JobSpec)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -115,8 +115,10 @@ func DispatchTasks(
 
 	// go through all the *pb.Files and resolve them from storage
 	errs := []error{}
-	errs = append(errs, store.Storage.ResolvePbFile(job.JobSpec.Parent.Binary))
-	errs = append(errs, store.Storage.ResolvePbFile(job.JobSpec.Parent.Rootfs))
+	if job.JobSpec.Parent != nil {
+		errs = append(errs, store.Storage.ResolvePbFile(job.JobSpec.Parent.Binary))
+		errs = append(errs, store.Storage.ResolvePbFile(job.JobSpec.Parent.Rootfs))
+	}
 	for _, task := range job.JobSpec.Tasks {
 		errs = append(errs, store.Storage.ResolvePbFile(task.Binary))
 		errs = append(errs, store.Storage.ResolvePbFile(task.Rootfs))
@@ -135,7 +137,7 @@ func DispatchTasks(
 
 		// create the request+response for remote procedure call
 		response := pb.ExecuteWasiResponse{}
-		request := pb.ExecuteWasiArgs{
+		request := pb.ExecuteWasiRequest{
 			// common task metadata with index counter
 			Info: &pb.TaskMetadata{
 				JobID:  &job.JobID,
@@ -148,7 +150,7 @@ func DispatchTasks(
 
 		// create the async task with the common done channel and queue it for dispatch
 		task := provider.NewAsyncWasiTask(&request, &response, doneChan)
-		pending = append(pending, task)
+		pending[i] = task
 		queue <- task
 	}
 
@@ -173,7 +175,7 @@ func DispatchTasks(
 }
 
 // MARK: Marshal
-func UnmarshalJobArgs(body []byte, mt string, spec *pb.OffloadWasiJobArgs) (err error) {
+func UnmarshalJobArgs(body []byte, mt string, spec *pb.OffloadWasiJobRequest) (err error) {
 
 	// try to decode the body to the expected job spec
 	switch mt {
@@ -259,7 +261,7 @@ func UploadHandler(store *provider.ProviderStore) http.HandlerFunc {
 		name := r.URL.Query().Get("name")
 
 		// insert file in storage
-		addr, err := store.Storage.Insert(name, ft, body)
+		file, err := store.Storage.Insert(name, ft, body)
 		if err != nil {
 			http.Error(w, "inserting file in storage failed", http.StatusInternalServerError)
 			err = fmt.Errorf("inserting in storage failed: %w", err)
@@ -269,7 +271,18 @@ func UploadHandler(store *provider.ProviderStore) http.HandlerFunc {
 		// return the content address to client
 		w.WriteHeader(http.StatusOK)
 		w.Header().Add("content-type", "text/plain")
-		fmt.Fprintln(w, addr)
+		fmt.Fprintln(w, file.Ref())
+
+		// upload the file to all providers asynchronously
+		go func() {
+			store.Range(func(addr string, provider *provider.Provider) bool {
+				if err = provider.Upload(file); err != nil {
+					log.Printf("Upload to %q failed: %s", addr, file.Ref())
+				}
+				return true // iterate whole range, despite errors
+			})
+
+		}()
 
 	}
 }

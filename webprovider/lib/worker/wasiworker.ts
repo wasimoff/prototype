@@ -111,8 +111,8 @@ export class WasiWorker {
       let output: WasiTaskResult = {
         returncode,
         // TODO: decoding is fine for now but generally shouldn't as outputs can be binary
-        stdout: new TextDecoder().decode((<OpenFile>shim.fds[1]).file.data),
-        stderr: new TextDecoder().decode((<OpenFile>shim.fds[2]).file.data),
+        stdout: (<OpenFile>shim.fds[1]).file.data,
+        stderr: (<OpenFile>shim.fds[2]).file.data,
         // TODO: re-add trace
       };
       if (VERBOSE) console.debug(...this.logprefix, "Finished execution:", output);
@@ -200,9 +200,9 @@ export type WasiTaskResult = {
   /** The returned exit code, where `0` usually indicates success. */
   returncode: number,
   /** Standard output, decoded as a string. */
-  stdout: string,
+  stdout: Uint8Array,
   /** Standard error, decoded as a string. */
-  stderr: string,
+  stderr: Uint8Array,
 
   // TODO
   // datafile?: ArrayBuffer,   // the requested datafile contents from filesystem

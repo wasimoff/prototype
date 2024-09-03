@@ -25,6 +25,12 @@ export class InMemoryStorage implements ProviderStorage {
     return files;
   };
 
+  // return files from map as Files
+  async getFile(filename: string) {
+    let buf = this.storage.get(filename);
+    return buf ? new File([buf], filename) : undefined;
+  }
+
   // return files from map directly
   async getBuffer(filename: string) {
     return this.storage.get(filename);

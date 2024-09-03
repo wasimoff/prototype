@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file messages.proto.
  */
 export const file_messages: GenFile = /*@__PURE__*/
-  fileDesc("Cg5tZXNzYWdlcy5wcm90byK5AQoIRW52ZWxvcGUSEAoIc2VxdWVuY2UYASABKAQSIwoEdHlwZRgCIAEoDjIVLkVudmVsb3BlLk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADIksKBFBpbmcSIgoJZGlyZWN0aW9uGAEgASgOMg8uUGluZy5EaXJlY3Rpb24iHwoJRGlyZWN0aW9uEggKBFBpbmcQABIICgRQb25nEAEiSwoPRXhlY3V0ZVdhc2lBcmdzEhsKBGluZm8YASABKAsyDS5UYXNrTWV0YWRhdGESGwoEdGFzaxgCIAEoCzINLldhc2lUYXNrQXJncyJFChNFeGVjdXRlV2FzaVJlc3BvbnNlEg0KBWVycm9yGAEgASgJEh8KBnJlc3VsdBgCIAEoCzIPLldhc2lUYXNrUmVzdWx0IjwKDFRhc2tNZXRhZGF0YRINCgVqb2JJRBgBIAEoCRINCgVpbmRleBgDIAEoBBIOCgZjbGllbnQYAiABKAkiegoMV2FzaVRhc2tBcmdzEhUKBmJpbmFyeRgBIAEoCzIFLkZpbGUSDAoEYXJncxgCIAMoCRIMCgRlbnZzGAMgAygJEg0KBXN0ZGluGAQgASgMEhUKBnJvb3RmcxgFIAEoCzIFLkZpbGUSEQoJYXJ0aWZhY3RzGAYgAygJIloKDldhc2lUYXNrUmVzdWx0Eg4KBnN0YXR1cxgBIAEoBRIOCgZzdGRvdXQYAiABKAwSDgoGc3RkZXJyGAMgASgMEhgKCWFydGlmYWN0cxgEIAEoCzIFLkZpbGUiMAoERmlsZRILCgNyZWYYASABKAkSDQoFbWVkaWEYAiABKAkSDAoEYmxvYhgDIAEoDCIRCg9GaWxlTGlzdGluZ0FyZ3MiJAoTRmlsZUxpc3RpbmdSZXNwb25zZRINCgVmaWxlcxgBIAMoCSIdCg1GaWxlUHJvYmVBcmdzEgwKBGZpbGUYASABKAkiHwoRRmlsZVByb2JlUmVzcG9uc2USCgoCb2sYASABKAgiJwoORmlsZVVwbG9hZEFyZ3MSFQoGdXBsb2FkGAEgASgLMgUuRmlsZSIhChJGaWxlVXBsb2FkUmVzcG9uc2USCwoDZXJyGAEgASgJIiAKEEZpbGVEb3dubG9hZEFyZ3MSDAoEZmlsZRgBIAEoCSI8ChRGaWxlRG93bmxvYWRSZXNwb25zZRIXCghkb3dubG9hZBgBIAEoCzIFLkZpbGUSCwoDZXJyGAIgASgJIh8KDEdlbmVyaWNFdmVudBIPCgdtZXNzYWdlGAEgASgJIjAKDVByb3ZpZGVySGVsbG8SDAoEbmFtZRgBIAEoCRIRCgl1c2VyYWdlbnQYAiABKAkiNwoRUHJvdmlkZXJSZXNvdXJjZXMSEwoLY29uY3VycmVuY3kYASABKA0SDQoFdGFza3MYAiABKA0iIAoLQ2x1c3RlckluZm8SEQoJcHJvdmlkZXJzGAEgASgNIiwKClRocm91Z2hwdXQSDwoHb3ZlcmFsbBgBIAEoAhINCgV5b3VycxgCIAEoAiI9ChBDbGllbnRVcGxvYWRBcmdzEgwKBG5hbWUYASABKAkSDQoFbWVkaWEYAiABKAkSDAoEYm9keRgDIAEoDCIwChRDbGllbnRVcGxvYWRSZXNwb25zZRILCgNyZWYYASABKAkSCwoDZXJyGAIgASgJIlEKEk9mZmxvYWRXYXNpSm9iQXJncxIdCgZwYXJlbnQYASABKAsyDS5XYXNpVGFza0FyZ3MSHAoFdGFza3MYAiADKAsyDS5XYXNpVGFza0FyZ3MiTgoWT2ZmbG9hZFdhc2lKb2JSZXNwb25zZRIPCgdmYWlsdXJlGAEgASgJEiMKBXRhc2tzGAIgAygLMhQuRXhlY3V0ZVdhc2lSZXNwb25zZSpcCgtTdWJwcm90b2NvbBILCgdVTktOT1dOEAASIQodd2FzaW1vZmZfcHJvdmlkZXJfdjFfcHJvdG9idWYQARIdChl3YXNpbW9mZl9wcm92aWRlcl92MV9qc29uEAJiCGVkaXRpb25zcOgH", [file_google_protobuf_any]);
+  fileDesc("Cg5tZXNzYWdlcy5wcm90byK5AQoIRW52ZWxvcGUSEAoIc2VxdWVuY2UYASABKAQSIwoEdHlwZRgCIAEoDjIVLkVudmVsb3BlLk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADIksKBFBpbmcSIgoJZGlyZWN0aW9uGAEgASgOMg8uUGluZy5EaXJlY3Rpb24iHwoJRGlyZWN0aW9uEggKBFBpbmcQABIICgRQb25nEAEiTgoSRXhlY3V0ZVdhc2lSZXF1ZXN0EhsKBGluZm8YASABKAsyDS5UYXNrTWV0YWRhdGESGwoEdGFzaxgCIAEoCzINLldhc2lUYXNrQXJncyJFChNFeGVjdXRlV2FzaVJlc3BvbnNlEg0KBWVycm9yGAEgASgJEh8KBnJlc3VsdBgCIAEoCzIPLldhc2lUYXNrUmVzdWx0IjwKDFRhc2tNZXRhZGF0YRINCgVqb2JJRBgBIAEoCRINCgVpbmRleBgDIAEoBBIOCgZjbGllbnQYAiABKAkiegoMV2FzaVRhc2tBcmdzEhUKBmJpbmFyeRgBIAEoCzIFLkZpbGUSDAoEYXJncxgCIAMoCRIMCgRlbnZzGAMgAygJEg0KBXN0ZGluGAQgASgMEhUKBnJvb3RmcxgFIAEoCzIFLkZpbGUSEQoJYXJ0aWZhY3RzGAYgAygJIloKDldhc2lUYXNrUmVzdWx0Eg4KBnN0YXR1cxgBIAEoBRIOCgZzdGRvdXQYAiABKAwSDgoGc3RkZXJyGAMgASgMEhgKCWFydGlmYWN0cxgEIAEoCzIFLkZpbGUiMAoERmlsZRILCgNyZWYYASABKAkSDQoFbWVkaWEYAiABKAkSDAoEYmxvYhgDIAEoDCIUChJGaWxlTGlzdGluZ1JlcXVlc3QiJAoTRmlsZUxpc3RpbmdSZXNwb25zZRINCgVmaWxlcxgBIAMoCSIgChBGaWxlUHJvYmVSZXF1ZXN0EgwKBGZpbGUYASABKAkiHwoRRmlsZVByb2JlUmVzcG9uc2USCgoCb2sYASABKAgiKgoRRmlsZVVwbG9hZFJlcXVlc3QSFQoGdXBsb2FkGAEgASgLMgUuRmlsZSIhChJGaWxlVXBsb2FkUmVzcG9uc2USCwoDZXJyGAEgASgJIiMKE0ZpbGVEb3dubG9hZFJlcXVlc3QSDAoEZmlsZRgBIAEoCSI8ChRGaWxlRG93bmxvYWRSZXNwb25zZRIXCghkb3dubG9hZBgBIAEoCzIFLkZpbGUSCwoDZXJyGAIgASgJIh8KDEdlbmVyaWNFdmVudBIPCgdtZXNzYWdlGAEgASgJIjAKDVByb3ZpZGVySGVsbG8SDAoEbmFtZRgBIAEoCRIRCgl1c2VyYWdlbnQYAiABKAkiNwoRUHJvdmlkZXJSZXNvdXJjZXMSEwoLY29uY3VycmVuY3kYASABKA0SDQoFdGFza3MYAiABKA0iIAoLQ2x1c3RlckluZm8SEQoJcHJvdmlkZXJzGAEgASgNIiwKClRocm91Z2hwdXQSDwoHb3ZlcmFsbBgBIAEoAhINCgV5b3VycxgCIAEoAiJAChNDbGllbnRVcGxvYWRSZXF1ZXN0EgwKBG5hbWUYASABKAkSDQoFbWVkaWEYAiABKAkSDAoEYm9keRgDIAEoDCIwChRDbGllbnRVcGxvYWRSZXNwb25zZRILCgNyZWYYASABKAkSCwoDZXJyGAIgASgJIlQKFU9mZmxvYWRXYXNpSm9iUmVxdWVzdBIdCgZwYXJlbnQYASABKAsyDS5XYXNpVGFza0FyZ3MSHAoFdGFza3MYAiADKAsyDS5XYXNpVGFza0FyZ3MiTgoWT2ZmbG9hZFdhc2lKb2JSZXNwb25zZRIPCgdmYWlsdXJlGAEgASgJEiMKBXRhc2tzGAIgAygLMhQuRXhlY3V0ZVdhc2lSZXNwb25zZSpcCgtTdWJwcm90b2NvbBILCgdVTktOT1dOEAASIQodd2FzaW1vZmZfcHJvdmlkZXJfdjFfcHJvdG9idWYQARIdChl3YXNpbW9mZl9wcm92aWRlcl92MV9qc29uEAJiCGVkaXRpb25zcOgH", [file_google_protobuf_any]);
 
 /**
  * Envelope is a generic message wrapper with a sequence counter and message type.
@@ -184,9 +184,9 @@ export const Ping_DirectionSchema: GenEnum<Ping_Direction, Ping_DirectionJson> =
 /**
  * ExecuteWasi runs a webassembly/wasi binary on the Provider
  *
- * @generated from message ExecuteWasiArgs
+ * @generated from message ExecuteWasiRequest
  */
-export type ExecuteWasiArgs = Message<"ExecuteWasiArgs"> & {
+export type ExecuteWasiRequest = Message<"ExecuteWasiRequest"> & {
   /**
    * metadata about this task
    *
@@ -203,9 +203,9 @@ export type ExecuteWasiArgs = Message<"ExecuteWasiArgs"> & {
 };
 
 /**
- * JSON type for the message ExecuteWasiArgs.
+ * JSON type for the message ExecuteWasiRequest.
  */
-export type ExecuteWasiArgsJson = {
+export type ExecuteWasiRequestJson = {
   /**
    * @generated from field: TaskMetadata info = 1;
    */
@@ -218,10 +218,10 @@ export type ExecuteWasiArgsJson = {
 };
 
 /**
- * Describes the message ExecuteWasiArgs.
- * Use `create(ExecuteWasiArgsSchema)` to create a new message.
+ * Describes the message ExecuteWasiRequest.
+ * Use `create(ExecuteWasiRequestSchema)` to create a new message.
  */
-export const ExecuteWasiArgsSchema: GenMessage<ExecuteWasiArgs, ExecuteWasiArgsJson> = /*@__PURE__*/
+export const ExecuteWasiRequestSchema: GenMessage<ExecuteWasiRequest, ExecuteWasiRequestJson> = /*@__PURE__*/
   messageDesc(file_messages, 2);
 
 /**
@@ -524,22 +524,22 @@ export const FileSchema: GenMessage<File, FileJson> = /*@__PURE__*/
  *
  * empty
  *
- * @generated from message FileListingArgs
+ * @generated from message FileListingRequest
  */
-export type FileListingArgs = Message<"FileListingArgs"> & {
+export type FileListingRequest = Message<"FileListingRequest"> & {
 };
 
 /**
- * JSON type for the message FileListingArgs.
+ * JSON type for the message FileListingRequest.
  */
-export type FileListingArgsJson = {
+export type FileListingRequestJson = {
 };
 
 /**
- * Describes the message FileListingArgs.
- * Use `create(FileListingArgsSchema)` to create a new message.
+ * Describes the message FileListingRequest.
+ * Use `create(FileListingRequestSchema)` to create a new message.
  */
-export const FileListingArgsSchema: GenMessage<FileListingArgs, FileListingArgsJson> = /*@__PURE__*/
+export const FileListingRequestSchema: GenMessage<FileListingRequest, FileListingRequestJson> = /*@__PURE__*/
   messageDesc(file_messages, 8);
 
 /**
@@ -572,9 +572,9 @@ export const FileListingResponseSchema: GenMessage<FileListingResponse, FileList
 /**
  * FileProbe checks if a certain file exists on provider
  *
- * @generated from message FileProbeArgs
+ * @generated from message FileProbeRequest
  */
-export type FileProbeArgs = Message<"FileProbeArgs"> & {
+export type FileProbeRequest = Message<"FileProbeRequest"> & {
   /**
    * @generated from field: string file = 1;
    */
@@ -582,9 +582,9 @@ export type FileProbeArgs = Message<"FileProbeArgs"> & {
 };
 
 /**
- * JSON type for the message FileProbeArgs.
+ * JSON type for the message FileProbeRequest.
  */
-export type FileProbeArgsJson = {
+export type FileProbeRequestJson = {
   /**
    * @generated from field: string file = 1;
    */
@@ -592,10 +592,10 @@ export type FileProbeArgsJson = {
 };
 
 /**
- * Describes the message FileProbeArgs.
- * Use `create(FileProbeArgsSchema)` to create a new message.
+ * Describes the message FileProbeRequest.
+ * Use `create(FileProbeRequestSchema)` to create a new message.
  */
-export const FileProbeArgsSchema: GenMessage<FileProbeArgs, FileProbeArgsJson> = /*@__PURE__*/
+export const FileProbeRequestSchema: GenMessage<FileProbeRequest, FileProbeRequestJson> = /*@__PURE__*/
   messageDesc(file_messages, 10);
 
 /**
@@ -628,9 +628,9 @@ export const FileProbeResponseSchema: GenMessage<FileProbeResponse, FileProbeRes
 /**
  * FileUpload pushes a file to the Provider.
  *
- * @generated from message FileUploadArgs
+ * @generated from message FileUploadRequest
  */
-export type FileUploadArgs = Message<"FileUploadArgs"> & {
+export type FileUploadRequest = Message<"FileUploadRequest"> & {
   /**
    * @generated from field: File upload = 1;
    */
@@ -638,9 +638,9 @@ export type FileUploadArgs = Message<"FileUploadArgs"> & {
 };
 
 /**
- * JSON type for the message FileUploadArgs.
+ * JSON type for the message FileUploadRequest.
  */
-export type FileUploadArgsJson = {
+export type FileUploadRequestJson = {
   /**
    * @generated from field: File upload = 1;
    */
@@ -648,10 +648,10 @@ export type FileUploadArgsJson = {
 };
 
 /**
- * Describes the message FileUploadArgs.
- * Use `create(FileUploadArgsSchema)` to create a new message.
+ * Describes the message FileUploadRequest.
+ * Use `create(FileUploadRequestSchema)` to create a new message.
  */
-export const FileUploadArgsSchema: GenMessage<FileUploadArgs, FileUploadArgsJson> = /*@__PURE__*/
+export const FileUploadRequestSchema: GenMessage<FileUploadRequest, FileUploadRequestJson> = /*@__PURE__*/
   messageDesc(file_messages, 12);
 
 /**
@@ -684,9 +684,9 @@ export const FileUploadResponseSchema: GenMessage<FileUploadResponse, FileUpload
 /**
  * FileDownload can be sent by the Provider to request a file download.
  *
- * @generated from message FileDownloadArgs
+ * @generated from message FileDownloadRequest
  */
-export type FileDownloadArgs = Message<"FileDownloadArgs"> & {
+export type FileDownloadRequest = Message<"FileDownloadRequest"> & {
   /**
    * @generated from field: string file = 1;
    */
@@ -694,9 +694,9 @@ export type FileDownloadArgs = Message<"FileDownloadArgs"> & {
 };
 
 /**
- * JSON type for the message FileDownloadArgs.
+ * JSON type for the message FileDownloadRequest.
  */
-export type FileDownloadArgsJson = {
+export type FileDownloadRequestJson = {
   /**
    * @generated from field: string file = 1;
    */
@@ -704,10 +704,10 @@ export type FileDownloadArgsJson = {
 };
 
 /**
- * Describes the message FileDownloadArgs.
- * Use `create(FileDownloadArgsSchema)` to create a new message.
+ * Describes the message FileDownloadRequest.
+ * Use `create(FileDownloadRequestSchema)` to create a new message.
  */
-export const FileDownloadArgsSchema: GenMessage<FileDownloadArgs, FileDownloadArgsJson> = /*@__PURE__*/
+export const FileDownloadRequestSchema: GenMessage<FileDownloadRequest, FileDownloadRequestJson> = /*@__PURE__*/
   messageDesc(file_messages, 14);
 
 /**
@@ -941,9 +941,9 @@ export const ThroughputSchema: GenMessage<Throughput, ThroughputJson> = /*@__PUR
  * type in the Contet-Type header and the optional friendly name in a query
  * parameter. So this message type isn't actually used anywhere yet.
  *
- * @generated from message ClientUploadArgs
+ * @generated from message ClientUploadRequest
  */
-export type ClientUploadArgs = Message<"ClientUploadArgs"> & {
+export type ClientUploadRequest = Message<"ClientUploadRequest"> & {
   /**
    * friendly name for lookup
    *
@@ -967,9 +967,9 @@ export type ClientUploadArgs = Message<"ClientUploadArgs"> & {
 };
 
 /**
- * JSON type for the message ClientUploadArgs.
+ * JSON type for the message ClientUploadRequest.
  */
-export type ClientUploadArgsJson = {
+export type ClientUploadRequestJson = {
   /**
    * @generated from field: string name = 1;
    */
@@ -987,10 +987,10 @@ export type ClientUploadArgsJson = {
 };
 
 /**
- * Describes the message ClientUploadArgs.
- * Use `create(ClientUploadArgsSchema)` to create a new message.
+ * Describes the message ClientUploadRequest.
+ * Use `create(ClientUploadRequestSchema)` to create a new message.
  */
-export const ClientUploadArgsSchema: GenMessage<ClientUploadArgs, ClientUploadArgsJson> = /*@__PURE__*/
+export const ClientUploadRequestSchema: GenMessage<ClientUploadRequest, ClientUploadRequestJson> = /*@__PURE__*/
   messageDesc(file_messages, 21);
 
 /**
@@ -1042,9 +1042,9 @@ export const ClientUploadResponseSchema: GenMessage<ClientUploadResponse, Client
  * corresponding field in a task spec. At least one task must always be present,
  * even if just an empty { } with all parameters inherited from the parent.
  *
- * @generated from message OffloadWasiJobArgs
+ * @generated from message OffloadWasiJobRequest
  */
-export type OffloadWasiJobArgs = Message<"OffloadWasiJobArgs"> & {
+export type OffloadWasiJobRequest = Message<"OffloadWasiJobRequest"> & {
   /**
    * inherit common task parameters
    *
@@ -1061,9 +1061,9 @@ export type OffloadWasiJobArgs = Message<"OffloadWasiJobArgs"> & {
 };
 
 /**
- * JSON type for the message OffloadWasiJobArgs.
+ * JSON type for the message OffloadWasiJobRequest.
  */
-export type OffloadWasiJobArgsJson = {
+export type OffloadWasiJobRequestJson = {
   /**
    * @generated from field: WasiTaskArgs parent = 1;
    */
@@ -1076,10 +1076,10 @@ export type OffloadWasiJobArgsJson = {
 };
 
 /**
- * Describes the message OffloadWasiJobArgs.
- * Use `create(OffloadWasiJobArgsSchema)` to create a new message.
+ * Describes the message OffloadWasiJobRequest.
+ * Use `create(OffloadWasiJobRequestSchema)` to create a new message.
  */
-export const OffloadWasiJobArgsSchema: GenMessage<OffloadWasiJobArgs, OffloadWasiJobArgsJson> = /*@__PURE__*/
+export const OffloadWasiJobRequestSchema: GenMessage<OffloadWasiJobRequest, OffloadWasiJobRequestJson> = /*@__PURE__*/
   messageDesc(file_messages, 23);
 
 /**
