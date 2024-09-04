@@ -28,10 +28,25 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
         if (m === undefined) throw "binary not found in storage";
         else wasm = m;
       } else {
-        throw "binary: neither blob nor ref were given";
+        throw new Error("binary: neither blob nor ref were given");
       };
 
-      console.log("WASM TASK:", wasm, task);
+      // get rootfs archive
+      let rootfs: Uint8Array | undefined;
+      if (task.rootfs !== undefined) {
+        if (task.rootfs.blob.length !== 0) {
+          rootfs = task.rootfs.blob;
+        } else if (task.rootfs.ref !== "") {
+          if (this.storage === undefined) throw "cannot access storage yet";
+          let z = await this.storage.getBuffer(task.rootfs.ref);
+          if (z === undefined) throw "zip not found in storage";
+          else rootfs = new Uint8Array(z);
+        } else {
+          throw new Error("rootfs: neither blob nor ref were given");
+        }
+      }
+
+      console.log("%c RPCHandler ", "background: yellow;", task);
 
       // execute the module in a worker
       // TODO: handle task.rootfs and task.artifacts
@@ -40,6 +55,8 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
         argv: task.args,
         envs: task.envs,
         stdin: task.stdin,
+        rootfs: rootfs,
+        artifacts: task.artifacts,
       });
 
       // send back the result
@@ -48,7 +65,7 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
           status: run.returncode,
           stdout: run.stdout,
           stderr: run.stderr,
-          // TODO: artifacts
+          artifacts: run.artifacts ? { blob: run.artifacts } : undefined,
         },
       });
     })();

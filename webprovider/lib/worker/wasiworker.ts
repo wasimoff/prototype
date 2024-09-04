@@ -7,11 +7,13 @@ export {};
 // TODO: use FinalizationRegistry to notify OOM'ed workers (https://github.com/wasimoff/prototype/blob/cf3b222aba5dd218040fcc6b15af425f0f95b35a/webprovider/src/worker/wasmrunner.ts#L52-L54)
 
 import { WASI, File, OpenFile, PreopenDirectory, Fd, strace } from "@bjorn3/browser_wasi_shim";
+import { ZipReader, Uint8ArrayReader, Uint8ArrayWriter, ZipWriter } from "@zip.js/zip.js";
 import { expose, workerReady } from "./comlink.ts";
+import { Inode } from "@bjorn3/browser_wasi_shim";
+import { Directory } from "@bjorn3/browser_wasi_shim";
 
 // be more verbose with the messages
-const VERBOSE = false;
-
+const VERBOSE = true;
 
 /** Web Worker which runs WebAssembly modules with a WASI shim in a quasi threadpool. */
 export class WasiWorker {
@@ -24,7 +26,8 @@ export class WasiWorker {
   private get logprefix() { return [ `%c WasiWorker ${this.index} `, "background: #f03a5f; color: white;" ]; }
 
   // TODO: shim the trace function to not rip out all the statements completely
-  private trace(msg: string) { if (VERBOSE) console.debug(...this.logprefix, msg); };
+  private trace(msg: string) { if (false) console.debug(...this.logprefix, msg); };
+
 
 
   /** Run a WebAssembly module with a WASI shim with commandline arguments, environment
@@ -42,7 +45,7 @@ export class WasiWorker {
       };
 
       // initialize filesystem for shim
-      let files = await this.preopenFilesystem(task.stdin);
+      let fds = await this.preopenFilesystem(task);
       this.trace("worker: filesystem prepared");
 
       // if `wasm` isn't a module yet, we need to compile it
@@ -55,7 +58,7 @@ export class WasiWorker {
       this.trace("worker: wasm module prepared");
 
       // prepare the browser_wasi_shim
-      let shim = new WASI(task.argv, task.envs, files, { debug: false });
+      let shim = new WASI(task.argv, task.envs, fds, { debug: false });
       let syscalls = {
         "wasi_snapshot_preview1": task.strace ? strace(shim.wasiImport, []) : shim.wasiImport,
         "wasi_unstable":          task.strace ? strace(shim.wasiImport, []) : shim.wasiImport,
@@ -115,7 +118,7 @@ export class WasiWorker {
         stderr: (<OpenFile>shim.fds[2]).file.data,
         // TODO: re-add trace
       };
-      if (VERBOSE) console.debug(...this.logprefix, "Finished execution:", output);
+      if (VERBOSE) console.debug(...this.logprefix, "exit code", output.returncode);
       // {
       //   returncode,
       //   stdout: output.stdout, stderr: output.stderr,
@@ -131,6 +134,10 @@ export class WasiWorker {
       // if (verbose && trace) console.info(`Trace of ${id}:`, trace.export());
       // if (verbose) console.info(...this.logprefix, "Task output:", output);
 
+      if (task.artifacts !== undefined) {
+        output.artifacts = await this.compressArtifacts(shim.fds[3] as PreopenDirectory, task.artifacts);
+      };
+
       return output;
 
     } catch (err) {
@@ -141,20 +148,87 @@ export class WasiWorker {
 
 
   /** Prepare the filesystem for WASI shim. */
-  private async preopenFilesystem(stdin: WasiTaskExecution["stdin"]): Promise<Fd[]> {
-    // always encode stdin as buffer
-    if (stdin === undefined || typeof stdin == "string") {
-      stdin = new TextEncoder().encode(stdin);
+  private async preopenFilesystem(task: WasiTaskExecution): Promise<Fd[]> {
+    // extract rootfs or use an empty one
+    let rootfs: PreopenDirectory;
+    if (task.rootfs !== undefined) {
+      rootfs = await this.extractRootfs(task.rootfs);
+    } else {
+      rootfs = new PreopenDirectory(".", new Map());
     };
-    // preopen file descriptors
+    // return file descriptors
     return [
-      new OpenFile(new File(stdin)),
-      // TODO: could use ConsoleStdout.lineBuffered(msg => ...) for live output
+      new OpenFile(new File(task.stdin || [])),
       new OpenFile(new File([])), // stdout
       new OpenFile(new File([])), // stderr
-      new PreopenDirectory(".", new Map()), // TODO
+      rootfs,
     ];
+  };
+
+  /** Extract a ZipReader to a preopened directory for the browser_wasi_shim */
+  private async extractRootfs(archive: Uint8Array): Promise<PreopenDirectory> {
+    const zip = new ZipReader(new Uint8ArrayReader(archive));
+
+    // TODO: can we use create_entry_for_path directly?
+    let root = new Map<string, Inode>();
+    for await (const entry of zip.getEntriesGenerator()) {
+      let pwd = root; // current working dir
+
+      // descend to the corrent node, creating directories along the way
+      if (entry.filename.endsWith("/")) entry.filename = entry.filename.slice(0, -1);
+      const path = entry.filename.split("/");
+      for (const [i, name] of path.entries()) {
+
+        // last path component => set the contents
+        if (i === path.length - 1) {
+          if (entry.directory) {
+            // set an empty directory
+            pwd.set(name, new Directory(new Map()));
+          } else {
+            // get contents and insert a File
+            let bufwriter = new Uint8ArrayWriter();
+            await entry.getData!(bufwriter);
+            pwd.set(name, new File(await bufwriter.getData()));
+          };
+          continue;
+        } else {
+          // create if directory does not exist
+          if (!(pwd.get(name) instanceof Directory)) {
+            pwd.set(name, new Directory(new Map()));
+          };
+          // descend into directory
+          pwd = (pwd.get(name) as Directory).contents;
+        };
+
+      };
+
+    };
+
+    // return nested map as preopened directory
+    return new PreopenDirectory("/", root);
+
+  };
+
+  /** Pack requested artifacts with a ZipWriter to send back. */
+  private async compressArtifacts(dir: PreopenDirectory, artifacts: string[]): Promise<Uint8Array> {
+    let zip = new ZipWriter(new Uint8ArrayWriter());
+
+    // add all requested files
+    await Promise.all(artifacts.map(filename => {
+      // lookup the file in rootfs
+      if (filename.startsWith("/")) filename = filename.slice(1);
+      let { inode_obj: entry } = dir.path_lookup(filename, 0);
+      if (entry instanceof File) {
+        return zip.add(filename, new Uint8ArrayReader(entry.data), { useWebWorkers: false });
+      } else {
+        return zip.add(filename, undefined, { directory: true, useWebWorkers: false });
+      };
+    }));
+
+    // finish the file and return its contents
+    return await zip.close();
   }
+
 
   // private broadcast = new BroadcastChannel("WasiWorkerBroadcast");
   private emit<T extends keyof WasiWorkerMessages>(type: T, payload: WasiWorkerMessages[T]) {
@@ -181,16 +255,20 @@ export type WasiInstance = { exports: { memory: WebAssembly.Memory, _start: () =
 export type WasiTaskExecution = {
 
   /** The WebAssembly executable itself, either precompiled module or a binary source. */
-  wasm: WebAssembly.Module | BufferSource,
+  wasm: WebAssembly.Module | BufferSource;
   /** Commandline arguments. */
-  argv: string[],
+  argv: string[];
   /** Environment variables in a `KEY=value` mapping. */
-  envs: string[],
+  envs: string[];
 
   /** Put something on `stdin`, instead of an empty file. */
-  stdin?: string | ArrayBuffer | Uint8Array,
+  stdin?: Uint8Array;
+  /** Load files for preloaded filesystem from an archive. */
+  rootfs?: Uint8Array;
+  /** Send back an archive with artifacts after successful execution. */
+  artifacts?: string[];
   /** Wrap the WASI imports in `strace` for improved debug visibility. */
-  strace?: boolean,
+  strace?: boolean;
 
 };
 
@@ -204,8 +282,10 @@ export type WasiTaskResult = {
   /** Standard error, decoded as a string. */
   stderr: Uint8Array,
 
-  // TODO
-  // datafile?: ArrayBuffer,   // the requested datafile contents from filesystem
+  /** Packed artifacts that were requested. */
+  artifacts?: Uint8Array;
+
+  // TODO:
   // trace?: ExportedTrace,    // a trace of events with microsecond unix epochs
 
 };

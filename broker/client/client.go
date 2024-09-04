@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"log"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/gabriel-vasile/mimetype"
 	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -124,10 +124,10 @@ func Execute(args, envs []string) {
 }
 
 // parse a result and print the stdout/stderr as strings
-func ParseResult(r *http.Response) {
+func ParseResult(resp *http.Response) {
 
 	// read the full response
-	body, _ := io.ReadAll(r.Body)
+	body, _ := io.ReadAll(resp.Body)
 	response := &pb.OffloadWasiJobResponse{}
 	if err := proto.Unmarshal(body, response); err != nil {
 		log.Println("can't unmarshal response: ", err)
@@ -142,12 +142,24 @@ func ParseResult(r *http.Response) {
 
 	// print task results
 	for i, task := range response.Tasks {
-		fmt.Printf("[task %d]\n%s\n", i, prototext.Format(task.GetResult()))
+		if task.GetError() != "" {
+			fmt.Printf("[task %d FAIL] %s\n", i, task.GetError())
+		} else {
+			r := task.GetResult()
+			fmt.Fprintf(os.Stderr, "[task %d => exit:%d]\n", i, *r.Status)
+			if r.Artifacts != nil {
+				fmt.Fprintf(os.Stderr, "artifact: %s\n", base64.StdEncoding.EncodeToString(r.Artifacts.GetBlob()))
+			}
+			if len(r.GetStderr()) != 0 {
+				fmt.Fprintf(os.Stderr, "\033[31m%s\033[0m\n", string(r.GetStderr()))
+			}
+			fmt.Fprintln(os.Stdout, string(r.GetStdout()))
+		}
 	}
 
 	// non-zero exit on failures
-	if r.StatusCode != http.StatusOK {
-		fmt.Println(r.Status)
+	if resp.StatusCode != http.StatusOK {
+		fmt.Println(resp.Status)
 		os.Exit(1)
 	}
 	os.Exit(0)

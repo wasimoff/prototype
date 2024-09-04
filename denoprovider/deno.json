@@ -5,6 +5,7 @@
     "@bufbuild/protobuf": "npm:@bufbuild/protobuf@^2.0.0",
     "@std/cli": "jsr:@std/cli@^1.0.3",
     "comlink": "npm:comlink@^4.4.1",
-    "lru-cache": "npm:lru-cache@^11.0.0"
+    "lru-cache": "npm:lru-cache@^11.0.0",
+    "@zip.js/zip.js": "jsr:@zip-js/zip-js"
   }
 }

@@ -1,9 +1,9 @@
 {
-  "bin": "hello.wasm",
-  "exec": [{
+  "tasks": [{
+    "binary": { "ref": "hello.wasm" },
+    "rootfs": { "ref": "hello.zip" },
     "envs": [ "DOS=demonstration" ],
-    "args": [ "print_envs", "print_rootfs", "file:hello.txt" ],
-    "loadfs": [ "hello.txt" ]
-  }],
-  "trace": true
+    "args": [ "hello.wasm", "print_envs", "print_rootfs", "file:hello.txt" ],
+    "artifacts": [ "hello.txt" ]
+  }]
 }

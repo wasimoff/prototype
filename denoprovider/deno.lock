@@ -3,6 +3,7 @@
   "packages": {
     "specifiers": {
       "jsr:@std/cli@^1.0.3": "jsr:@std/cli@1.0.3",
+      "jsr:@zip-js/zip-js": "jsr:@zip-js/zip-js@2.7.52",
       "npm:@bjorn3/browser_wasi_shim@^0.3.0": "npm:@bjorn3/browser_wasi_shim@0.3.0",
       "npm:@bufbuild/protobuf@^2.0.0": "npm:@bufbuild/protobuf@2.0.0",
       "npm:comlink@^4.4.1": "npm:comlink@4.4.1",
@@ -11,6 +12,9 @@
     "jsr": {
       "@std/cli@1.0.3": {
         "integrity": "9a0488b5d2e58d29dce106a941eecec7181fae996bf0d2225563f1ca7e4b100c"
+      },
+      "@zip-js/zip-js@2.7.52": {
+        "integrity": "c8d9fd23b1965fdf58071e886b3b8dbd32a68f780ccb60cb256cfc41b4423e32"
       }
     },
     "npm": {
@@ -36,6 +40,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@std/cli@^1.0.3",
+      "jsr:@zip-js/zip-js",
       "npm:@bjorn3/browser_wasi_shim@^0.3.0",
       "npm:@bufbuild/protobuf@^2.0.0",
       "npm:comlink@^4.4.1",

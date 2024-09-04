@@ -16,6 +16,7 @@
     "@bufbuild/protobuf": "^2.0.0",
     "@msgpack/msgpack": "^3.0.0-beta2",
     "@tsconfig/node20": "^20.1.4",
+    "@zip.js/zip.js": "^2.7.52",
     "bulma": "^1.0.1",
     "comlink": "^4.4.1",
     "lru-cache": "^10.0.1",
