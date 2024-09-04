@@ -65,9 +65,3 @@ export type WrappedWorker<Exposed, Metadata extends Object> = {
   worker: Worker,
   link: Remote<Exposed>,
 } & Metadata;
-
-/** A Comlink-wrapped SharedWorker, which also still holds the bare SharedWorker reference. */
-export type WrappedSharedWorker<Exposed, Metadata extends Object> = {
-  worker: SharedWorker,
-  link: Remote<Exposed>,
-} & Metadata;

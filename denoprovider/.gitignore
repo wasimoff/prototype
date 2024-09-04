@@ -1,3 +1,8 @@
+# compiled binaries
+denoprovider
+denoprovider.exe
+wasimoff-provider-*
+
 # Logs
 logs
 *.log

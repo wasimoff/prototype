@@ -41,7 +41,7 @@ provider.messenger?.sendEvent(create(GenericEventSchema, { message: "Hello, Worl
 
 // log received messages
 (async () => {
-  for await (const event of provider.messenger.events) {
+  for await (const event of provider.messenger!.events) {
     if (isMessage(event, GenericEventSchema))
       console.log("Message: " + JSON.stringify(event));
   };
