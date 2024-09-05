@@ -48,26 +48,31 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
 
       console.log("%c RPCHandler ", "background: yellow;", task);
 
-      // execute the module in a worker
-      // TODO: handle task.rootfs and task.artifacts
-      let run = await this.pool.run(taskid, {
-        wasm: wasm,
-        argv: task.args,
-        envs: task.envs,
-        stdin: task.stdin,
-        rootfs: rootfs,
-        artifacts: task.artifacts,
-      });
-
-      // send back the result
-      return create(pb.ExecuteWasiResponseSchema, {
-        result: {
-          status: run.returncode,
-          stdout: run.stdout,
-          stderr: run.stderr,
-          artifacts: run.artifacts ? { blob: run.artifacts } : undefined,
-        },
-      });
+      try {
+        // execute the module in a worker
+        let run = await this.pool.run(taskid, {
+          wasm: wasm,
+          argv: task.args,
+          envs: task.envs,
+          stdin: task.stdin,
+          rootfs: rootfs,
+          artifacts: task.artifacts,
+        });
+        // send back the result
+        return create(pb.ExecuteWasiResponseSchema, {
+          result: {
+            status: run.returncode,
+            stdout: run.stdout,
+            stderr: run.stderr,
+            artifacts: run.artifacts ? { blob: run.artifacts } : undefined,
+          },
+        });
+      } catch (err) {
+        // format exceptions as WasiResponse.Error
+        return create(pb.ExecuteWasiResponseSchema, {
+          error: String(err),
+        });
+      };
     })();
 
     // list files in storage
