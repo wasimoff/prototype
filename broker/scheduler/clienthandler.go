@@ -169,6 +169,9 @@ func DispatchTasks(
 	}
 	for i, task := range pending {
 		jobResponse.Tasks[i] = task.Response
+		if task.Error != nil && task.Response.Error == nil {
+			jobResponse.Tasks[i].Error = proto.String(task.Error.Error())
+		}
 	}
 
 	return jobResponse

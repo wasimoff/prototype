@@ -126,6 +126,7 @@ func Execute(args, envs []string) {
 	task := results[0]
 	if task.GetError() != "" {
 		fmt.Fprintln(os.Stderr, "ERR:", task.GetError())
+		os.Exit(1)
 	} else {
 		r := task.GetResult()
 		if len(r.GetStderr()) != 0 {
