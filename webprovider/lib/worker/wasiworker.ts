@@ -134,7 +134,7 @@ export class WasiWorker {
       // if (verbose && trace) console.info(`Trace of ${id}:`, trace.export());
       // if (verbose) console.info(...this.logprefix, "Task output:", output);
 
-      if (task.artifacts !== undefined) {
+      if (task.artifacts !== undefined && task.artifacts.length > 0) {
         output.artifacts = await this.compressArtifacts(shim.fds[3] as PreopenDirectory, task.artifacts);
       };
 
