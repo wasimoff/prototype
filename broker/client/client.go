@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/base64"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -17,13 +18,51 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-var BROKER = "http://localhost:4080"
+// default URL to use for the brokerUrl
+var brokerUrl = "http://localhost:4080"
+
+const apiPrefix = "/api/broker/v1"
 
 func init() {
 	// get the Broker URL from env
 	if url, ok := os.LookupEnv("BROKER"); ok {
-		BROKER = strings.TrimRight(url, "/")
+		brokerUrl = strings.TrimRight(url, "/")
 	}
+}
+
+func main() {
+
+	// commandline parser
+	flag.StringVar(&brokerUrl, "broker", brokerUrl, "URL to the Broker to use")
+	upload := flag.String("upload", "", "Upload a file (wasm or zip) to the Broker and receive it ref")
+	exec := flag.String("exec", "", "Execute an uploaded binary; separate further app arguments with '--'")
+	run := flag.String("run", "", "Run a prepared JSON job file")
+	flag.Parse()
+
+	switch true {
+
+	// upload a file, optionally take another argument as name alias
+	case *upload != "":
+		alias := flag.Arg(0)
+		UploadFile(*upload, alias)
+
+	// execute an ad-hoc command, as if you were to run it locally
+	case *exec != "":
+		envs := []string{} // TODO: read os.Environ?
+		args := append([]string{*exec}, flag.Args()...)
+		Execute(args, envs)
+
+	// execute a prepared JSON job
+	case *run != "":
+		RunJsonFile(*run)
+
+	// no command specified
+	default:
+		fmt.Fprintln(os.Stderr, "ERR: at least one of -upload, -exec or -run must be used")
+		flag.Usage()
+		os.Exit(2)
+	}
+
 }
 
 // upload a local file to the Broker
@@ -45,7 +84,7 @@ func UploadFile(filename, name string) {
 
 	// upload to the broker
 	resp, err := http.Post(
-		BROKER+"/api/broker/v1/upload?name="+name, mt.String(), bytes.NewBuffer(buf))
+		brokerUrl+apiPrefix+"/upload?name="+name, mt.String(), bytes.NewBuffer(buf))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,51 +92,13 @@ func UploadFile(filename, name string) {
 
 	// print the response and exit depending on statusCode
 	body, _ := io.ReadAll(resp.Body)
-	fmt.Println(string(body))
+	fmt.Print(string(body))
 	if resp.StatusCode != http.StatusOK {
 		fmt.Println(resp.Status)
 		os.Exit(1)
 	}
 	os.Exit(0)
 
-}
-
-// run a prepared job configuration from file
-func RunJSON(config string) {
-
-	// read the file
-	buf, err := os.ReadFile(config)
-	if err != nil {
-		log.Fatal("reading file: ", err)
-	}
-
-	// decode with protojson and report any errors
-	job := &pb.OffloadWasiJobRequest{}
-	if err = protojson.Unmarshal(buf, job); err != nil {
-		log.Fatal("unmarshal job: ", err)
-	}
-
-	RunJob(job)
-}
-
-// run a prepared job configuration from proto message
-func RunJob(job *pb.OffloadWasiJobRequest) {
-
-	// (re)marshal as binary
-	jobpb, err := proto.Marshal(job)
-	if err != nil {
-		log.Fatal("can't remarshal: ", err)
-	}
-
-	// send the request
-	resp, err := http.Post(
-		BROKER+"/api/broker/v1/run", "application/protobuf", bytes.NewBuffer(jobpb))
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	ParseResult(resp)
 }
 
 // execute an ad-hoc command by constructing configuration
@@ -116,32 +117,46 @@ func Execute(args, envs []string) {
 		}},
 	}
 
-	// dump as JSON
+	// dump as JSON and run the job
 	js, _ := protojson.Marshal(job)
-	fmt.Println("-->", string(js))
+	log.Println("run:", string(js))
+	results := RunJob(job)
 
-	RunJob(job)
+	// there should be exactly one result, print it
+	task := results[0]
+	if task.GetError() != "" {
+		fmt.Fprintln(os.Stderr, "ERR:", task.GetError())
+	} else {
+		r := task.GetResult()
+		if len(r.GetStderr()) != 0 {
+			fmt.Fprintf(os.Stderr, "\033[31m%s\033[0m", string(r.GetStderr()))
+		}
+		fmt.Fprint(os.Stdout, string(r.GetStdout()))
+		os.Exit(int(r.GetStatus()))
+	}
+
 }
 
-// parse a result and print the stdout/stderr as strings
-func ParseResult(resp *http.Response) {
+// run a prepared job configuration from file
+func RunJsonFile(config string) {
 
-	// read the full response
-	body, _ := io.ReadAll(resp.Body)
-	response := &pb.OffloadWasiJobResponse{}
-	if err := proto.Unmarshal(body, response); err != nil {
-		log.Println("can't unmarshal response: ", err)
-		fmt.Println(string(body))
-		os.Exit(1)
+	// read the file
+	buf, err := os.ReadFile(config)
+	if err != nil {
+		log.Fatal("reading file: ", err)
 	}
 
-	// print failures
-	if f := response.GetFailure(); f != "" {
-		log.Fatal("job failed: ", f)
+	// decode with protojson and report any errors locally
+	job := &pb.OffloadWasiJobRequest{}
+	if err = protojson.Unmarshal(buf, job); err != nil {
+		log.Fatal("unmarshal job: ", err)
 	}
 
-	// print task results
-	for i, task := range response.Tasks {
+	// run the job
+	results := RunJob(job)
+
+	// print all task results
+	for i, task := range results {
 		if task.GetError() != "" {
 			fmt.Printf("[task %d FAIL] %s\n", i, task.GetError())
 		} else {
@@ -157,55 +172,45 @@ func ParseResult(resp *http.Response) {
 		}
 	}
 
-	// non-zero exit on failures
-	if resp.StatusCode != http.StatusOK {
-		fmt.Println(resp.Status)
-		os.Exit(1)
-	}
-	os.Exit(0)
-
 }
 
-func main() {
+// run a prepared job configuration from proto message
+func RunJob(job *pb.OffloadWasiJobRequest) []*pb.ExecuteWasiResponse {
 
-	usage := fmt.Sprintf(
-		"usage: %s { run config.json, exec args[], upload app.wasm }",
-		path.Base(os.Args[0]))
-	if len(os.Args) < 2 {
-		fmt.Println(usage)
-		os.Exit(1)
+	// (re)marshal as binary
+	jobpb, err := proto.Marshal(job)
+	if err != nil {
+		log.Fatal("can't remarshal: ", err)
 	}
-	command := os.Args[1]
-	switch command {
 
-	case "upload":
-		if len(os.Args) < 3 {
-			log.Fatal("filename required")
-		}
-		filename := os.Args[2]
-		name := ""
-		if len(os.Args) > 3 {
-			name = os.Args[3]
-		}
-		UploadFile(filename, name)
+	// send the request
+	resp, err := http.Post(
+		brokerUrl+apiPrefix+"/run", "application/protobuf", bytes.NewBuffer(jobpb))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
 
-	case "run":
-		if len(os.Args) < 3 {
-			log.Fatal("run configuration required")
-		}
-		config := os.Args[2]
-		RunJSON(config)
-
-	case "exec":
-		if len(os.Args) < 3 {
-			log.Fatal("first argument is the binary")
-		}
-		Execute(os.Args[2:], []string{})
-
-	default:
-		fmt.Printf("unknown command: %q\n", command)
-		fmt.Println(usage)
+	// wait and read the full response
+	body, _ := io.ReadAll(resp.Body)
+	response := &pb.OffloadWasiJobResponse{}
+	if err := proto.Unmarshal(body, response); err != nil {
+		log.Println("can't unmarshal response: ", err)
+		fmt.Fprintln(os.Stderr, string(body))
 		os.Exit(1)
 	}
 
+	// print error if HTTP status isn't OK
+	if resp.StatusCode != http.StatusOK {
+		log.Print("http error:", resp.Status)
+		fmt.Fprintln(os.Stderr, string(body))
+		os.Exit(1)
+	}
+
+	// print overall failures
+	if f := response.GetFailure(); f != "" {
+		log.Fatal("job failed: ", f)
+	}
+
+	return response.Tasks
 }
