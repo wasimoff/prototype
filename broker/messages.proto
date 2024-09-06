@@ -143,7 +143,7 @@ message FileDownloadResponse {
 }
 
 
-// ---> events, sent by Provider
+// ---> event messages
 
 // Generic is just a generic piece of text for debugging
 message GenericEvent {
@@ -171,6 +171,12 @@ message ClusterInfo {
 message Throughput {
   float overall = 1; // current overall tasks/s throughput
   float yours = 2; // your contribution (identified by name)
+}
+
+// CancelTask tells the Provider that it can terminate a task
+message CancelTask {
+  TaskMetadata info = 1;
+  string reason = 2;
 }
 
 

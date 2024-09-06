@@ -21,11 +21,11 @@ func printdbg(format string, v ...any) {
 // ----- execute -----
 
 // run is the internal detail, which executes a WASI binary on the Provider without semaphore guards
-func (p *Provider) run(args *pb.ExecuteWasiRequest, result *pb.ExecuteWasiResponse) (err error) {
+func (p *Provider) run(ctx context.Context, args *pb.ExecuteWasiRequest, result *pb.ExecuteWasiResponse) (err error) {
 	addr := p.Get(Address)
 	task := args.Info.TaskID()
 	printdbg("scheduled >> %s >> %s", task, addr)
-	if err := p.messenger.RequestSync(context.TODO(), args, result); err != nil {
+	if err := p.messenger.RequestSync(ctx, args, result); err != nil {
 		printdbg("ERROR!    << %s << %s", task, addr)
 		return fmt.Errorf("provider.run failed: %w", err)
 	}
@@ -34,19 +34,19 @@ func (p *Provider) run(args *pb.ExecuteWasiRequest, result *pb.ExecuteWasiRespon
 }
 
 // Run will run a task on a Provider synchronously, respecting limiter.
-func (p *Provider) Run(args *pb.ExecuteWasiRequest, result *pb.ExecuteWasiResponse) error {
+func (p *Provider) Run(ctx context.Context, args *pb.ExecuteWasiRequest, result *pb.ExecuteWasiResponse) error {
 	p.limiter.Acquire(context.TODO(), 1)
 	defer p.limiter.Release(1)
-	return p.run(args, result)
+	return p.run(ctx, args, result)
 }
 
 // TryRun will attempt to run a task on the Provider but fails when there is no capacity.
-func (p *Provider) TryRun(args *pb.ExecuteWasiRequest, result *pb.ExecuteWasiResponse) error {
+func (p *Provider) TryRun(ctx context.Context, args *pb.ExecuteWasiRequest, result *pb.ExecuteWasiResponse) error {
 	if ok := p.limiter.TryAcquire(1); !ok {
 		return fmt.Errorf("no free capacity")
 	}
 	defer p.limiter.Release(1)
-	return p.run(args, result)
+	return p.run(ctx, args, result)
 }
 
 // ----- filesystem -----

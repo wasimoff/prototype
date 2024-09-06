@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file messages.proto.
  */
 export const file_messages: GenFile = /*@__PURE__*/
-  fileDesc("Cg5tZXNzYWdlcy5wcm90byK5AQoIRW52ZWxvcGUSEAoIc2VxdWVuY2UYASABKAQSIwoEdHlwZRgCIAEoDjIVLkVudmVsb3BlLk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADIksKBFBpbmcSIgoJZGlyZWN0aW9uGAEgASgOMg8uUGluZy5EaXJlY3Rpb24iHwoJRGlyZWN0aW9uEggKBFBpbmcQABIICgRQb25nEAEiTgoSRXhlY3V0ZVdhc2lSZXF1ZXN0EhsKBGluZm8YASABKAsyDS5UYXNrTWV0YWRhdGESGwoEdGFzaxgCIAEoCzINLldhc2lUYXNrQXJncyJFChNFeGVjdXRlV2FzaVJlc3BvbnNlEg0KBWVycm9yGAEgASgJEh8KBnJlc3VsdBgCIAEoCzIPLldhc2lUYXNrUmVzdWx0IjwKDFRhc2tNZXRhZGF0YRINCgVqb2JJRBgBIAEoCRINCgVpbmRleBgDIAEoBBIOCgZjbGllbnQYAiABKAkiegoMV2FzaVRhc2tBcmdzEhUKBmJpbmFyeRgBIAEoCzIFLkZpbGUSDAoEYXJncxgCIAMoCRIMCgRlbnZzGAMgAygJEg0KBXN0ZGluGAQgASgMEhUKBnJvb3RmcxgFIAEoCzIFLkZpbGUSEQoJYXJ0aWZhY3RzGAYgAygJIloKDldhc2lUYXNrUmVzdWx0Eg4KBnN0YXR1cxgBIAEoBRIOCgZzdGRvdXQYAiABKAwSDgoGc3RkZXJyGAMgASgMEhgKCWFydGlmYWN0cxgEIAEoCzIFLkZpbGUiMAoERmlsZRILCgNyZWYYASABKAkSDQoFbWVkaWEYAiABKAkSDAoEYmxvYhgDIAEoDCIUChJGaWxlTGlzdGluZ1JlcXVlc3QiJAoTRmlsZUxpc3RpbmdSZXNwb25zZRINCgVmaWxlcxgBIAMoCSIgChBGaWxlUHJvYmVSZXF1ZXN0EgwKBGZpbGUYASABKAkiHwoRRmlsZVByb2JlUmVzcG9uc2USCgoCb2sYASABKAgiKgoRRmlsZVVwbG9hZFJlcXVlc3QSFQoGdXBsb2FkGAEgASgLMgUuRmlsZSIhChJGaWxlVXBsb2FkUmVzcG9uc2USCwoDZXJyGAEgASgJIiMKE0ZpbGVEb3dubG9hZFJlcXVlc3QSDAoEZmlsZRgBIAEoCSI8ChRGaWxlRG93bmxvYWRSZXNwb25zZRIXCghkb3dubG9hZBgBIAEoCzIFLkZpbGUSCwoDZXJyGAIgASgJIh8KDEdlbmVyaWNFdmVudBIPCgdtZXNzYWdlGAEgASgJIjAKDVByb3ZpZGVySGVsbG8SDAoEbmFtZRgBIAEoCRIRCgl1c2VyYWdlbnQYAiABKAkiNwoRUHJvdmlkZXJSZXNvdXJjZXMSEwoLY29uY3VycmVuY3kYASABKA0SDQoFdGFza3MYAiABKA0iIAoLQ2x1c3RlckluZm8SEQoJcHJvdmlkZXJzGAEgASgNIiwKClRocm91Z2hwdXQSDwoHb3ZlcmFsbBgBIAEoAhINCgV5b3VycxgCIAEoAiJAChNDbGllbnRVcGxvYWRSZXF1ZXN0EgwKBG5hbWUYASABKAkSDQoFbWVkaWEYAiABKAkSDAoEYm9keRgDIAEoDCIwChRDbGllbnRVcGxvYWRSZXNwb25zZRILCgNyZWYYASABKAkSCwoDZXJyGAIgASgJIlQKFU9mZmxvYWRXYXNpSm9iUmVxdWVzdBIdCgZwYXJlbnQYASABKAsyDS5XYXNpVGFza0FyZ3MSHAoFdGFza3MYAiADKAsyDS5XYXNpVGFza0FyZ3MiTgoWT2ZmbG9hZFdhc2lKb2JSZXNwb25zZRIPCgdmYWlsdXJlGAEgASgJEiMKBXRhc2tzGAIgAygLMhQuRXhlY3V0ZVdhc2lSZXNwb25zZSpcCgtTdWJwcm90b2NvbBILCgdVTktOT1dOEAASIQodd2FzaW1vZmZfcHJvdmlkZXJfdjFfcHJvdG9idWYQARIdChl3YXNpbW9mZl9wcm92aWRlcl92MV9qc29uEAJiCGVkaXRpb25zcOgH", [file_google_protobuf_any]);
+  fileDesc("Cg5tZXNzYWdlcy5wcm90byK5AQoIRW52ZWxvcGUSEAoIc2VxdWVuY2UYASABKAQSIwoEdHlwZRgCIAEoDjIVLkVudmVsb3BlLk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADIksKBFBpbmcSIgoJZGlyZWN0aW9uGAEgASgOMg8uUGluZy5EaXJlY3Rpb24iHwoJRGlyZWN0aW9uEggKBFBpbmcQABIICgRQb25nEAEiTgoSRXhlY3V0ZVdhc2lSZXF1ZXN0EhsKBGluZm8YASABKAsyDS5UYXNrTWV0YWRhdGESGwoEdGFzaxgCIAEoCzINLldhc2lUYXNrQXJncyJFChNFeGVjdXRlV2FzaVJlc3BvbnNlEg0KBWVycm9yGAEgASgJEh8KBnJlc3VsdBgCIAEoCzIPLldhc2lUYXNrUmVzdWx0IjwKDFRhc2tNZXRhZGF0YRINCgVqb2JJRBgBIAEoCRINCgVpbmRleBgDIAEoBBIOCgZjbGllbnQYAiABKAkiegoMV2FzaVRhc2tBcmdzEhUKBmJpbmFyeRgBIAEoCzIFLkZpbGUSDAoEYXJncxgCIAMoCRIMCgRlbnZzGAMgAygJEg0KBXN0ZGluGAQgASgMEhUKBnJvb3RmcxgFIAEoCzIFLkZpbGUSEQoJYXJ0aWZhY3RzGAYgAygJIloKDldhc2lUYXNrUmVzdWx0Eg4KBnN0YXR1cxgBIAEoBRIOCgZzdGRvdXQYAiABKAwSDgoGc3RkZXJyGAMgASgMEhgKCWFydGlmYWN0cxgEIAEoCzIFLkZpbGUiMAoERmlsZRILCgNyZWYYASABKAkSDQoFbWVkaWEYAiABKAkSDAoEYmxvYhgDIAEoDCIUChJGaWxlTGlzdGluZ1JlcXVlc3QiJAoTRmlsZUxpc3RpbmdSZXNwb25zZRINCgVmaWxlcxgBIAMoCSIgChBGaWxlUHJvYmVSZXF1ZXN0EgwKBGZpbGUYASABKAkiHwoRRmlsZVByb2JlUmVzcG9uc2USCgoCb2sYASABKAgiKgoRRmlsZVVwbG9hZFJlcXVlc3QSFQoGdXBsb2FkGAEgASgLMgUuRmlsZSIhChJGaWxlVXBsb2FkUmVzcG9uc2USCwoDZXJyGAEgASgJIiMKE0ZpbGVEb3dubG9hZFJlcXVlc3QSDAoEZmlsZRgBIAEoCSI8ChRGaWxlRG93bmxvYWRSZXNwb25zZRIXCghkb3dubG9hZBgBIAEoCzIFLkZpbGUSCwoDZXJyGAIgASgJIh8KDEdlbmVyaWNFdmVudBIPCgdtZXNzYWdlGAEgASgJIjAKDVByb3ZpZGVySGVsbG8SDAoEbmFtZRgBIAEoCRIRCgl1c2VyYWdlbnQYAiABKAkiNwoRUHJvdmlkZXJSZXNvdXJjZXMSEwoLY29uY3VycmVuY3kYASABKA0SDQoFdGFza3MYAiABKA0iIAoLQ2x1c3RlckluZm8SEQoJcHJvdmlkZXJzGAEgASgNIiwKClRocm91Z2hwdXQSDwoHb3ZlcmFsbBgBIAEoAhINCgV5b3VycxgCIAEoAiI5CgpDYW5jZWxUYXNrEhsKBGluZm8YASABKAsyDS5UYXNrTWV0YWRhdGESDgoGcmVhc29uGAIgASgJIkAKE0NsaWVudFVwbG9hZFJlcXVlc3QSDAoEbmFtZRgBIAEoCRINCgVtZWRpYRgCIAEoCRIMCgRib2R5GAMgASgMIjAKFENsaWVudFVwbG9hZFJlc3BvbnNlEgsKA3JlZhgBIAEoCRILCgNlcnIYAiABKAkiVAoVT2ZmbG9hZFdhc2lKb2JSZXF1ZXN0Eh0KBnBhcmVudBgBIAEoCzINLldhc2lUYXNrQXJncxIcCgV0YXNrcxgCIAMoCzINLldhc2lUYXNrQXJncyJOChZPZmZsb2FkV2FzaUpvYlJlc3BvbnNlEg8KB2ZhaWx1cmUYASABKAkSIwoFdGFza3MYAiADKAsyFC5FeGVjdXRlV2FzaVJlc3BvbnNlKlwKC1N1YnByb3RvY29sEgsKB1VOS05PV04QABIhCh13YXNpbW9mZl9wcm92aWRlcl92MV9wcm90b2J1ZhABEh0KGXdhc2ltb2ZmX3Byb3ZpZGVyX3YxX2pzb24QAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_any]);
 
 /**
  * Envelope is a generic message wrapper with a sequence counter and message type.
@@ -937,6 +937,45 @@ export const ThroughputSchema: GenMessage<Throughput, ThroughputJson> = /*@__PUR
   messageDesc(file_messages, 20);
 
 /**
+ * CancelTask tells the Provider that it can terminate a task
+ *
+ * @generated from message CancelTask
+ */
+export type CancelTask = Message<"CancelTask"> & {
+  /**
+   * @generated from field: TaskMetadata info = 1;
+   */
+  info?: TaskMetadata;
+
+  /**
+   * @generated from field: string reason = 2;
+   */
+  reason: string;
+};
+
+/**
+ * JSON type for the message CancelTask.
+ */
+export type CancelTaskJson = {
+  /**
+   * @generated from field: TaskMetadata info = 1;
+   */
+  info?: TaskMetadataJson;
+
+  /**
+   * @generated from field: string reason = 2;
+   */
+  reason?: string;
+};
+
+/**
+ * Describes the message CancelTask.
+ * Use `create(CancelTaskSchema)` to create a new message.
+ */
+export const CancelTaskSchema: GenMessage<CancelTask, CancelTaskJson> = /*@__PURE__*/
+  messageDesc(file_messages, 21);
+
+/**
  * The client upload is a POST request with the binary data as the body, media
  * type in the Contet-Type header and the optional friendly name in a query
  * parameter. So this message type isn't actually used anywhere yet.
@@ -991,7 +1030,7 @@ export type ClientUploadRequestJson = {
  * Use `create(ClientUploadRequestSchema)` to create a new message.
  */
 export const ClientUploadRequestSchema: GenMessage<ClientUploadRequest, ClientUploadRequestJson> = /*@__PURE__*/
-  messageDesc(file_messages, 21);
+  messageDesc(file_messages, 22);
 
 /**
  * @generated from message ClientUploadResponse
@@ -1032,7 +1071,7 @@ export type ClientUploadResponseJson = {
  * Use `create(ClientUploadResponseSchema)` to create a new message.
  */
 export const ClientUploadResponseSchema: GenMessage<ClientUploadResponse, ClientUploadResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 22);
+  messageDesc(file_messages, 23);
 
 /**
  * An offloading request specifies a list of WasiTaskArgs, each possibly
@@ -1080,7 +1119,7 @@ export type OffloadWasiJobRequestJson = {
  * Use `create(OffloadWasiJobRequestSchema)` to create a new message.
  */
 export const OffloadWasiJobRequestSchema: GenMessage<OffloadWasiJobRequest, OffloadWasiJobRequestJson> = /*@__PURE__*/
-  messageDesc(file_messages, 23);
+  messageDesc(file_messages, 24);
 
 /**
  * @generated from message OffloadWasiJobResponse
@@ -1121,7 +1160,7 @@ export type OffloadWasiJobResponseJson = {
  * Use `create(OffloadWasiJobResponseSchema)` to create a new message.
  */
 export const OffloadWasiJobResponseSchema: GenMessage<OffloadWasiJobResponse, OffloadWasiJobResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 24);
+  messageDesc(file_messages, 25);
 
 /**
  * Subprotocol is used to identify the concrete encoding on the wire.

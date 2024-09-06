@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"sync"
@@ -9,6 +10,7 @@ import (
 	"wasimoff/broker/net/transport"
 
 	"github.com/marusama/semaphore/v2"
+	"google.golang.org/protobuf/proto"
 )
 
 // Provider is a single connection initiated by a computing provider
@@ -110,27 +112,36 @@ func (p *Provider) CurrentLimit() int {
 // can be submitted to a Provider's Submit() channel.
 // TODO: add additional context information about task requirements here
 type AsyncWasiTask struct {
+	Context  context.Context
 	Args     *pb.ExecuteWasiRequest  // arguments to the call
 	Response *pb.ExecuteWasiResponse // response from the Provider
 	Error    error                   // error encountered during scheduling or RPC
-	Done     chan *AsyncWasiTask     // receives itself when request completes
+	done     chan *AsyncWasiTask     // receives itself when request completes
 }
 
 // NewAsyncWasiTask creates a new call struct for a scheduler
-func NewAsyncWasiTask(args *pb.ExecuteWasiRequest, res *pb.ExecuteWasiResponse, done chan *AsyncWasiTask) *AsyncWasiTask {
+func NewAsyncWasiTask(
+	ctx context.Context,
+	args *pb.ExecuteWasiRequest,
+	res *pb.ExecuteWasiResponse,
+	done chan *AsyncWasiTask,
+) *AsyncWasiTask {
 	if done == nil {
 		done = make(chan *AsyncWasiTask, 1)
 	}
 	if cap(done) == 0 {
-		log.Panic("done channel is unbuffered")
+		log.Panic("wasiTask: done channel is unbuffered")
 	}
-	return &AsyncWasiTask{args, res, nil, done}
+	if ctx == nil {
+		log.Panic("wasiTask: context is nil")
+	}
+	return &AsyncWasiTask{ctx, args, res, nil, done}
 }
 
-// Signal signals on the channel that this call is complete
-func (t *AsyncWasiTask) Signal() *AsyncWasiTask {
+// Done signals on the channel that this call is complete
+func (t *AsyncWasiTask) Done() *AsyncWasiTask {
 	select {
-	case t.Done <- t: // ok
+	case t.done <- t: // ok
 	default: // never block here
 		log.Printf("WARN: AsyncWasiTask %s was blocked when signalling Done", t.Args.Info.TaskID())
 	}
@@ -168,13 +179,20 @@ func (p *Provider) acceptTasks() (err error) {
 		// receive call details from channel
 		case call := <-p.Submit:
 			// the Done channel MUST NEVER be nil
-			if call.Done == nil {
+			if call.done == nil {
 				panic("call.Done is nil, nobody is listening for this result")
 			}
 			// the Request and Result most not be nil
 			if call.Args == nil || call.Response == nil {
 				call.Error = fmt.Errorf("call.Request and call.Result must not be nil")
-				call.Signal()
+				call.Done()
+				p.limiter.Release(1)
+				continue
+			}
+			// the context is already cancelled
+			if call.Context.Err() != nil {
+				call.Error = call.Context.Err()
+				call.Done()
 				p.limiter.Release(1)
 				continue
 			}
@@ -182,8 +200,16 @@ func (p *Provider) acceptTasks() (err error) {
 			// run the Request in a goroutine asynchronously
 			// TODO: avoid gofunc by using a second listener on a `chan *PendingCall`
 			go func() {
-				call.Error = p.run(call.Args, call.Response)
-				call.Signal()
+				call.Error = p.run(call.Context, call.Args, call.Response)
+				// send cancellation event if error is due to context
+				// TODO: semaphore is released before worker is definitely terminated
+				if errors.Is(call.Error, context.Canceled) {
+					p.messenger.SendEvent(p.lifetime.Context, &pb.CancelTask{
+						Info:   call.Args.Info,
+						Reason: proto.String(context.Canceled.Error()),
+					})
+				}
+				call.Done()
 				p.limiter.Release(1)
 			}()
 

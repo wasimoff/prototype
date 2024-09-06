@@ -1,5 +1,5 @@
-import { type Remote, construct, releaseProxy, type WrappedWorker } from "./comlink.ts";
-import type { WasiWorker, WasiTaskExecution } from "./wasiworker.ts";
+import { construct, releaseProxy, type WrappedWorker } from "./comlink.ts";
+import { type WasiWorker, type WasiTaskExecution, WasiTaskResult } from "./wasiworker.ts";
 import { Queue } from "@wasimoff/func/queue.ts";
 
 // colorful console logging prefix
@@ -14,7 +14,13 @@ export class WasiWorkerPool {
   ) { };
 
   // hold the Workers in an array
-  private pool: WrappedWorker<WasiWorker, { index: number, busy: boolean }>[] = [];
+  private pool: WrappedWorker<WasiWorker, {
+    index: number,
+    busy: boolean,
+    taskid?: string,
+    cancelled?: boolean,
+    reject?: () => void,
+  }>[] = [];
   private nextindex = 0;
 
   /** Get the number of Workers currently in the pool. */
@@ -113,16 +119,35 @@ export class WasiWorkerPool {
     return this.length;
   };
 
+  /** Cancel a running task. There's not really any good way of stopping an
+   * execution once the WebAssembly module is started, so just terminate and
+   * respawn the worker. */
+  async cancel(taskid: string) {
+    // find a worker executing this task id
+    let w = this.pool.find(w => w.taskid === taskid);
+    if (w !== undefined) {
+      w.cancelled = true;
+      console.warn(...logprefix, `cancel and respawn worker ${w.index}`);
+      // terminate and remove from pool
+      this.pool.splice(this.pool.findIndex(el => el === w), 1);
+      w.link[releaseProxy]();
+      w.worker.terminate();
+      w.reject?.();
+      // and respawn
+      await this.spawn();
+    };
+  }
+
 
   // --------->  send tasks to workers
 
-  /** The `exec` method tries to get a free (~ non computing) worker from
-   * the pool and executes a `task` on it. The `next` function is called
+  /** The `run` method tries to get a free (~ non computing) worker from
+   * the pool and executes a Wasi task on it. The `next` function is called
    * when a worker has been taken from the queue and before execution begins.
    * Afterwards, the method makes sure to put the worker back into the queue,
    * so *don't* keep any references to it around! The result of the computation
    * is finally returned to the caller in a Promise. */
-  private async exec <Result>(task: (worker: Remote<WasiWorker>) => Promise<Result>, next?: () => void) {
+  async run(taskid: string, task: WasiTaskExecution, next?: () => void) {
 
     // exit early if pool is empty
     if (this.length === 0) throw new Error("no workers in pool");
@@ -130,28 +155,24 @@ export class WasiWorkerPool {
     // take an idle worker from the queue
     const worker = await this.queue.get(); next?.();
     worker.busy = true;
+    worker.taskid = taskid;
 
     // try to execute the task and put worker back into queue
     try {
-      return await task(worker.link);
+      // promise can be rejected if the task is cancelled
+      return await new Promise<WasiTaskResult>((resolve, reject) => {
+        worker.reject = reject;
+        worker.link.run(taskid, task).then(resolve);
+      });
     } finally {
-      worker.busy = false;
-      await this.queue.put(worker);
+      // don't requeue if it's terminated
+      if (worker.cancelled !== true) {
+        worker.busy = false;
+        worker.taskid = undefined;
+        await this.queue.put(worker);
+      };
     };
 
-  };
-
-  /** More limited form of `exec`, which only runs `WasmWorker.run` tasks. */
-  async run(taskid: string, task: WasiTaskExecution, next?: () => void) {
-    // if (this.fs === undefined) throw "oops, too fast";
-    // if (typeof task.wasm === "string") {
-    //   let mod = await this.fs.getWasmModule(task.wasm);
-    //   if (mod === undefined) throw "module not found";
-    //   task.argv = [ task.wasm, ...task.argv ];
-    //   task.wasm = mod;
-    // }
-    // console.log("WORKERPOOL run()", id, task.wasm);
-    return this.exec(w => w.run(taskid, task), next);
   };
 
   // TODO: this was used to benchmark main thread vs workers

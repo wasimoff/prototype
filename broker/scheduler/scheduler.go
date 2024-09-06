@@ -28,7 +28,7 @@ func Dispatcher(selector Scheduler, queue chan *provider.AsyncWasiTask) {
 			if err != nil {
 				// TODO: retry task depending on error here
 				task.Error = err
-				task.Signal()
+				task.Done()
 				return
 			}
 

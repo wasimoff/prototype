@@ -3,6 +3,7 @@ package scheduler
 // TODO: check out https://blog.questionable.services/article/http-handler-error-handling-revisited/
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -88,17 +89,19 @@ func ExecHandler(store *provider.ProviderStore, selector Scheduler) http.Handler
 			job.JobID, job.ClientAddr, len(job.JobSpec.Tasks))
 
 		// compute all the tasks of a request
-		results := DispatchTasks(store, &job, queue)
-		// for i, task := range tasks {
-		// 	log.Printf("task[%d]: %v, result: %v", i, task, task.Result)
-		// }
+		results := DispatchTasks(r.Context(), store, &job, queue)
 
-		// send the result back
-		if results.GetFailure() != "" {
-			// set an error code, if there's an error; we don't want a "200 Failed Successfully"
-			w.WriteHeader(http.StatusFailedDependency)
+		// send the result back, if not canceled
+		if cerr := r.Context().Err(); cerr != nil {
+			log.Printf("OffloadingJob [%s] from %q: canceled!", job.JobID, r.RemoteAddr)
+			http.Error(w, "request canceled", http.StatusRequestTimeout)
+		} else {
+			if results.GetFailure() != "" {
+				// set an error code, if there's an error; we don't want a "200 Failed Successfully"
+				w.WriteHeader(http.StatusFailedDependency)
+			}
+			err = MarshalJobResponse(w, mt, results)
 		}
-		err = MarshalJobResponse(w, mt, results)
 	}
 }
 
@@ -108,6 +111,7 @@ func ExecHandler(store *provider.ProviderStore, selector Scheduler) http.Handler
 // TODO: accept a Context, so pending tasks can be cancelled from ExecHandler
 // MARK: Dispat.
 func DispatchTasks(
+	ctx context.Context,
 	store *provider.ProviderStore,
 	job *OffloadingJob,
 	queue chan *provider.AsyncWasiTask,
@@ -149,7 +153,7 @@ func DispatchTasks(
 		}
 
 		// create the async task with the common done channel and queue it for dispatch
-		task := provider.NewAsyncWasiTask(&request, &response, doneChan)
+		task := provider.NewAsyncWasiTask(ctx, &request, &response, doneChan)
 		pending[i] = task
 		queue <- task
 	}
