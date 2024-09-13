@@ -21,7 +21,11 @@ import (
 // default URL to use for the brokerUrl
 var brokerUrl = "http://localhost:4080"
 
+// this is currently the prefix for all client routes
 const apiPrefix = "/api/broker/v1"
+
+// be more verbose
+var verbose bool
 
 func init() {
 	// get the Broker URL from env
@@ -37,6 +41,7 @@ func main() {
 	upload := flag.String("upload", "", "Upload a file (wasm or zip) to the Broker and receive it ref")
 	exec := flag.String("exec", "", "Execute an uploaded binary; separate further app arguments with '--'")
 	run := flag.String("run", "", "Run a prepared JSON job file")
+	flag.BoolVar(&verbose, "verbose", false, "Be more verbose and print raw messages for -exec")
 	flag.Parse()
 
 	switch true {
@@ -92,9 +97,9 @@ func UploadFile(filename, name string) {
 
 	// print the response and exit depending on statusCode
 	body, _ := io.ReadAll(resp.Body)
-	fmt.Print(string(body))
+	fmt.Fprint(os.Stdout, string(body))
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println(resp.Status)
+		fmt.Fprintln(os.Stderr, resp.Status)
 		os.Exit(1)
 	}
 	os.Exit(0)
@@ -118,8 +123,10 @@ func Execute(args, envs []string) {
 	}
 
 	// dump as JSON and run the job
-	js, _ := protojson.Marshal(job)
-	log.Println("run:", string(js))
+	if verbose {
+		js, _ := protojson.Marshal(job)
+		log.Println("run:", string(js))
+	}
 	results := RunJob(job)
 
 	// there should be exactly one result, print it
@@ -129,6 +136,10 @@ func Execute(args, envs []string) {
 		os.Exit(1)
 	} else {
 		r := task.GetResult()
+		if verbose {
+			js, _ := protojson.Marshal(r)
+			log.Println("result:", string(js))
+		}
 		if len(r.GetStderr()) != 0 {
 			fmt.Fprintf(os.Stderr, "\033[31m%s\033[0m", string(r.GetStderr()))
 		}
@@ -159,7 +170,7 @@ func RunJsonFile(config string) {
 	// print all task results
 	for i, task := range results {
 		if task.GetError() != "" {
-			fmt.Printf("[task %d FAIL] %s\n", i, task.GetError())
+			fmt.Fprintf(os.Stderr, "[task %d FAIL] %s\n", i, task.GetError())
 		} else {
 			r := task.GetResult()
 			fmt.Fprintf(os.Stderr, "[task %d => exit:%d]\n", i, *r.Status)

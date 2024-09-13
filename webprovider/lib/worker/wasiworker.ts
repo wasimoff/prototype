@@ -95,7 +95,7 @@ export class WasiWorker {
       // start the instance's main() and wait for it to exit
       let returncode = 0;
       try {
-        shim.start(instance as WasiInstance);
+        returncode = shim.start(instance as WasiInstance);
       } catch(error) {
         if (String(error).startsWith("exit with exit code")) {
           // parse the exitcode from exit() calls; those shouldn't throw
