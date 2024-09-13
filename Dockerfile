@@ -18,7 +18,7 @@ RUN yarn install && yarn build
 
 # ---> build denoprovider for the terminal
 # docker build --target provider -t wasimoff/provider .
-FROM denoland/deno:distroless AS provider
+FROM denoland/deno:distroless-1.46.3 AS provider
 
 # copy files
 COPY ./denoprovider /app
