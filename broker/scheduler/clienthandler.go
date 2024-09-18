@@ -160,8 +160,11 @@ func DispatchTasks(
 
 	// wait for all tasks to finish
 	done := 0
-	for range doneChan {
+	for t := range doneChan {
 		done++
+		if t.Error == nil {
+			store.RateTick()
+		}
 		if done == len(pending) {
 			break
 		}
