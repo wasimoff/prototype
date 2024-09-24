@@ -21,28 +21,28 @@ export class WebSocketTransport implements Transport {
     this.ws.binaryType = "arraybuffer";
 
     this.ws.addEventListener("open", () => {
-      console.log(...prefixOpen, "connection established", { url: this.ws.url, protocol: this.ws.protocol });
+      console.log(...prefix.open, "connection established", { url: this.ws.url, protocol: this.ws.protocol });
       this.signal.resolve();
     });
 
     this.ws.addEventListener("error", (event) => {
       // per MDN: "fired when a connection [...] has been closed due to an error"
-      console.error(...prefixErr, "connection closed due to an error", event);
+      console.error(...prefix.err, "connection closed due to an error", event);
     });
 
     this.ws.addEventListener("close", ({ code, reason, wasClean }) => {
       // TODO: implement reconnection handler without tearing everything down
-      console.warn(...prefixWarn, `WebSocket connection closed:`, { code, reason, wasClean, url: this.ws.url });
+      console.warn(...prefix.warn, `WebSocket connection closed:`, { code, reason, wasClean, url: this.ws.url });
       this.close(reason, wasClean);
     });
 
     this.ws.addEventListener("message", ({ data }) => {
       try {
         let envelope = this.unmarshal(data);
-        if (debugging) console.debug(...prefixRx, envelope.sequence, Envelope_MessageType[envelope.type], envelope.payload, envelope.error);
+        if (debugging) console.debug(...prefix.rx, envelope.sequence, Envelope_MessageType[envelope.type], envelope.payload?.typeUrl, envelope.error);
         this.messages.push(envelope);
       } catch (err) {
-        console.error(...prefixErr, err);
+        console.error(...prefix.err, err);
         this.messages.push(Promise.reject(err));
       };
     });
@@ -59,7 +59,7 @@ export class WebSocketTransport implements Transport {
   public async send(envelope: Envelope): Promise<void> {
     this.closed.throwIfAborted();
     await this.signal.promise;
-    if (debugging) console.debug(...prefixTx, envelope.sequence, Envelope_MessageType[envelope.type], envelope.payload, envelope.error);
+    if (debugging) console.debug(...prefix.tx, envelope.sequence, Envelope_MessageType[envelope.type], envelope.payload?.typeUrl, envelope.error);
     switch (this.ws.protocol) {
 
       case WebSocketTransport.provider_v1_protobuf:
@@ -154,13 +154,13 @@ export namespace WebSocketTransport {
 };
 
 // enable console.logs in the "hot" path (tx/rx)?
-const debugging = false;
+const debugging = true;
 
 // pretty console logging prefixes
-// TODO: colors barely readable in deno log
-const prefixOpen = [ "%c WebSocketTransport %c open ", "background: #333; color: white;", "background: greenyellow;" ];
-const prefixRx   = [ "%c WebSocketTransport %c « Rx %c %s ", "background: #333; color: white;", "background: skyblue;", "background: #ccc;" ];
-const prefixTx   = [ "%c WebSocketTransport %c Tx » %c %s ", "background: #333; color: white;", "background: greenyellow;", "background: #ccc;" ];
-const prefixErr  = [ "%c WebSocketTransport %c Error ", "background: #333; color: white;", "background: firebrick; color: white;" ];
-const prefixWarn = [ "%c WebSocketTransport %c Warning ", "background: #333; color: white;", "background: goldenrod;" ];
-
+const prefix = {
+  open : [ "%c[WebSocket]%c open", "color: skyblue;", "color: greenyellow;" ],
+  rx   : [ "%c[WebSocket]%c « Rx", "color: skyblue;", "color: blue;" ],
+  tx   : [ "%c[WebSocket]%c Tx »", "color: skyblue;", "color: greenyellow;" ],
+  err  : [ "%c[WebSocket]%c Error", "color: skyblue;", "color: firebrick;" ],
+  warn : [ "%c[WebSocket]%c Warning", "color: skyblue;", "color: goldenrod;" ],
+};
