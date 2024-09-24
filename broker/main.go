@@ -36,7 +36,7 @@ func main() {
 	mux.HandleFunc(apiPrefix+"/healthz", server.Healthz())
 
 	// create a provider store and scheduler
-	store := provider.NewProviderStore()
+	store := provider.NewProviderStore(conf.Statistics)
 	// selector := scheduler.NewRoundRobinSelector(&store)
 	// selector := scheduler.NewAnyFreeSelector(&store)
 	selector := scheduler.NewSimpleMatchSelector(&store)

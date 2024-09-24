@@ -2,7 +2,11 @@ package provider
 
 import (
 	"context"
+	"encoding/csv"
 	"log"
+	"os"
+	"os/signal"
+	"strconv"
 	"time"
 	"wasimoff/broker/net/pb"
 	"wasimoff/broker/storage"
@@ -30,7 +34,7 @@ type ProviderStore struct {
 }
 
 // NewProviderStore properly initializes the fields in the store
-func NewProviderStore() ProviderStore {
+func NewProviderStore(statistics string) ProviderStore {
 	store := ProviderStore{
 		providers:   xsync.NewMapOf[*Provider](),
 		Storage:     storage.NewFileStorage(),
@@ -38,6 +42,7 @@ func NewProviderStore() ProviderStore {
 		ratecounter: ratecounter.NewRateCounter(5 * time.Second),
 	}
 	go store.transmitter()
+	go store.statwriter(statistics)
 	return store
 }
 
@@ -57,6 +62,58 @@ func (s *ProviderStore) transmitter() {
 		})
 	}
 
+}
+
+// -------------- write statistics to a file --------------
+
+func (s *ProviderStore) statwriter(file string) {
+
+	// early-exit if no file name given
+	if file == "" {
+		return
+	}
+
+	// open new file for writing
+	f, err := os.OpenFile(file, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		log.Fatalf("can't open file for statistics: %s", err)
+	}
+	defer f.Close()
+	log.Printf("writing statistics to %q", file)
+
+	// signal handler to close file on CTRL-C
+	sigint := make(chan os.Signal, 1)
+	signal.Notify(sigint, os.Interrupt)
+
+	// wrap file in a csv writer
+	w := csv.NewWriter(f)
+	w.Write([]string{"unixmilli", "providers", "workers", "requests/sec"})
+
+	for {
+		select {
+		case <-time.Tick(time.Second):
+			n, i := s.workers()
+			w.Write([]string{
+				strconv.FormatInt(time.Now().UnixMilli(), 10),
+				strconv.FormatInt(int64(n), 10),
+				strconv.FormatInt(int64(i), 10),
+				strconv.FormatInt(s.ratecounter.Rate()/5, 10),
+			})
+			w.Flush()
+		case <-sigint:
+			return // runs defer to close the file
+		}
+	}
+}
+
+// return the number of providers and the sum of their workers
+func (s *ProviderStore) workers() (n, i int) {
+	s.Range(func(addr string, provider *Provider) bool {
+		n += 1
+		i += provider.CurrentLimit()
+		return true
+	})
+	return
 }
 
 // -------------- ratecounter in tasks/second --------------

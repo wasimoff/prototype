@@ -29,6 +29,9 @@ type Configuration struct {
 	// Activate the benchmarking mode where the Broker produces workload itself
 	Benchmode bool `desc:"Activate benchmarking mode" default:"false"`
 
+	// Write some statistics to a file every second
+	Statistics string `desc:"Write CSV statistics to this file"`
+
 	// Enable the pprof handlers under /debug/pprof
 	Debug bool `desc:"Enable /debug/pprof profile handlers" default:"false"`
 }
