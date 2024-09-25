@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/pprof"
 	"os"
+	"wasimoff/broker/metrics"
 	"wasimoff/broker/net/server"
 	"wasimoff/broker/provider"
 	"wasimoff/broker/scheduler"
@@ -36,7 +37,7 @@ func main() {
 	mux.HandleFunc(apiPrefix+"/healthz", server.Healthz())
 
 	// create a provider store and scheduler
-	store := provider.NewProviderStore(conf.Statistics)
+	store := provider.NewProviderStore()
 	// selector := scheduler.NewRoundRobinSelector(&store)
 	// selector := scheduler.NewAnyFreeSelector(&store)
 	selector := scheduler.NewSimpleMatchSelector(&store)
@@ -52,6 +53,27 @@ func main() {
 	providerSocket := "/websocket/provider"
 	mux.HandleFunc(providerSocket, provider.WebSocketHandler(broker, &store, conf.AllowedOrigins))
 	log.Printf("Provider socket: %s%s", broker.Addr(), providerSocket)
+
+	// Prometheus metrics
+	if conf.Metrics {
+		mux.Handle("/metrics", metrics.MetricsHandler(
+			// I'd love to put these funcs into the metrics package but that leads to an import cycle
+			// gaugeFunc for the providers
+			func() float64 {
+				return float64(store.Size())
+			},
+			// gaugeFunc for the workers
+			func() (f float64) {
+				sum := 0
+				store.Range(func(addr string, provider *provider.Provider) bool {
+					sum += provider.CurrentLimit()
+					return true
+				})
+				return float64(sum)
+			},
+		))
+		log.Printf("Prometheus metrics: %s%s", broker.Addr(), "/metrics")
+	}
 
 	// serve static files for frontend
 	mux.Handle("/", http.FileServer(http.Dir(conf.StaticFiles)))

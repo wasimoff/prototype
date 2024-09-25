@@ -1,0 +1,33 @@
+services:
+
+  prometheus:
+    image: prom/prometheus
+    # container_name: wasimoff_prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+    # ports:
+    #   - 9090:9090
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - prometheus:/prometheus
+
+  grafana:
+    image: grafana/grafana
+    # container_name: wasimoff_grafana
+    # ports:
+    #   - 3000:3000
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_DEFAULT_THEME=light
+    volumes:
+      - ./grafana.yaml:/etc/grafana/provisioning/datasources/prometheus.yml
+      - grafana:/var/lib/grafana
+
+volumes:
+  prometheus:
+  grafana:

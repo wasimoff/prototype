@@ -27,10 +27,10 @@ type Configuration struct {
 	StaticFiles string `split_words:"true" default:"../webprovider/dist/" desc:"Serve static files on \"/\" from here"`
 
 	// Activate the benchmarking mode where the Broker produces workload itself
-	Benchmode bool `desc:"Activate benchmarking mode" default:"false"`
+	Benchmode bool `desc:"Activate benchmarking mode" default:"false"` // TODO
 
-	// Write some statistics to a file every second
-	Statistics string `desc:"Write CSV statistics to this file"`
+	// Expose metrics for Prometheus via /metrics
+	Metrics bool `desc:"Enable Prometheus exporter on /metrics" default:"true"`
 
 	// Enable the pprof handlers under /debug/pprof
 	Debug bool `desc:"Enable /debug/pprof profile handlers" default:"false"`
