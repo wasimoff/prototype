@@ -21,7 +21,7 @@ func WebSocketHandler(server *server.Server, store *ProviderStore, origins []str
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		addr := r.RemoteAddr
+		addr := transport.ProxiedAddr(r)
 
 		// upgrade the transport
 		wst, err := transport.UpgradeToWebSocketTransport(w, r, origins)

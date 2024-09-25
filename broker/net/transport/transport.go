@@ -3,6 +3,9 @@ package transport
 import (
 	"context"
 	"errors"
+	"fmt"
+	"net/http"
+	"strings"
 	"wasimoff/broker/net/pb"
 )
 
@@ -21,3 +24,26 @@ var (
 	ErrConnection = errors.New("transport connection error")
 	ErrCodec      = errors.New("transport codec error")
 )
+
+// Return the true RemoteAddr from a http.Request (when proxied)
+// TODO: if not running behind a trusted proxy, this isn't safe as clients can put anything in these headers
+func ProxiedAddr(req *http.Request) string {
+	remotes := []string{
+		req.Header.Get("x-real-ip"),
+		req.Header.Get("x-forwarded-for"),
+	}
+	for _, addr := range remotes {
+		if addr != "" {
+			// enclose in brackets, if it's ipv6 with colons
+			if strings.Contains(addr, ":") {
+				addr = fmt.Sprintf("[%s]", addr)
+			}
+			// get the port from RemoteAddr
+			if split := strings.Split(req.RemoteAddr, ":"); len(split) >= 2 {
+				return fmt.Sprintf("%s:%s", addr, split[len(split)-1])
+			}
+			return addr
+		}
+	}
+	return req.RemoteAddr
+}

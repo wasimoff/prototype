@@ -141,7 +141,7 @@ func (ws *WebSocketTransport) ReadMessage(ctx context.Context, message *pb.Envel
 
 // Return the remote Addr from initial http.Request
 func (ws *WebSocketTransport) Addr() string {
-	return ws.req.RemoteAddr
+	return ProxiedAddr(ws.req)
 }
 
 // Close the WebSocket connection with an orderly handshake.
