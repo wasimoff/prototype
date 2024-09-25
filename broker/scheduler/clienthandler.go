@@ -11,6 +11,7 @@ import (
 	"mime"
 	"net/http"
 	"sync/atomic"
+	"time"
 	"wasimoff/broker/net/pb"
 	"wasimoff/broker/provider"
 	"wasimoff/broker/storage"
@@ -37,12 +38,83 @@ type OffloadingJob struct {
 // existing WASM binaries and dispatches them to available providers. Upon task
 // completion, the results are returned to the HTTP requester.
 // MARK: ExecHdl
-func ExecHandler(store *provider.ProviderStore, selector Scheduler) http.HandlerFunc {
+func ExecHandler(store *provider.ProviderStore, selector Scheduler, benchmode bool) http.HandlerFunc {
 
 	// create a queue for the tasks and start the dispatcher
 	// TODO: reuse the ticketing from benchmode to limit concurrent scheduler jobs
 	queue := make(chan *provider.AsyncWasiTask, 10)
 	go Dispatcher(selector, queue)
+
+	// TODO: this is a horrible graft ..
+	if benchmode {
+		go func() {
+
+			// wait for required binary upload
+			bin := "tsp.wasm"
+			args := []string{"tsp.wasm", "rand", "10"}
+			log.Printf("BENCHMODE: please upload %q binary", bin)
+			binary := pb.File{Ref: &bin}
+			for {
+				if store.Storage.Get(bin) != nil {
+					// file uploaded
+					log.Printf("BENCHMODE: required binary uploaded, let's go ...")
+					err := store.Storage.ResolvePbFile(&binary) // ! <-- this one is important
+					if err != nil {
+						panic(err)
+					}
+					break
+				}
+				time.Sleep(time.Second)
+			}
+
+			// use "tickets" to limit the number of concurrent tasks in-flight
+			inflight := 8192
+			tickets := make(chan struct{}, inflight)
+			for len(tickets) < cap(tickets) {
+				tickets <- struct{}{}
+			}
+
+			// receive finished tasks to tick the throughput counter and reinsert ticket
+			doneChan := make(chan *provider.AsyncWasiTask, inflight)
+			go func() {
+				for t := range doneChan {
+					if t.Error == nil {
+						store.RateTick()
+					}
+					tickets <- struct{}{}
+				}
+			}()
+
+			// reuse strings to reduce allocations
+			job := "benchmode"
+			broker := "broker"
+
+			for i := 0; ; i++ {
+				<-tickets
+				queue <- provider.NewAsyncWasiTask(
+					context.Background(),
+					&pb.ExecuteWasiRequest{
+						Info: &pb.TaskMetadata{
+							JobID:  &job,
+							Client: &broker,
+							Index:  proto.Uint64(uint64(i)),
+						},
+						Task: &pb.WasiTaskArgs{
+							Binary: &binary,
+							Args:   args,
+						},
+					},
+					&pb.ExecuteWasiResponse{},
+					doneChan,
+				)
+			}
+		}()
+
+		// no other execs are allowed
+		return func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "sorry, running in benchmode", http.StatusServiceUnavailable)
+		}
+	}
 
 	// return the http handler to register as a route
 	return func(w http.ResponseWriter, r *http.Request) {

@@ -43,7 +43,7 @@ func main() {
 	selector := scheduler.NewSimpleMatchSelector(&store)
 
 	// run request handler
-	mux.HandleFunc(apiPrefix+"/run", scheduler.ExecHandler(&store, &selector))
+	mux.HandleFunc(apiPrefix+"/run", scheduler.ExecHandler(&store, &selector, conf.Benchmode))
 
 	// upload wasm binaries to providers
 	mux.HandleFunc(apiPrefix+"/upload", scheduler.UploadHandler(&store))
