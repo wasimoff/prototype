@@ -144,8 +144,8 @@ export class WasimoffProvider {
     this.messenger = new Messenger(wst);
     await wst.ready;
 
-    // send current concurrency
-    this.sendInfo(this.pool.length);
+    // send current concurrency with out useragent
+    this.sendInfo(this.pool.length, "web", navigator.userAgent);
 
   };
 
