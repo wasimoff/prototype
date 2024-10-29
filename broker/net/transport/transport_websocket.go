@@ -47,6 +47,8 @@ func UpgradeToWebSocketTransport(w http.ResponseWriter, req *http.Request, origi
 		conn.Close(websocket.StatusProtocolError, fmt.Sprintf("supported protocols: %v", protocols))
 		return nil, fmt.Errorf("%w: no supported subprotocol", ErrCodec)
 	}
+	// disable the read limit
+	conn.SetReadLimit(-1)
 
 	// return the Transport
 	return &WebSocketTransport{conn, req}, nil
