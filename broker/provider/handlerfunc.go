@@ -45,7 +45,7 @@ func WebSocketHandler(server *server.Server, store *ProviderStore, origins []str
 		}
 
 		// upload all known files to provider
-		for _, file := range store.Storage.Files {
+		for _, file := range store.Storage.All() {
 			err = provider.Upload(file)
 			if err != nil {
 				log.Printf("[%s] New Provider: initial Upload failed: %q: %s", addr, file.Ref(), err)

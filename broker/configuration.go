@@ -26,6 +26,10 @@ type Configuration struct {
 	// StaticFiles is a path with static files to serve; usually the webprovider frontend dist.
 	StaticFiles string `split_words:"true" default:"../webprovider/dist/" desc:"Serve static files on \"/\" from here"`
 
+	// FileStorage is a path to use for a persistent BoltDB database.
+	// An empty string will use an ephemeral in-memory map[string]*File.
+	FileStorage string `desc:"Use persistent BoltDB storage for files" default:":memory:"`
+
 	// Activate the benchmarking mode where the Broker produces workload itself
 	Benchmode bool `desc:"Activate benchmarking mode" default:"false"` // TODO
 

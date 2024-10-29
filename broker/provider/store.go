@@ -21,7 +21,7 @@ type ProviderStore struct {
 	providers *xsync.MapOf[string, *Provider]
 
 	// Storage holds the uploaded files in memory
-	Storage storage.FileStorage
+	Storage *storage.FileStorage
 
 	// Broadcast is a channel to submit events for all Providers
 	Broadcast chan proto.Message
@@ -31,12 +31,16 @@ type ProviderStore struct {
 }
 
 // NewProviderStore properly initializes the fields in the store
-func NewProviderStore() ProviderStore {
+func NewProviderStore(storagepath string) ProviderStore {
 	store := ProviderStore{
 		providers:   xsync.NewMapOf[*Provider](),
-		Storage:     storage.NewFileStorage(),
 		Broadcast:   make(chan proto.Message, 10),
 		ratecounter: ratecounter.NewRateCounter(5 * time.Second),
+	}
+	if storagepath == "" || storagepath == ":memory:" {
+		store.Storage = storage.NewMemoryFileStorage()
+	} else {
+		store.Storage = storage.NewBoltFileStorage(storagepath)
 	}
 	go store.transmitter()
 	return store
