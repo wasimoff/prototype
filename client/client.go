@@ -27,6 +27,9 @@ const apiPrefix = "/api/broker/v1"
 // be more verbose
 var verbose bool
 
+// read stdin for exec
+var readstdin bool
+
 func init() {
 	// get the Broker URL from env
 	if url, ok := os.LookupEnv("BROKER"); ok {
@@ -42,6 +45,7 @@ func main() {
 	exec := flag.String("exec", "", "Execute an uploaded binary; separate further app arguments with '--'")
 	run := flag.String("run", "", "Run a prepared JSON job file")
 	flag.BoolVar(&verbose, "verbose", false, "Be more verbose and print raw messages for -exec")
+	flag.BoolVar(&readstdin, "stdin", false, "Read and send stdin when using -exec (not streamed)")
 	flag.Parse()
 
 	switch true {
@@ -118,8 +122,18 @@ func Execute(args, envs []string) {
 			Binary: &pb.File{Ref: proto.String(args[0])},
 			Args:   args,
 			Envs:   envs,
-			// Stdin: os.Stdin, // TODO: detect if stdin is a terminal, else read from it
+			Stdin:  []byte{},
 		}},
+	}
+
+	// optionally read stdin
+	if readstdin {
+		stdin, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "ERR: failed reading stdin:", err)
+			os.Exit(1)
+		}
+		job.Tasks[0].Stdin = stdin
 	}
 
 	// dump as JSON and run the job
