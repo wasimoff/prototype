@@ -20,15 +20,14 @@ import InfoProviders from "./ClusterInfo.vue";
 import { useProvider } from "@app/stores/provider.ts";
 let wasimoff = useProvider();
 // TODO: typings for ref<remote<...> | undefined>?
-const { connected, workers, $pool, $storage } = storeToRefs(wasimoff);
+const { connected, workers, $pool } = storeToRefs(wasimoff);
 
 // connect immediately on load, when the provider proxy is connected
 watch(() => wasimoff.$provider, async (provider) => {
   if (provider !== undefined) {
 
-    // TODO: connect to configuration store
-    await wasimoff.open(":memory:");
-    terminal.success(`Opened in-memory storage.`);
+    await wasimoff.open(":memory:", transport.value);
+    // terminal.success(`Opened in-memory storage.`);
 
     // add at least one worker immediately
     if (workers.value.length === 0) await $pool.value?.scale(1);
@@ -50,35 +49,6 @@ async function connect() {
     terminal.log(`Connected to Broker at ${url}`, LogType.Success);
     wasimoff.handlerequests();
   } catch (err) { terminal.error(String(err)); }
-};
-
-async function rmrf() {
-  if (!$storage.value) return terminal.error("$storage not connected yet");
-  let files = await $storage.value.prune();
-  for (const file of files) {
-    terminal.error(`Deleted: '${file}'`);
-  };
-};
-
-async function listdir() {
-  if (!$storage.value) return terminal.error("$storage not connected yet");
-  let items = await $storage.value.lsf();
-  if (items.length > 0) {
-    terminal.log(`Directory listing:`, LogType.Link);
-    function filesize(bytes: number): string {
-      if (bytes < 1024) return `${bytes} B`;
-      if (bytes < 1024**2) return `${(bytes/1024).toFixed(2)} KiB`;
-      return `${(bytes/1024**2).toFixed(2)} MiB`;
-    };
-    for (const it of items) {
-      if (it instanceof File)
-        terminal.log(` ${it.name} [${filesize(it.size)}, ${it.type}]`, LogType.Link);
-      // else
-      //   terminal.log(` ${it.name}/ [directory]`, LogType.Link);
-    };
-  } else {
-    terminal.log(`Directory is empty!`, LogType.Link);
-  };
 };
 
 async function kill() {
@@ -179,14 +149,6 @@ const usage = computed(() => {
 
       <label class="label has-text-grey-dark">Current Usage: {{ (100*usage).toFixed() }}%</label>
       <progress class="progress is-large is-info" :value="usage" max="1" style="width: 245px;"></progress>
-
-      <div v-if="false"><!-- TODO: storage controls hidden -->
-        <label class="label has-text-grey-dark">Storage</label>
-        <div class="buttons">
-          <button class="button is-family-monospace is-success" @click="listdir" title="List files in OPFS">ls</button>
-          <button class="button is-family-monospace is-danger" @click="rmrf" title="Delete all files in OPFS">rm -f *</button>
-        </div>
-      </div>
 
     </div>
 

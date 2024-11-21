@@ -6,3 +6,6 @@
 # compiled binary
 broker
 __debug_bin*
+
+# boltdb storage
+broker_storage.boltdb

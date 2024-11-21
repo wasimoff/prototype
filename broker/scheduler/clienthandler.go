@@ -355,16 +355,5 @@ func UploadHandler(store *provider.ProviderStore) http.HandlerFunc {
 		w.Header().Add("content-type", "text/plain")
 		fmt.Fprintln(w, file.Ref())
 
-		// upload the file to all providers asynchronously
-		go func() {
-			store.Range(func(addr string, provider *provider.Provider) bool {
-				if err = provider.Upload(file); err != nil {
-					log.Printf("Upload to %q failed: %s", addr, file.Ref())
-				}
-				return true // iterate whole range, despite errors
-			})
-
-		}()
-
 	}
 }

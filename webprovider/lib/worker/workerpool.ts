@@ -3,7 +3,7 @@ import { type WasiWorker, type WasiTaskExecution, WasiTaskResult } from "./wasiw
 import { Queue } from "@wasimoff/func/queue.ts";
 
 // colorful console logging prefix
-const logprefix = [ "%c WasiWorkerPool ", "background: violet; color: black;" ] as const;
+const logprefix = [ "%c[WasiWorkerPool]", "color: purple;" ] as const;
 
 /** Worker threadpool, which dispatches tasks to WasmWorkers. */
 export class WasiWorkerPool {

@@ -39,7 +39,9 @@ export class WebSocketTransport implements Transport {
     this.ws.addEventListener("message", ({ data }) => {
       try {
         let envelope = this.unmarshal(data);
-        if (debugging) console.debug(...prefix.rx, envelope.sequence, Envelope_MessageType[envelope.type], envelope.payload?.typeUrl, envelope.error);
+        if (debugging && envelope.payload?.typeUrl !== "wasimoff/Throughput") {
+          console.debug(...prefix.rx, envelope.sequence, Envelope_MessageType[envelope.type], envelope.payload?.typeUrl, envelope.error);
+        };
         this.messages.push(envelope);
       } catch (err) {
         console.error(...prefix.err, err);

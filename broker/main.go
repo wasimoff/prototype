@@ -42,6 +42,9 @@ func main() {
 	// selector := scheduler.NewAnyFreeSelector(&store)
 	selector := scheduler.NewSimpleMatchSelector(&store)
 
+	// serve the files from store storage
+	mux.Handle("/storage/{filename}", store.Storage)
+
 	// run request handler
 	mux.HandleFunc(apiPrefix+"/run", scheduler.ExecHandler(&store, &selector, conf.Benchmode))
 

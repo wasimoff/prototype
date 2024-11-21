@@ -179,6 +179,12 @@ message CancelTask {
   string reason = 2;
 }
 
+// FileSystemUpdate notifies the Broker about changed files on the Provider.
+message FileSystemUpdate {
+  repeated string added = 1;
+  repeated string removed = 2;
+}
+
 
 // ---------- client interface ---------- //
 

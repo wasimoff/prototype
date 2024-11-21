@@ -29,7 +29,7 @@ func (s *SimpleMatchSelector) selectCandidates(task *provider.AsyncWasiTask) (ca
 		requiredFiles = append(requiredFiles, *targ.Rootfs.Ref)
 	}
 
-	// find suitable candidates
+	// find suitable candidates with free slots
 	candidates = make([]*provider.Provider, 0, s.store.Size())
 	s.store.Range(func(addr string, p *provider.Provider) bool {
 		// check for files
@@ -39,15 +39,17 @@ func (s *SimpleMatchSelector) selectCandidates(task *provider.AsyncWasiTask) (ca
 				return true
 			}
 		}
-		// append candidate
-		candidates = append(candidates, p)
+		// check for availability
+		if p.CurrentTasks() < p.CurrentLimit() || p.Waiting() {
+			// append candidates with free capacity for tasks
+			candidates = append(candidates, p)
+		}
 		return true
 	})
 
-	// no candidates found?
+	// no perfect candidates found? just fallback to the full list
 	if len(candidates) == 0 {
-		// log.Printf("Task %s couldn't find a Provider which satisfies: %v", task.Args.Info.TaskID(), requiredFiles)
-		// err = fmt.Errorf("no suitable provider found which satisfies all requirements")
+		candidates = s.store.Values()
 	}
 	return
 

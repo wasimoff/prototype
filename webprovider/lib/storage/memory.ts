@@ -1,70 +1,45 @@
-import { ProviderStorage } from "./index.ts";
-import { LRUCache } from "lru-cache";
+import { ProviderStorageFileSystem } from "./index.ts";
 
-const logprefix = [ "%c Memory Storage ", "background: purple; color: white;" ];
+const logprefix = [ "%c[MemoryFileSystem]", "color: purple;" ];
 
-export class InMemoryStorage implements ProviderStorage {
+export class MemoryFileSystem implements ProviderStorageFileSystem {
 
+  // always working in-memory, mimic the sqlite string
   readonly path = ":memory:";
 
-  // just keep file buffers in a map
-  private storage = new Map<string, ArrayBuffer>();
+  // just keep files in a map
+  private storage = new Map<string, File>();
 
-  // cache compiled webassembly modules
-  private wasmCache = new LRUCache<string, WebAssembly.Module>({
-    max: 5, ttl: 2*60*1000, // five modules, stale after two minutes
-    fetchMethod: async (filename) => await this.compile(filename),
-  });
-
-  // list files
-  async lsf() {
-    let files = <File[]>[];
-    for (let [filename, buffer] of this.storage.entries()) {
-      files.push(new File([buffer], filename));
-    };
-    return files;
+  // list all keys from the map
+  async list(): Promise<string[]> {
+    let list = [ ...this.storage.keys() ];
+    console.debug(...logprefix, `has ${list.length} files:`, list);
+    return list;
   };
 
-  // return files from map as Files
-  async getFile(filename: string) {
-    let buf = this.storage.get(filename);
-    return buf ? new File([buf], filename) : undefined;
-  }
-
-  // return files from map directly
-  async getBuffer(filename: string) {
+  // return file from map
+  async get(filename: string): Promise<File | undefined> {
     return this.storage.get(filename);
-  }
-
-  // return a compiled and cached module
-  async getWasmModule(filename: string) {
-    return this.wasmCache.fetch(filename);
-  };
-
-  // compile a buffer to wasm module
-  private async compile(filename: string) {
-    let file = this.storage.get(filename);
-    if (file === undefined) return undefined;
-    return WebAssembly.compile(file);
   };
 
   // store a new file in the map
-  async store(buf: ArrayBuffer, filename: string) {
-    console.log(...logprefix, `store ${filename}, ${buf.byteLength} bytes`);
-    this.storage.set(filename, buf);
-    return new File([buf], filename);
+  async put(filename: string, file: File): Promise<File> {
+    console.debug(...logprefix, `store:`, file);
+    this.storage.set(filename, file);
+    return file;
   };
 
-  // remove a file
-  async rm(filename: string) {
+  // remove a file from map
+  async rm(filename: string): Promise<boolean> {
+    console.debug(...logprefix, `delete:`, filename);
     return this.storage.delete(filename);
   };
 
   // remove all files
-  async prune() {
-    let files = [...this.storage.keys()];
+  async prune(): Promise<string[]> {
+    let list = [ ...this.storage.keys() ];
     this.storage.clear();
-    return files;
+    return list;
   };
 
 }

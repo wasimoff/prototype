@@ -47,7 +47,7 @@ export async function next<T>(source: AsyncIterator<T, T, T> | ReadableStream<T>
 /** Log each chunk of a stream to the console and pass it through. */
 export async function* chunkLogger(stream: ReadableStream<Uint8Array>, prefix: string = "CHUNK") {
   for await (const chunk of stream) {
-    console.log(`%c ${prefix} `, "background: #222; color: white;", chunk);
+    console.log(`%c[${prefix}]`, "color: #222;", chunk);
     yield chunk;
   };
 };

@@ -44,15 +44,6 @@ func WebSocketHandler(server *server.Server, store *ProviderStore, origins []str
 			return
 		}
 
-		// upload all known files to provider
-		for _, file := range store.Storage.All() {
-			err = provider.Upload(file)
-			if err != nil {
-				log.Printf("[%s] New Provider: initial Upload failed: %q: %s", addr, file.Ref(), err)
-				return
-			}
-		}
-
 		// add provider to the store
 		log.Printf("[%s] New Provider connected using WebSocket", addr)
 		store.Add(provider)
@@ -92,9 +83,11 @@ func (p *Provider) eventTransmitter() {
 			switch ev := event.(type) {
 
 			case *pb.GenericEvent:
+				// generic text message
 				log.Printf("[%s] says: %s", p.Get(Address), ev.GetMessage())
 
 			case *pb.ProviderHello:
+				// initial hello with platform information
 				if v := ev.GetName(); v != "" {
 					p.info[Name] = v
 				}
@@ -111,6 +104,17 @@ func (p *Provider) eventTransmitter() {
 				if ev.Concurrency != nil {
 					log.Printf("[%s] Workers: %d", p.Get(Address), *ev.Concurrency)
 					p.limiter.SetLimit(int(*ev.Concurrency))
+				}
+
+			case *pb.FileSystemUpdate:
+				// update about stored files on provider
+				for _, file := range ev.GetAdded() {
+					// first add
+					p.files[file] = struct{}{}
+				}
+				for _, file := range ev.GetRemoved() {
+					// then remove, i.e. err on _not_ having the file
+					delete(p.files, file)
 				}
 
 			default:

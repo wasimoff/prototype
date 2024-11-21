@@ -26,12 +26,13 @@ type Provider struct {
 
 	// resizeable semaphore to limit number of concurrent tasks
 	limiter semaphore.Semaphore
+	waiting bool
 
 	// information about the provider, to be accessed with Get()
 	info map[ProviderInfoKey]string
 
 	// list of files known on this provider
-	files []string
+	files map[string]struct{}
 }
 
 type ProviderInfoKey string
@@ -53,7 +54,7 @@ func NewProvider(messenger *transport.Messenger) *Provider {
 		Submit:    nil, // must be setup by acceptTasks
 		limiter:   semaphore.New(0),
 		info:      make(map[ProviderInfoKey]string),
-		files:     make([]string, 10),
+		files:     make(map[string]struct{}),
 	}
 
 	// set known information
@@ -69,6 +70,10 @@ func NewProvider(messenger *transport.Messenger) *Provider {
 
 func (p *Provider) Get(key ProviderInfoKey) string {
 	return p.info[key]
+}
+
+func (p *Provider) Waiting() bool {
+	return p.waiting
 }
 
 // -------------------- closure -------------------- >>
@@ -169,6 +174,7 @@ func (p *Provider) acceptTasks() (err error) {
 			// nobody to notify and nothing to free, just quit
 			return err
 		}
+		p.waiting = true
 
 		select {
 
@@ -178,6 +184,7 @@ func (p *Provider) acceptTasks() (err error) {
 
 		// receive call details from channel
 		case call := <-p.Submit:
+			p.waiting = false
 			// the Done channel MUST NEVER be nil
 			if call.done == nil {
 				panic("call.Done is nil, nobody is listening for this result")

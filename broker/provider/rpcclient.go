@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"slices"
 	"wasimoff/broker/net/pb"
 	"wasimoff/broker/storage"
 )
@@ -52,7 +51,7 @@ func (p *Provider) TryRun(ctx context.Context, args *pb.ExecuteWasiRequest, resu
 // ----- filesystem -----
 
 // ListFiles asks the Provider to list their files in storage
-func (p *Provider) ListFiles() ([]string, error) {
+func (p *Provider) ListFiles() (map[string]struct{}, error) {
 
 	// receive listing into a new struct
 	args := pb.FileListingRequest{}
@@ -62,9 +61,9 @@ func (p *Provider) ListFiles() ([]string, error) {
 	}
 
 	// (re)set known files from received list
-	p.files = p.files[:0]
-	for _, addr := range response.Files {
-		p.files = append(p.files, addr)
+	p.files = make(map[string]struct{})
+	for _, filename := range response.Files {
+		p.files[filename] = struct{}{}
 	}
 
 	return p.files, nil
@@ -91,7 +90,7 @@ func (p *Provider) Upload(file *storage.File) (err error) {
 	// (either probe was ok or upload successful)
 	defer func() {
 		if err == nil {
-			p.files = append(p.files, ref)
+			p.files[ref] = struct{}{}
 		}
 	}()
 
@@ -120,5 +119,6 @@ func (p *Provider) Upload(file *storage.File) (err error) {
 
 // Has returns if this Provider *is known* to have a certain file, without re-probing
 func (p *Provider) Has(file string) bool {
-	return slices.Contains(p.files, file)
+	_, ok := p.files[file]
+	return ok
 }

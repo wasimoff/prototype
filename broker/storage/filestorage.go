@@ -1,13 +1,13 @@
 package storage
 
 import (
+	"bytes"
 	"fmt"
 	"iter"
+	"net/http"
+	"time"
 	"wasimoff/broker/net/pb"
 )
-
-// TODO: use SQLite, BoltDB or just filesystem for persistence
-// TODO: this storage is not threadsafe
 
 type AbstractFileStorage interface {
 	Insert(name, media string, blob []byte) (file *File, err error)
@@ -59,5 +59,33 @@ func (fs *FileStorage) ResolvePbFile(pbf *pb.File) error {
 
 	// couldn't resolve the file
 	return fmt.Errorf("Ref not found in storage")
+
+}
+
+// TODO: should store the upload time as modtime
+var zerotime = time.UnixMilli(0)
+
+// Make the FileStorage a http.Handler, so it can serve files on web requests.
+// Expects a path value '{filename}' to retrieve the correct file.
+func (fs *FileStorage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	// get the filename from path pattern
+	filename := r.PathValue("filename")
+	if filename == "" {
+		http.Error(w, "path pattern not found", http.StatusInternalServerError)
+		return
+	}
+
+	// retrieve the file from storage
+	file := fs.Get(filename)
+	if file == nil {
+		http.Error(w, "File not Found in storage", http.StatusNotFound)
+		return
+	}
+
+	// put known content-type in a header and serve the file
+	w.Header().Add("content-type", file.Media)
+	w.Header().Add("x-wasimoff-ref", file.Ref())
+	http.ServeContent(w, r, "", zerotime, bytes.NewReader(file.Bytes))
 
 }

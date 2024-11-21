@@ -23,7 +23,7 @@ export class WasiWorker {
   ) { };
 
   // colorful console logging prefix
-  private get logprefix() { return [ `%c WasiWorker ${this.index} `, "background: #f03a5f; color: white;" ]; }
+  private get logprefix() { return [ `%c[Worker ${this.index}]`, "color: #f03a5f;" ]; }
 
   // TODO: shim the trace function to not rip out all the statements completely
   private trace(msg: string) { if (false) console.debug(...this.logprefix, msg); };
@@ -39,7 +39,7 @@ export class WasiWorker {
       // log the overall commandline to terminal and console
       if (VERBOSE) { // TODO
         let cmdline = [...task.envs, task.argv[0] || "<binary>", ...task.argv.slice(1)];
-        console.debug(...this.logprefix, id, cmdline);
+        console.info(...this.logprefix, id, cmdline);
         this.emit("cmdline", { id, cmdline });
         this.trace("worker: commandline logged");
       };

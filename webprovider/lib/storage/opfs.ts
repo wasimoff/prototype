@@ -1,9 +1,8 @@
-import { ProviderStorage } from "./index.ts";
-import { LRUCache } from "lru-cache";
+import { ProviderStorageFileSystem } from "./index.ts";
 
-const logprefix = [ "%c OPFS Storage ", "background: purple; color: white;" ];
+const logprefix = [ "%c[OriginPrivateFileSystem]", "color: purple;" ];
 
-export class OpfsStorage implements ProviderStorage {
+export class OriginPrivateFileSystem implements ProviderStorageFileSystem {
 
   // we need async initialization, therefore disallow direct constructor usage
   private constructor(
@@ -11,14 +10,13 @@ export class OpfsStorage implements ProviderStorage {
     public readonly path: string,
   ) { }
 
-
   /** Initialize a new Filesystem with OPFS backing. */
   static async open(directory?: string | FileSystemDirectoryHandle) {
     let opfs = await navigator.storage.getDirectory();
-    let storage: OpfsStorage;
+    let storage: OriginPrivateFileSystem;
     // easy mode: open the root
     if (directory === undefined || directory === "/") {
-      storage = new OpfsStorage(opfs, "/");
+      storage = new OriginPrivateFileSystem(opfs, "/");
     } else {
       // directory is a path, open each fragment until we reach its handle
       if (typeof directory === "string") {
@@ -31,58 +29,56 @@ export class OpfsStorage implements ProviderStorage {
       // (now) directory is a handle, resolve its path and open
       let path = await opfs.resolve(directory);
       if (path === null) throw "given DirectoryHandle is not in OPFS";
-      storage = new OpfsStorage(directory, `/${path.join("/")}/`)
+      storage = new OriginPrivateFileSystem(directory, `/${path.join("/")}/`)
     }
-    console.log(...logprefix, `opened Origin-Private Filesystem at "${storage.path}"`);
+    console.log(...logprefix, `opened OPFS at "${storage.path}"`);
     return storage;
   }
 
 
-  // ------------------ get data ------------------ //
-
-  /** Get items in directory. */
-  async ls() {
-    let items: (FileSystemDirectoryHandle | File)[] = [ ];
+  // list all files in directory
+  async list(): Promise<string[]> {
+    let files: string[] = [];
     for await (let it of (this.handle as any).values()) {
-      if (it instanceof FileSystemFileHandle) it = await it.getFile();
-      items.push(it);
+      // can also be FileSystemDirectoryHandle, but we ignore those here
+      if (it instanceof FileSystemFileHandle) files.push(it.name);
     };
-    return items;
+    return files;
   };
 
-  /** Get files in directory. */
-  async lsf() {
-    return (await this.ls()).filter(e => e instanceof File) as File[];
-  }
+  // return a specific file
+  async get(filename: string): Promise<File | undefined> {
+    try {
+      return this.handle.getFileHandle(filename).then(h => h.getFile());
+    } catch (err) {
+      return undefined;
+    };
+  };
 
-  /** Retrieve a file. */
-  async getFile(filename: string) {
-    let handle = await this.handle.getFileHandle(filename);
+  // store a file in filesystem
+  async put(filename: string, file: File): Promise<File> {
+    console.debug(...logprefix, `store:`, file);
+    let handle = await this.handle.getFileHandle(filename, { create: true });
+    let writer = await handle.createWritable({ keepExistingData: false });
+    await writer.write(await file.arrayBuffer());
+    await writer.close();
     return await handle.getFile();
   };
 
-  /** Retrieve a file's contents directly. */
-  async getBuffer(filename: string) {
-    let file = await this.getFile(filename);
-    return await file.arrayBuffer();
+  // remove a particular file
+  async rm(filename: string): Promise<boolean> {
+    console.debug(...logprefix, `delete:`, filename);
+    let had = (await this.list()).includes(filename);
+    await this.handle.removeEntry(filename);
+    return had;
   };
 
-  /** Retrieve a WebAssembly binary as compiled module (will be cached). */
-  async getWasmModule(filename: string) {
-    return (await this.wasmcache.fetch(filename))!;
-  };
 
-  /** The cache for compiled WebAssembly modules. */
-  //! you should take care not to use a "file" cache and `wasmcache` with the same binaries
-  private wasmcache = new LRUCache<string, WebAssembly.Module>({
-    max: 25, // at most 25 modules
-    ttl: 10 * 60 * 1000, // consider stale after 10 minutes
-    // fetch and compile modules from OPFS
-    fetchMethod: async (filename) => await this.compileStreaming(filename),
-  });
+
+  // ------------------- old functions ------------------- //
 
   /** Compile a `WebAssembly.Module` by opening a file in a streaming fashion. */
-  private async compileStreaming(filename: string) {
+  async compileStreaming(filename: string) {
     console.log(...logprefix, `compile WebAssembly module ${this.path}${filename}`);
     // fetch the file from opfs and check if it's wasm
     let file = await (await this.handle.getFileHandle(filename)).getFile();
@@ -91,33 +87,6 @@ export class OpfsStorage implements ProviderStorage {
     let stream = new Response(file.stream(), { status: 200, headers: { "content-type": file.type } });
     // start the streaming compilation
     return await WebAssembly.compileStreaming(stream);
-  };
-
-
-  // ------------------ modify data ------------------ //
-
-  /** Remove a particular file. */
-  async rm(filename: string) {
-    console.log(...logprefix, `delete ${this.path}${filename}`);
-    await this.handle.removeEntry(filename);
-    return this.wasmcache.delete(filename);
-  };
-
-  /** Remove all files in directory. */
-  async prune() {
-    let files = (await this.lsf()).map(f => f.name);
-    for (let file of files) await this.rm(file);
-    return files;
-  };
-
-  /** Store a given BufferSource into the filesystem. */
-  async store(blob: BufferSource, filename: string) {
-    console.log(...logprefix, `store ${blob.byteLength} bytes in ${this.path}${filename}`);
-    let handle = await this.handle.getFileHandle(filename, { create: true });
-    let file = await handle.createWritable({ keepExistingData: false });
-    await file.write(blob);
-    await file.close();
-    return await handle.getFile();
   };
 
   /** Fetch an arbitrary file from URL and write to a file in directory. */

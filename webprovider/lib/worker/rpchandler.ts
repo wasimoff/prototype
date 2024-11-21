@@ -38,7 +38,7 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
           rootfs = task.rootfs.blob;
         } else if (task.rootfs.ref !== "") {
           if (this.storage === undefined) throw "cannot access storage yet";
-          let z = await this.storage.getBuffer(task.rootfs.ref);
+          let z = await this.storage.getZipArchive(task.rootfs.ref);
           if (z === undefined) throw "zip not found in storage";
           else rootfs = new Uint8Array(z);
         } else {
@@ -46,7 +46,7 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
         }
       }
 
-      console.log("%c RPCHandler ", "background: yellow;", task);
+      console.debug("%c[RPCHandler]", "color: orange;", task);
 
       try {
         // execute the module in a worker
@@ -78,15 +78,14 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
     // list files in storage
     case isMessage(request, pb.FileListingRequestSchema): return <Promise<pb.FileListingResponse>>(async () => {
       if (this.storage === undefined) throw "cannot access storage yet";
-      const files = (await this.storage.lsf()).map(file => file.name);
-      console.info("Sent list of available files to Broker.");
+      const files = (await this.storage.filesystem.list());
       return create(pb.FileListingResponseSchema, { files });
     })();
 
     // probe for a specific file in storage
     case isMessage(request, pb.FileProbeRequestSchema): return <Promise<pb.FileProbeResponse>>(async () => {
       if (this.storage === undefined) throw "cannot access storage yet";
-      let ok = await this.storage.getFile(request.file) !== undefined;
+      let ok = await this.storage.filesystem.get(request.file) !== undefined;
       return create(pb.FileProbeResponseSchema, { ok });
     })();
 
@@ -94,12 +93,10 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
     case isMessage(request, pb.FileUploadRequestSchema): return <Promise<pb.FileUploadResponse>>(async () => {
       if (request.upload === undefined) throw "empty upload";
       if (this.storage === undefined) throw "cannot access storage yet";
-      let { blob, /* media, */ ref } = request.upload;
-      if (!isRef(ref)) {
-        // overwrite name with computed digest
-        ref = await getRef(new File([blob], ref));
-      };
-      await this.storage.store(blob, ref);
+      let { blob, media, ref } = request.upload;
+      // overwrite name with computed digest
+      if (!isRef(ref)) { ref = await getRef(blob); };
+      await this.storage.filesystem.put(ref, new File([blob], ref, { type: media }));
       return create(pb.FileUploadResponseSchema, { });
     })();
 

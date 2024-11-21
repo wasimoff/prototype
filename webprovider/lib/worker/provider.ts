@@ -2,11 +2,11 @@
 declare var self: DedicatedWorkerGlobalScope | SharedWorkerGlobalScope;
 export {};
 
-import { InMemoryStorage, OpfsStorage, ProviderStorage } from "@wasimoff/storage/index.ts";
+import { ProviderStorage } from "@wasimoff/storage/index.ts";
 import { Messenger, WebSocketTransport } from "@wasimoff/transport/index.ts";
 import { WasiWorkerPool } from "./workerpool.ts";
 import { create, Message } from "@bufbuild/protobuf";
-import { ProviderHelloSchema, ProviderResourcesSchema } from "@wasimoff/proto/messages_pb.ts";
+import { FileSystemUpdateSchema, ProviderHelloSchema, ProviderResourcesSchema } from "@wasimoff/proto/messages_pb.ts";
 import { rpchandler } from "@wasimoff/worker/rpchandler.ts";
 import { expose, proxy as comlinkProxy, workerReady, transfer, proxy } from "./comlink.ts";
 import { WasiTaskExecution } from "./wasiworker.ts";
@@ -43,7 +43,7 @@ import { WasiTaskExecution } from "./wasiworker.ts";
 
 export class WasimoffProvider {
 
-  static readonly logprefix = [ `%c Wasimoff Provider `, "color: indigo; background-color: #ccc;" ];
+  static readonly logprefix = [ `%c[Wasimoff Provider]`, "color: blue;" ];
 
   constructor(
     /** maximum number of workers in the pool */
@@ -65,7 +65,8 @@ export class WasimoffProvider {
         if (typeof method === "function" && traps.includes(prop as string)) {
           return async (...args: any[]) => {
             let result = await (method as any).apply(target, args) as Promise<number>;
-            this.sendInfo(await result).catch(() => { /* ignore errors */ });
+            if (this.messenger !== undefined)
+              this.sendInfo(await result).catch(() => { /* ignore errors */ });
             return result;
           };
         } else {
@@ -77,10 +78,20 @@ export class WasimoffProvider {
 
   };
 
-  static async init(nmax: number, url: string, dir: string) {
+  static async init(nmax: number, origin: string, dir: string) {
     const p = new WasimoffProvider(nmax);
-    await p.open(dir);
-    await p.connect(url);
+
+    // recheck the origin
+    let url = new URL(origin);
+    if (!/^https?:$/.test(url.protocol)) throw "origin should be https? url";
+
+    // connect the storage
+    await p.open(dir, url.origin);
+
+    // replace protocol with websocket for transport
+    url.protocol = url.protocol.replace("http", "ws");
+    await p.connect(url.origin);
+
     return p;
   };
 
@@ -109,15 +120,16 @@ export class WasimoffProvider {
   };
 
   /** Open a storage by URL. */
-  async open(directory: string) {
+  async open(directory: string, origin: string) {
 
     // can't close a filesystem yet
     if (this.storage !== undefined)
       throw "another storage is opened already";
 
-    // pick either in-memory map or open OPFS
-    if (directory === ":memory:") this.storage = new InMemoryStorage();
-    else this.storage = await OpfsStorage.open(directory);
+    this.storage = new ProviderStorage(directory, origin);
+    this.storage.updates.on(update => {
+      if (this.messenger) this.messenger.sendEvent(create(FileSystemUpdateSchema, update));
+    });
 
   };
 
@@ -131,7 +143,7 @@ export class WasimoffProvider {
   };
 
   // (re)connect to a broker by url
-  async connect(url: string) {
+  async connect(origin: string) {
 
     // close previous connections
     if (this.messenger !== undefined && !this.messenger.closed.aborted) {
@@ -139,8 +151,10 @@ export class WasimoffProvider {
     };
 
     // only the websocket transport is implemented so far
-    if (url.match(/^wss?:\/\//) === null) throw "must be a WebSocket URL";
-    const wst = WebSocketTransport.connect(url);
+    let url = new URL(origin);
+    if (url.origin.match(/^wss?:$/) === null) url.protocol = url.protocol.replace("http", "ws");
+    url.pathname = "/websocket/provider";
+    const wst = WebSocketTransport.connect(url.href);
     this.messenger = new Messenger(wst);
     await wst.ready;
 
