@@ -54,6 +54,35 @@ func UpgradeToWebSocketTransport(w http.ResponseWriter, req *http.Request, origi
 	return &WebSocketTransport{conn, req}, nil
 }
 
+// DialWebSocketTransport can be used to dial and create a WebSocket transport from
+// the Client side to the Broker.
+func DialWebSocketTransport(ctx context.Context, url string) (t *WebSocketTransport, err error) {
+	defer wraperr(&err, "dial failed: %w")
+
+	// subprotocols in order of preference, server usually picks first
+	protocols := []string{
+		provider_v1_protobuf,
+		provider_v1_json,
+	}
+
+	conn, res, err := websocket.Dial(ctx, url, &websocket.DialOptions{
+		Subprotocols: protocols,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", ErrConnection, err)
+	}
+	if conn.Subprotocol() == "" {
+		// negotiated an unsupported (empty) subprotocol
+		conn.Close(websocket.StatusProtocolError, fmt.Sprintf("supported protocols: %v", protocols))
+		return nil, fmt.Errorf("%w: no supported subprotocol", ErrCodec)
+	}
+	// disable the read limit
+	conn.SetReadLimit(-1)
+
+	// return the Transport
+	return &WebSocketTransport{conn, res.Request}, nil
+}
+
 // -------------------- read / write -------------------- >>
 
 // WriteMessage will marshal the given message using the negotiated subprotocol codec

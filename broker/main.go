@@ -32,7 +32,7 @@ func main() {
 	// selector := scheduler.NewAnyFreeSelector(store)
 
 	// provider transports
-	mux.HandleFunc("/api/provider/ws", provider.WebSocketHandler(broker, store, conf.AllowedOrigins))
+	mux.HandleFunc("/api/provider/ws", provider.WebSocketHandler(store, conf.AllowedOrigins))
 	log.Printf("Provider socket: %s/api/provider/ws", broker.Addr())
 
 	// storage: serve files from and upload into store storage
@@ -43,6 +43,8 @@ func main() {
 	// client offloading request handler
 	mux.HandleFunc("/api/client/run", scheduler.ExecHandler(store, &selector, conf.Benchmode))
 	log.Printf("Client API at %s/api/client/run", broker.Addr())
+	mux.HandleFunc("/api/client/ws", scheduler.ClientSocketHandler(store))
+	log.Printf("Client socket: %s/api/client/ws", broker.Addr())
 
 	// health message
 	mux.HandleFunc("/healthz", server.Healthz())

@@ -6,14 +6,15 @@ import (
 	"slices"
 	"time"
 	"wasimoff/broker/net/pb"
-	"wasimoff/broker/net/server"
 	"wasimoff/broker/net/transport"
+
+	"google.golang.org/protobuf/proto"
 )
 
 // WebSocketHandler returns a http.HandlerFunc to be used on a route that shall serve
 // as an endpoint for Providers to connect to. This particular handler uses WebSocket
 // transport with either Protobuf or JSON encoding, negotiated using subprotocol strings.
-func WebSocketHandler(server *server.Server, store *ProviderStore, origins []string) http.HandlerFunc {
+func WebSocketHandler(store *ProviderStore, origins []string) http.HandlerFunc {
 
 	// warn about wildcard origin pattern
 	if slices.Contains(origins, "*") {
@@ -74,11 +75,18 @@ func (p *Provider) eventTransmitter() {
 		case <-ticker.C:
 			// TODO, this branch was used for ClusterInfo originally
 
+		// reject incoming requests
+		case request, ok := <-p.messenger.Requests():
+			if !ok {
+				return // channel is closing, quit
+			}
+			// log.Printf("[%s] Request %d: %s", p.messenger.Addr(), request.Seq, prototext.Format(request.Request))
+			request.Respond(p.lifetime.Context, &pb.GenericEvent{}, proto.String("provider socket does not accept requests"))
+
 		// handle incoming events
 		case event, ok := <-p.messenger.Events():
 			if !ok {
-				// channel is closing, quit
-				return
+				return // channel is closing, quit
 			}
 			switch ev := event.(type) {
 

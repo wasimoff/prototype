@@ -21,7 +21,6 @@ import (
 	"reflect"
 	"sync"
 	"sync/atomic"
-	"time"
 	"wasimoff/broker/net/pb"
 
 	"google.golang.org/protobuf/proto"
@@ -33,7 +32,8 @@ type Messenger struct {
 	transport Transport // the underlying transport
 	lifetime  Lifetime  // cancellable long context
 
-	events chan proto.Message // incoming event messages
+	events   chan proto.Message   // incoming event messages
+	requests chan IncomingRequest // incoming request messages
 
 	sendMutex       sync.Mutex  // only one sender
 	envelope        pb.Envelope // reusable for sending
@@ -57,6 +57,7 @@ func NewMessengerInterface(transport Transport) *Messenger {
 		transport: transport,
 		pending:   make(map[uint64]*PendingCall),
 		events:    make(chan proto.Message, 10),
+		requests:  make(chan IncomingRequest, 10), // TODO: increase?
 		lifetime:  lifetime,
 	}
 
@@ -118,6 +119,42 @@ func (m *Messenger) putEvent(event proto.Message) {
 	}
 }
 
+// -------------------- requests -------------------- >>
+
+// IncomingRequest holds information for the service to return a Response to.
+type IncomingRequest struct {
+	Seq     uint64
+	Request proto.Message // received request payload
+	Respond func(ctx context.Context, response proto.Message, err *string) error
+}
+
+// Get a receive-only channel of incoming Events to handle.
+func (m *Messenger) Requests() <-chan IncomingRequest {
+	return m.requests
+}
+
+// Write an incoming Request to the channel but don't block when doing so!
+func (m *Messenger) putRequest(seq uint64, request proto.Message) {
+	r := IncomingRequest{
+		Seq:     seq,
+		Request: request,
+		Respond: func(ctx context.Context, response proto.Message, err *string) error {
+			return m.SendResponse(ctx, seq, response, err)
+		},
+	}
+	select {
+	case m.requests <- r: // ok
+	default:
+		// can't immediately put it in the queue, spin up a goroutine for it
+		go func(r IncomingRequest) {
+			log.Printf("WARN: receiver[%s]: request %d, queue is full", m.transport.Addr(), r.Seq)
+			m.requests <- r
+		}(r)
+	}
+}
+
+//
+
 // -------------------- receiver -------------------- >>
 
 // The receiver will continuously read from the Transport and parse incoming
@@ -137,10 +174,13 @@ func (m *Messenger) receiver() {
 		switch envelope.GetType() {
 
 		case pb.Envelope_Request:
-			// TODO: requests not implemented yet
-			timeout, cancel := context.WithTimeout(m.lifetime.Context, time.Second)
-			m.send(timeout, envelope.Sequence, pb.Envelope_Response.Enum(), nil, proto.String("requests not implemented yet"))
-			cancel()
+			request, err := envelope.Payload.UnmarshalNew()
+			if err != nil {
+				// this usually means that the message type is not known
+				receiveErr = fmt.Errorf("unpacking request payload: %w", err)
+				break
+			}
+			m.putRequest(*envelope.Sequence, request)
 			continue
 
 		case pb.Envelope_Event:
@@ -237,6 +277,11 @@ func (m *Messenger) send(ctx context.Context, seq *uint64, mt *pb.Envelope_Messa
 		return fmt.Errorf("failed send: %w", werr)
 	}
 	return nil
+}
+
+// Send a Response to a previous request.
+func (m *Messenger) SendResponse(ctx context.Context, seq uint64, response proto.Message, err *string) error {
+	return m.send(ctx, &seq, pb.Envelope_Response.Enum(), response, err)
 }
 
 // Send an Event using the next sequence number.

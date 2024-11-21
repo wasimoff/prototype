@@ -34,6 +34,9 @@ type OffloadingJob struct {
 	JobSpec    *pb.OffloadWasiJobRequest
 }
 
+// reuseable task queue for HTTP handler and websocket
+var taskQueue = make(chan *provider.AsyncWasiTask, 100)
+
 // The ExecHandler returns a HTTP handler, which accepts run configurations for
 // existing WASM binaries and dispatches them to available providers. Upon task
 // completion, the results are returned to the HTTP requester.
@@ -42,8 +45,7 @@ func ExecHandler(store *provider.ProviderStore, selector Scheduler, benchmode bo
 
 	// create a queue for the tasks and start the dispatcher
 	// TODO: reuse the ticketing from benchmode to limit concurrent scheduler jobs
-	queue := make(chan *provider.AsyncWasiTask, 10)
-	go Dispatcher(selector, queue)
+	go Dispatcher(selector, taskQueue)
 
 	// TODO: this is a horrible graft ..
 	if benchmode {
@@ -91,7 +93,7 @@ func ExecHandler(store *provider.ProviderStore, selector Scheduler, benchmode bo
 
 			for i := 0; ; i++ {
 				<-tickets
-				queue <- provider.NewAsyncWasiTask(
+				taskQueue <- provider.NewAsyncWasiTask(
 					context.Background(),
 					&pb.ExecuteWasiRequest{
 						Info: &pb.TaskMetadata{
@@ -161,7 +163,7 @@ func ExecHandler(store *provider.ProviderStore, selector Scheduler, benchmode bo
 			job.JobID, job.ClientAddr, len(job.JobSpec.Tasks))
 
 		// compute all the tasks of a request
-		results := DispatchTasks(r.Context(), store, &job, queue)
+		results := DispatchTasks(r.Context(), store, &job, taskQueue)
 
 		// send the result back, if not canceled
 		if cerr := r.Context().Err(); cerr != nil {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"flag"
 	"fmt"
@@ -11,7 +12,9 @@ import (
 	"os"
 	"path"
 	"strings"
+	"sync"
 	"wasimoff/broker/net/pb"
+	"wasimoff/broker/net/transport"
 
 	"github.com/gabriel-vasile/mimetype"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -112,6 +115,36 @@ func Execute(args, envs []string) {
 	if len(args) == 0 {
 		log.Fatal("need at least one argument")
 	}
+
+	// TODO: websocket testing
+	ctx, cancel := context.WithCancel(context.Background())
+	wt, err := transport.DialWebSocketTransport(ctx, brokerUrl+"/api/client/ws")
+	if err != nil {
+		log.Printf("ERR: websocket: %s", err)
+	}
+	messenger := transport.NewMessengerInterface(wt)
+
+	wg := sync.WaitGroup{}
+	for i := 0; i < 32; i++ {
+		wg.Add(1)
+		go func() {
+			res := pb.WasiTaskResult{}
+			err = messenger.RequestSync(ctx, &pb.WasiTaskArgs{
+				Binary: &pb.File{Ref: proto.String(args[0])},
+				Args:   args,
+				Envs:   envs,
+				Stdin:  []byte{},
+			}, &res)
+			if err != nil {
+				log.Printf("client socket err: %s", err)
+			} else {
+				log.Printf("socketed task done: %s", protojson.Format(&res))
+			}
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+	cancel()
 
 	// construct an ad-hoc job
 	job := &pb.OffloadWasiJobRequest{
