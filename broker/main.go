@@ -12,7 +12,6 @@ import (
 )
 
 func main() {
-	termclear()
 	banner()
 
 	// use configuration from environment variables
@@ -26,56 +25,39 @@ func main() {
 		log.Fatalf("failed to start server: %s", err)
 	}
 
-	// maybe register the pprof handler
-	if conf.Debug {
-		pprofHandler(mux)
-		log.Printf("DEBUG: broker PID is %d", os.Getpid())
-		log.Printf("DEBUG: pprof profiles at %s/debug/pprof/", broker.Addr())
-	}
-
-	// health message
-	mux.HandleFunc(apiPrefix+"/healthz", server.Healthz())
-
 	// create a provider store and scheduler
 	store := provider.NewProviderStore(conf.FileStorage)
-	// selector := scheduler.NewRoundRobinSelector(&store)
-	// selector := scheduler.NewAnyFreeSelector(&store)
-	selector := scheduler.NewSimpleMatchSelector(&store)
-
-	// serve the files from store storage
-	mux.Handle("/storage/{filename}", store.Storage)
-
-	// run request handler
-	mux.HandleFunc(apiPrefix+"/run", scheduler.ExecHandler(&store, &selector, conf.Benchmode))
-
-	// upload wasm binaries to providers
-	mux.HandleFunc(apiPrefix+"/upload", scheduler.UploadHandler(&store))
-	log.Printf("API routes at %s%s/{run,upload}", broker.Addr(), apiPrefix)
+	selector := scheduler.NewSimpleMatchSelector(store)
+	// selector := scheduler.NewRoundRobinSelector(store)
+	// selector := scheduler.NewAnyFreeSelector(store)
 
 	// provider transports
-	providerSocket := "/websocket/provider"
-	mux.HandleFunc(providerSocket, provider.WebSocketHandler(broker, &store, conf.AllowedOrigins))
-	log.Printf("Provider socket: %s%s", broker.Addr(), providerSocket)
+	mux.HandleFunc("/api/provider/ws", provider.WebSocketHandler(broker, store, conf.AllowedOrigins))
+	log.Printf("Provider socket: %s/api/provider/ws", broker.Addr())
 
-	// Prometheus metrics
+	// storage: serve files from and upload into store storage
+	mux.Handle("/api/storage/{filename}", store.Storage)
+	mux.HandleFunc("/api/storage/upload", scheduler.UploadHandler(store))
+	log.Printf("Storage at %s/api/storage/...", broker.Addr())
+
+	// client offloading request handler
+	mux.HandleFunc("/api/client/run", scheduler.ExecHandler(store, &selector, conf.Benchmode))
+	log.Printf("Client API at %s/api/client/run", broker.Addr())
+
+	// health message
+	mux.HandleFunc("/healthz", server.Healthz())
+
+	// pprof endpoint for debugging
+	if conf.Debug {
+		pprofHandler(mux, "/debug/pprof")
+		log.Printf("DEBUG: broker PID is %d", os.Getpid())
+		log.Printf("DEBUG: pprof profiles at %s/debug/pprof", broker.Addr())
+	}
+
+	// prometheus metrics
 	if conf.Metrics {
-		mux.Handle("/metrics", metrics.MetricsHandler(
-			// I'd love to put these funcs into the metrics package but that leads to an import cycle
-			// gaugeFunc for the providers
-			func() float64 {
-				return float64(store.Size())
-			},
-			// gaugeFunc for the workers
-			func() (f float64) {
-				sum := 0
-				store.Range(func(addr string, provider *provider.Provider) bool {
-					sum += provider.CurrentLimit()
-					return true
-				})
-				return float64(sum)
-			},
-		))
-		log.Printf("Prometheus metrics: %s%s", broker.Addr(), "/metrics")
+		prometheusHandler(mux, "/metrics", store)
+		log.Printf("Prometheus metrics: %s/metrics", broker.Addr())
 	}
 
 	// serve static files for frontend
@@ -89,12 +71,37 @@ func main() {
 
 }
 
+//
+// ---
+
 // pprofHandler mimics what the net/http/pprof.init() does, but on a specified mux
-func pprofHandler(mux *http.ServeMux) {
+func pprofHandler(mux *http.ServeMux, prefix string) {
 	// https://cs.opensource.google/go/go/+/refs/tags/go1.23.0:src/net/http/pprof/pprof.go;l=95
-	mux.HandleFunc("/debug/pprof/", pprof.Index)
-	mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
-	mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
-	mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
-	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
+	mux.HandleFunc(prefix+"/", pprof.Index)
+	mux.HandleFunc(prefix+"/cmdline", pprof.Cmdline)
+	mux.HandleFunc(prefix+"/profile", pprof.Profile)
+	mux.HandleFunc(prefix+"/symbol", pprof.Symbol)
+	mux.HandleFunc(prefix+"/trace", pprof.Trace)
+
+}
+
+// metrics endpoint for Prometheus
+func prometheusHandler(mux *http.ServeMux, prefix string, store *provider.ProviderStore) {
+	mux.Handle(prefix, metrics.MetricsHandler(
+		// I'd love to put these funcs into the metrics package but that leads to an import cycle
+		// gaugeFunc for the providers
+		func() float64 {
+			return float64(store.Size())
+		},
+		// gaugeFunc for the workers
+		func() (f float64) {
+			sum := 0
+			store.Range(func(addr string, provider *provider.Provider) bool {
+				sum += provider.CurrentLimit()
+				return true
+			})
+			return float64(sum)
+		},
+	))
+
 }

@@ -31,7 +31,7 @@ type ProviderStore struct {
 }
 
 // NewProviderStore properly initializes the fields in the store
-func NewProviderStore(storagepath string) ProviderStore {
+func NewProviderStore(storagepath string) *ProviderStore {
 	store := ProviderStore{
 		providers:   xsync.NewMapOf[*Provider](),
 		Broadcast:   make(chan proto.Message, 10),
@@ -43,7 +43,7 @@ func NewProviderStore(storagepath string) ProviderStore {
 		store.Storage = storage.NewBoltFileStorage(storagepath)
 	}
 	go store.transmitter()
-	return store
+	return &store
 }
 
 // ------------- broadcast events to everyone -------------

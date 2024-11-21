@@ -153,7 +153,7 @@ export class WasimoffProvider {
     // only the websocket transport is implemented so far
     let url = new URL(origin);
     if (url.origin.match(/^wss?:$/) === null) url.protocol = url.protocol.replace("http", "ws");
-    url.pathname = "/websocket/provider";
+    url.pathname = "/api/provider/ws";
     const wst = WebSocketTransport.connect(url.href);
     this.messenger = new Messenger(wst);
     await wst.ready;

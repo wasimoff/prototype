@@ -25,15 +25,13 @@ export default defineConfig({
       "Cross-Origin-Opener-Policy": "same-origin",
     },
     proxy: {
-      // forward API requests to the broker
-      "^/api/broker": "http://localhost:4080",
-      // forward storage fetches to the broker
-      "^/storage/.*": "http://localhost:4080",
-      // forward the websockets
-      "^/websocket/.*": {
+      // forward websockets
+      "^/api/[a-z]+/ws": {
         target: "http://localhost:4080",
         ws: true,
-      }
+      },
+      // forward any API requests to the broker
+      "^/api/": "http://localhost:4080",
     }
   },
 })

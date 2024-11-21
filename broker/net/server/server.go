@@ -78,6 +78,7 @@ func (s *Server) ListenAndServe() error {
 // Healthz returns a simple HandlerFunc simply replying with "OK"
 func Healthz() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK\n"))
 	}
 }

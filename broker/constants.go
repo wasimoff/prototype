@@ -2,12 +2,6 @@ package main
 
 import "fmt"
 
-// Common broker/v1 client API prefix.
-const apiPrefix = "/api/broker/v1"
-
-// Prefix for envionment variables.
-const envconfigPrefix = "WASIMOFF"
-
 // Print a figlet "wasmoff" banner.
 // figlet -f small wasimoff | sed -e 's/\\/\\\\/g' -e 's/.*/log.Println("&")/'
 func banner() {

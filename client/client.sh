@@ -20,14 +20,14 @@ set -eu
 # }
 
 # set the URL to the broker here
-BROKER="${BROKER:-http://localhost:4080}/api/broker/v1"
+BROKER="${BROKER:-http://localhost:4080}"
 
 # run a json configuration
 runjson() { # $1: run configuration
   # you can convert your old configs with:
   # $ jq '. as $t | { parent: { binary: { ref: $t.bin } }, tasks: $t.exec | map({ args: ([$t.bin] + .args), stdin: .stdin | @base64 }) }' config.json
   # upload run configuration and show the result 
-  curl --fail-with-body -kX POST -H "content-type: application/json" "$BROKER/run" --data-binary "@$1"
+  curl --fail-with-body -kX POST -H "content-type: application/json" "$BROKER/api/client/run" --data-binary "@$1"
 }
 
 # create a run config from arguments
@@ -58,7 +58,7 @@ upload() { # $1: the file to upload, $2: the filename
   # get the mime-type
   mime=$(file -bL --mime-type "$1")
   # upload the file, giving name in query parameter
-  curl --fail-with-body -kX POST -H "content-type: $mime" "$BROKER/upload?name=$name" --data-binary "@$1"
+  curl --fail-with-body -kX POST -H "content-type: $mime" "$BROKER/api/storage/upload?name=$name" --data-binary "@$1"
 }
 
 

@@ -1,6 +1,10 @@
 version: "3.8"
 services:
 
+  # TODO: this file needs to be updated
+  # it works for the references docker images here but
+  # is not compatible with recent versions anymore
+
   broker:
     image: ansemjo/wasimoff:starless24-broker
     build:

@@ -41,6 +41,9 @@ type Configuration struct {
 	Debug bool `desc:"Enable /debug/pprof profile handlers" default:"false"`
 }
 
+// Prefix for envionment variable names.
+const envprefix = "WASIMOFF"
+
 //
 //
 //
@@ -54,7 +57,7 @@ func GetConfiguration() (conf Configuration) {
 		return arg == "-h" || arg == "--help"
 	}) {
 		tabs := tabwriter.NewWriter(os.Stdout, 1, 0, 4, ' ', 0)
-		envconfig.Usagef(envconfigPrefix, &conf, tabs, usageHelpFormat)
+		envconfig.Usagef(envprefix, &conf, tabs, usageHelpFormat)
 		tabs.Flush()
 		os.Exit(1)
 	}
@@ -65,7 +68,7 @@ func GetConfiguration() (conf Configuration) {
 	}
 
 	// parse configuration from environment variables
-	if err := envconfig.Process(envconfigPrefix, &conf); err != nil {
+	if err := envconfig.Process(envprefix, &conf); err != nil {
 		log.Fatalf("failed parsing config: %s", err)
 	}
 	return

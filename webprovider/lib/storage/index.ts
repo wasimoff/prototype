@@ -58,7 +58,7 @@ export class ProviderStorage {
 
     // request the file from broker
     console.warn(...logprefix, `file ${filename} not found locally, fetch from broker`);
-    let response = await fetch(`${this.origin}/storage/${filename}`);
+    let response = await fetch(`${this.origin}/api/storage/${filename}`);
     if (!response.ok) return undefined;
 
     // store fetched file to filesystem

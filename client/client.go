@@ -21,9 +21,6 @@ import (
 // default URL to use for the brokerUrl
 var brokerUrl = "http://localhost:4080"
 
-// this is currently the prefix for all client routes
-const apiPrefix = "/api/broker/v1"
-
 // be more verbose
 var verbose bool
 
@@ -93,7 +90,7 @@ func UploadFile(filename, name string) {
 
 	// upload to the broker
 	resp, err := http.Post(
-		brokerUrl+apiPrefix+"/upload?name="+name, mt.String(), bytes.NewBuffer(buf))
+		brokerUrl+"/api/storage/upload?name="+name, mt.String(), bytes.NewBuffer(buf))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -211,7 +208,7 @@ func RunJob(job *pb.OffloadWasiJobRequest) []*pb.ExecuteWasiResponse {
 
 	// send the request
 	resp, err := http.Post(
-		brokerUrl+apiPrefix+"/run", "application/protobuf", bytes.NewBuffer(jobpb))
+		brokerUrl+"/api/client/run", "application/protobuf", bytes.NewBuffer(jobpb))
 	if err != nil {
 		log.Fatal(err)
 	}
