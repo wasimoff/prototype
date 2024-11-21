@@ -6,6 +6,7 @@ import (
 	"slices"
 	"text/tabwriter"
 
+	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -56,6 +57,11 @@ func GetConfiguration() (conf Configuration) {
 		envconfig.Usagef(envconfigPrefix, &conf, tabs, usageHelpFormat)
 		tabs.Flush()
 		os.Exit(1)
+	}
+
+	// load .env file into environment
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("failed to load dotenv: %s", err)
 	}
 
 	// parse configuration from environment variables

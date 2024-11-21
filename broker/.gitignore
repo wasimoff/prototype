@@ -7,5 +7,8 @@
 broker
 __debug_bin*
 
+# dotenv config
+.env
+
 # boltdb storage
 broker_storage.boltdb
