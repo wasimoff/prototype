@@ -12,7 +12,6 @@ import (
 	"os"
 	"path"
 	"strings"
-	"sync"
 	"wasimoff/broker/net/pb"
 	"wasimoff/broker/net/transport"
 
@@ -21,14 +20,12 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// default URL to use for the brokerUrl
-var brokerUrl = "http://localhost:4080"
-
-// be more verbose
-var verbose bool
-
-// read stdin for exec
-var readstdin bool
+var (
+	brokerUrl = "http://localhost:4080" // default broker base URL
+	verbose   = false                   // be more verbose
+	readstdin = false                   // read stdin for exec
+	websock   = false                   // use websocket to send tasks
+)
 
 func init() {
 	// get the Broker URL from env
@@ -41,11 +38,12 @@ func main() {
 
 	// commandline parser
 	flag.StringVar(&brokerUrl, "broker", brokerUrl, "URL to the Broker to use")
-	upload := flag.String("upload", "", "Upload a file (wasm or zip) to the Broker and receive it ref")
-	exec := flag.String("exec", "", "Execute an uploaded binary; separate further app arguments with '--'")
+	upload := flag.String("upload", "", "Upload a file (wasm or zip) to the Broker and receive its ref")
+	exec := flag.Bool("exec", false, "Execute an uploaded binary by passing all non-flag args")
 	run := flag.String("run", "", "Run a prepared JSON job file")
-	flag.BoolVar(&verbose, "verbose", false, "Be more verbose and print raw messages for -exec")
-	flag.BoolVar(&readstdin, "stdin", false, "Read and send stdin when using -exec (not streamed)")
+	flag.BoolVar(&verbose, "verbose", verbose, "Be more verbose and print raw messages for -exec")
+	flag.BoolVar(&readstdin, "stdin", readstdin, "Read and send stdin when using -exec (not streamed)")
+	flag.BoolVar(&websock, "ws", websock, "Use a WebSocket to send tasks")
 	flag.Parse()
 
 	switch true {
@@ -56,9 +54,9 @@ func main() {
 		UploadFile(*upload, alias)
 
 	// execute an ad-hoc command, as if you were to run it locally
-	case *exec != "":
+	case *exec:
 		envs := []string{} // TODO: read os.Environ?
-		args := append([]string{*exec}, flag.Args()...)
+		args := flag.Args()
 		Execute(args, envs)
 
 	// execute a prepared JSON job
@@ -116,43 +114,13 @@ func Execute(args, envs []string) {
 		log.Fatal("need at least one argument")
 	}
 
-	// TODO: websocket testing
-	ctx, cancel := context.WithCancel(context.Background())
-	wt, err := transport.DialWebSocketTransport(ctx, brokerUrl+"/api/client/ws")
-	if err != nil {
-		log.Printf("ERR: websocket: %s", err)
-	}
-	messenger := transport.NewMessengerInterface(wt)
-
-	wg := sync.WaitGroup{}
-	for i := 0; i < 32; i++ {
-		wg.Add(1)
-		go func() {
-			res := pb.WasiTaskResult{}
-			err = messenger.RequestSync(ctx, &pb.WasiTaskArgs{
-				Binary: &pb.File{Ref: proto.String(args[0])},
-				Args:   args,
-				Envs:   envs,
-				Stdin:  []byte{},
-			}, &res)
-			if err != nil {
-				log.Printf("client socket err: %s", err)
-			} else {
-				log.Printf("socketed task done: %s", protojson.Format(&res))
-			}
-			wg.Done()
-		}()
-	}
-	wg.Wait()
-	cancel()
-
 	// construct an ad-hoc job
 	job := &pb.OffloadWasiJobRequest{
 		Tasks: []*pb.WasiTaskArgs{{
 			Binary: &pb.File{Ref: proto.String(args[0])},
 			Args:   args,
 			Envs:   envs,
-			Stdin:  []byte{},
+			// Stdin:  []byte{},
 		}},
 	}
 
@@ -233,6 +201,11 @@ func RunJsonFile(config string) {
 // run a prepared job configuration from proto message
 func RunJob(job *pb.OffloadWasiJobRequest) []*pb.ExecuteWasiResponse {
 
+	// short-circuit to alternative function, when we should be using websocket
+	if websock {
+		return RunJobOnWebSocket(job)
+	}
+
 	// (re)marshal as binary
 	jobpb, err := proto.Marshal(job)
 	if err != nil {
@@ -270,3 +243,52 @@ func RunJob(job *pb.OffloadWasiJobRequest) []*pb.ExecuteWasiResponse {
 
 	return response.Tasks
 }
+
+// alternatively, run a job by sending each task over websocket
+func RunJobOnWebSocket(job *pb.OffloadWasiJobRequest) []*pb.ExecuteWasiResponse {
+
+	// open a websocket to the broker
+	socket, err := transport.DialWebSocketTransport(context.TODO(), brokerUrl+"/api/client/ws")
+	if err != nil {
+		log.Printf("ERR: opening websocket: %s", err)
+	}
+	// wrap it in a messenger for RPC
+	messenger := transport.NewMessengerInterface(socket)
+	defer messenger.Close(nil)
+
+	// chan and list to collect responses
+	ntasks := len(job.GetTasks())
+	done := make(chan *transport.PendingCall, ntasks)
+	responses := make([]*pb.ExecuteWasiResponse, ntasks)
+
+	// submit all tasks
+	for i, task := range job.GetTasks() {
+		task.InheritNil(job.Parent)
+		if verbose {
+			log.Printf("websocket: submit task %d", i)
+		}
+		// store index in context
+		ctx := context.WithValue(context.TODO(), ctxJobIndex{}, i)
+		messenger.SendRequest(ctx, task, &pb.WasiTaskResult{}, done)
+	}
+
+	// wait for all responses
+	for ntasks > 0 {
+		call := <-done
+		ntasks -= 1
+		i := call.Context.Value(ctxJobIndex{}).(int)
+		if verbose {
+			log.Printf("websocket: received result %d: err=%v", i, call.Error)
+		}
+		// construct WasiResponse from TaskResult
+		responses[i] = &pb.ExecuteWasiResponse{Result: call.Response.(*pb.WasiTaskResult)}
+		if call.Error != nil {
+			responses[i].Error = proto.String(call.Error.Error())
+		}
+	}
+
+	return responses
+}
+
+// typed key to store index in context
+type ctxJobIndex struct{}

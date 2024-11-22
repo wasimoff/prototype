@@ -304,7 +304,7 @@ func (m *Messenger) SendRequest(ctx context.Context, request proto.Message, resp
 	}
 
 	// prepare the call struct, check if response isn't nil
-	call := &PendingCall{request, response, nil, done}
+	call := &PendingCall{ctx, request, response, nil, done}
 	if response == nil || reflect.ValueOf(response).IsNil() {
 		call.Error = fmt.Errorf("response interface is nil, refusing to send")
 		return call.done()
@@ -346,6 +346,7 @@ func (m *Messenger) RequestSync(ctx context.Context, request, response proto.Mes
 
 // PendingCall is used by Request to have something to write the response to.
 type PendingCall struct {
+	Context  context.Context
 	Request  proto.Message     // sent request payload
 	Response proto.Message     // decoded response payload
 	Error    error             // general error

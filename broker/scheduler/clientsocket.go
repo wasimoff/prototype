@@ -75,7 +75,7 @@ func ClientSocketHandler(store *provider.ProviderStore) http.HandlerFunc {
 					errs = append(errs, store.Storage.ResolvePbFile(rq.Binary))
 					errs = append(errs, store.Storage.ResolvePbFile(rq.Rootfs))
 					if err := errors.Join(errs...); err != nil {
-						request.Respond(r.Context(), &pb.ExecuteWasiResponse{}, proto.String(err.Error()))
+						request.Respond(r.Context(), &pb.WasiTaskResult{}, proto.String(err.Error()))
 						continue // next request
 					}
 
@@ -90,9 +90,9 @@ func ClientSocketHandler(store *provider.ProviderStore) http.HandlerFunc {
 						},
 						Task: rq,
 					}
-					taskctx := context.WithValue(r.Context(), "request", request)
+					taskctx := context.WithValue(r.Context(), ctxkeyRequest{}, request)
 					taskQueue <- provider.NewAsyncWasiTask(taskctx, &wreq, &resp, done)
-					log.Printf("Task submit: %s\n", wreq.Info.TaskID())
+					// log.Printf("Task submit: %s :: %#v\n", wreq.Info.TaskID(), wreq.Task.Args)
 					continue
 
 				default:
@@ -103,15 +103,18 @@ func ClientSocketHandler(store *provider.ProviderStore) http.HandlerFunc {
 
 				// respond with finished results
 			case task := <-done:
-				request, ok := task.Context.Value("request").(transport.IncomingRequest)
+				request, ok := task.Context.Value(ctxkeyRequest{}).(transport.IncomingRequest)
 				if !ok {
 					log.Fatalf("ClientSocketHandler: couldn't get incoming request from context")
 				}
 				request.Respond(r.Context(), task.Response.Result, task.Response.Error)
-				log.Printf("Task respond: %s\n", task.Args.Info.TaskID())
+				// log.Printf("Task respond: %s :: %#v\n", task.Args.Info.TaskID(), task.Args.Task.Args)
 
 			}
 		}
 
 	}
 }
+
+// typed key to store original request in a context
+type ctxkeyRequest struct{}
