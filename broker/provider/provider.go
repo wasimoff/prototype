@@ -145,12 +145,13 @@ func NewAsyncWasiTask(
 
 // Done signals on the channel that this call is complete
 func (t *AsyncWasiTask) Done() *AsyncWasiTask {
-	select {
-	case t.done <- t: // ok
-	default: // never block here
-		// TODO: probably shouldn't do this; except first two uses for general errors, this is always called in a goroutine
-		log.Printf("WARN: AsyncWasiTask %s was blocked when signalling Done", t.Args.Info.TaskID())
-	}
+	t.done <- t
+	// select {
+	// case t.done <- t: // ok
+	// default: // never block here
+	// 	// TODO: probably shouldn't do this; except first two uses for general errors, this is always called in a goroutine
+	// 	log.Printf("WARN: AsyncWasiTask %s was blocked when signalling Done", t.Args.Info.TaskID())
+	// }
 	return t
 }
 

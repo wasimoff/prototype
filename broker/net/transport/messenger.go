@@ -56,8 +56,8 @@ func NewMessengerInterface(transport Transport) *Messenger {
 	messenger := &Messenger{
 		transport: transport,
 		pending:   make(map[uint64]*PendingCall),
-		events:    make(chan proto.Message, 10),
-		requests:  make(chan IncomingRequest, 10), // TODO: increase?
+		events:    make(chan proto.Message, 32),
+		requests:  make(chan IncomingRequest, 512),
 		lifetime:  lifetime,
 	}
 
