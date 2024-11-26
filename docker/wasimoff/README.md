@@ -1,5 +1,9 @@
 # Containerized Wasimoff Deployment
 
+**TODO: this README is outdated.**
+
+
+
 This repository includes a multi-stage `Dockerfile`, which:
 * compiles the `broker` binary in a `golang:1.21-bookworm` image,
 * compiles the webprovider frontend dist in a `node:20-bookworm` image,
