@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"os"
 	"slices"
@@ -63,7 +64,8 @@ func GetConfiguration() (conf Configuration) {
 	}
 
 	// load .env file into environment
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load(); err != nil && !errors.Is(err, os.ErrNotExist) {
+		// ignore simple "not found" errors
 		log.Fatalf("failed to load dotenv: %s", err)
 	}
 
