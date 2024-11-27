@@ -1,5 +1,7 @@
 broker/broker
-broker/client/client
-broker/client/wasimoff
+broker/*.boltdb
+broker/.env
+client/client
+client/wasimoff
 webprovider/node_modules/
 webprovider/dist/
