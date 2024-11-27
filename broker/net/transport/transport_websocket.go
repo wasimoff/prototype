@@ -83,6 +83,19 @@ func DialWebSocketTransport(ctx context.Context, url string) (t *WebSocketTransp
 	return &WebSocketTransport{conn, res.Request}, nil
 }
 
+// shorthand to open a Wasimoff RPC messenger over WebSocket
+func DialWasimoff(ctx context.Context, base string) (*Messenger, error) {
+
+	// open a websocket to the broker
+	socket, err := DialWebSocketTransport(ctx, base+"/api/client/ws")
+	if err != nil {
+		return nil, fmt.Errorf("opening websocket: %w", err)
+	}
+	// wrap it in a messenger for RPC
+	return NewMessengerInterface(socket), nil
+
+}
+
 // -------------------- read / write -------------------- >>
 
 // WriteMessage will marshal the given message using the negotiated subprotocol codec
