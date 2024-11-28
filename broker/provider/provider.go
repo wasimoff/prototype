@@ -155,6 +155,18 @@ func (t *AsyncWasiTask) Done() *AsyncWasiTask {
 	return t
 }
 
+// Intercept replaces the done channel with another channel and returns the previous channel
+func (t *AsyncWasiTask) Intercept(interceptingChannel chan *AsyncWasiTask) chan *AsyncWasiTask {
+	previous := t.done
+	t.done = interceptingChannel
+	return previous
+}
+
+// DoneCapacity returns the capacity of the done channel
+func (t *AsyncWasiTask) DoneCapacity() int {
+	return cap(t.done)
+}
+
 // Accept tasks on an unbuffered channel to submit to the Provider. Channels can
 // be used in a DynamicSubmit, so calls from many different sources can be efficiently
 // distributed to multiple Providers.
