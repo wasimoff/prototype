@@ -10,7 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path"
+	"path/filepath"
 	"strings"
 	"wasimoff/broker/net/pb"
 	"wasimoff/broker/net/transport"
@@ -86,7 +86,7 @@ func UploadFile(filename, name string) {
 
 	// reuse basename as name if it's empty
 	if name == "" {
-		name = path.Base(filename)
+		name = filepath.Base(filename)
 	}
 
 	// upload to the broker
