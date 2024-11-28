@@ -39,9 +39,11 @@ func Dispatcher(selector Scheduler, queue chan *provider.AsyncWasiTask) {
 
 					log.Printf("Task %v failed no. %d, retrying", task, i)
 					result.Response.Error = nil
+					result.Error = nil
 				} else {
 					log.Printf("selector.Schedule %v failed no. %d, retrying", task, i)
 					task.Response.Error = nil
+					task.Error = nil
 				}
 			}
 
