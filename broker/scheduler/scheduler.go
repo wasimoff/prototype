@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"context"
+	"log"
 	"reflect"
 	"wasimoff/broker/provider"
 )
@@ -22,16 +23,36 @@ func Dispatcher(selector Scheduler, queue chan *provider.AsyncWasiTask) {
 
 		// each task is handled in a separate goroutine
 		go func(task *provider.AsyncWasiTask) {
+			interceptingChannel := make(chan *provider.AsyncWasiTask, task.DoneCapacity())
+			interceptedChannel := task.Intercept(interceptingChannel)
 
-			// schedule the task with a provider
-			err := selector.Schedule(context.TODO(), task)
+			retries := 10
+			var err error
+			for i := 0; i < retries; i++ {
+				// schedule the task with a provider
+				err = selector.Schedule(context.TODO(), task)
+				if err == nil && task.Error == nil && task.Response.Error == nil {
+					result := <-interceptingChannel
+					if result.Error == nil && result.Response.Error == nil {
+						break
+					}
+
+					log.Printf("Task %v failed no. %d, retrying", task, i)
+					result.Response.Error = nil
+				} else {
+					log.Printf("selector.Schedule %v failed no. %d, retrying", task, i)
+					task.Response.Error = nil
+				}
+			}
+
 			if err != nil {
-				// TODO: retry task depending on error here
+				// TODO: retry task depending on error here (old TODO before the loop above)
 				task.Error = err
-				task.Done()
+				interceptedChannel <- task
 				return
 			}
 
+			interceptedChannel <- task
 			// signal completion to measure throughput
 			// TODO: hijack the chan somewhere
 			// if task.Result.Error == nil {
