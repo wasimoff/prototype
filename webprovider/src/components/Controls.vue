@@ -51,13 +51,13 @@ async function connect() {
   } catch (err) { terminal.error(String(err)); }
 };
 
-async function kill() {
-  if (!$pool.value) return terminal.error("$pool not connected yet");
-  await $pool.value.killall();
-  // grace period for some error responses
-  await new Promise(r => setTimeout(r, 100));
-  await wasimoff.disconnect();
-};
+// async function kill() {
+//   if (!$pool.value) return terminal.error("$pool not connected yet");
+//   await $pool.value.killall();
+//   // grace period for some error responses
+//   await new Promise(r => setTimeout(r, 100));
+//   await wasimoff.disconnect();
+// };
 
 async function shutdown() {
   if (!$pool.value) return terminal.error("$pool not connected yet");
