@@ -29,7 +29,7 @@ if (!window.isSecureContext) {
     <Controls/>
 
     <!-- virtual console for worker output -->
-    <label class="label has-text-grey-dark">Terminal <a @click="terminal.clear()" title="Clear messages">×</a></label>
+    <label class="label has-text-grey-dark">Log Messages <a @click="terminal.clear()" title="Clear messages">×</a></label>
     <Terminal/>
 
   </div>
