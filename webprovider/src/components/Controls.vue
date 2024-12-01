@@ -67,7 +67,7 @@ async function shutdown() {
 
 // class bindings for the transport url field
 const connectionStatus = computed(() => connected.value
-  ? { "is-success": true, "has-text-success": true }
+  ? { "is-success": true, "has-text-grey": true }
   : { "is-danger": false,  "has-text-danger": false }
 );
 
@@ -142,9 +142,10 @@ const usage = computed(() => {
         <div class="control">
           <button class="button is-family-monospace is-info" @click="dropWorker" :disabled="workers.length == 0" title="Remove a WASM Runner from the Pool">-</button>
         </div>
-        <div class="control">
+        <!-- hidden for demo -->
+        <!-- <div class="control">
           <button class="button is-info" @click="fillWorkers" :disabled="workers.length == nmax" title="Add WASM Runners to maximum capacity">Fill</button>
-        </div>
+        </div> -->
       </div>
 
       <label class="label has-text-grey-dark">Current Usage: {{ (100*usage).toFixed() }}%</label>
@@ -158,17 +159,18 @@ const usage = computed(() => {
       <label class="label has-text-grey-dark">Broker Transport</label>
       <div class="field has-addons">
         <div class="control">
-          <input :readonly="connected" class="input" :class="connectionStatus" type="text" title="WebTransport Configuration URL" v-model="transport">
+          <input :readonly="connected" class="input" :class="connectionStatus" type="text" title="Broker URL" v-model="transport">
         </div>
         <div class="control" v-if="!connected">
-          <button class="button is-success" @click="connect" title="Reconnect Transport">Connect</button>
+          <button class="button is-success" @click="connect" title="Connect Transport">Connect</button>
         </div>
         <div class="control" v-if="connected">
-          <button class="button is-warning" @click="shutdown" title="Drain Workers and close the Transport gracefully">Close</button>
+          <button class="button is-warning" @click="shutdown" title="Drain Workers and close the Transport gracefully">Disconnect</button>
         </div>
-        <div class="control" v-if="connected">
+        <!-- hidden for demo -->
+        <!-- <div class="control" v-if="connected">
           <button class="button is-danger" @click="kill" title="Kill Workers and close Transport immediately">Kill</button>
-        </div>
+        </div> -->
       </div>
 
       <label class="label has-text-grey-dark">Cluster Information</label>
