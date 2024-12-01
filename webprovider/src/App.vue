@@ -34,6 +34,15 @@ if (!window.isSecureContext) {
 
   </div>
 
+  <center>
+    <div class="github">
+      <a href="https://github.com/wasimoff">
+        <img src="https://github.githubassets.com/favicons/favicon.svg" alt="GitHub Logo" />
+        <span>github.com/wasimoff</span>
+      </a>
+    </div>
+  </center>
+
 </template>
 
 <style scoped>
@@ -49,6 +58,21 @@ if (!window.isSecureContext) {
   position: relative;
   top: 0.7rem;
   height: 3rem;
+}
+
+.github {
+  /* display: flex; */
+  align-items: center;
+}
+.github img {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+  position: relative;
+  bottom: -5px;
+}
+.github a {
+  color: black;
 }
 
 </style>
