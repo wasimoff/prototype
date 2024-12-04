@@ -41,14 +41,14 @@ var taskQueue = make(chan *provider.AsyncWasiTask, 100)
 // existing WASM binaries and dispatches them to available providers. Upon task
 // completion, the results are returned to the HTTP requester.
 // MARK: ExecHdl
-func ExecHandler(store *provider.ProviderStore, selector Scheduler, benchmode bool) http.HandlerFunc {
+func ExecHandler(store *provider.ProviderStore, selector Scheduler, benchmode int) http.HandlerFunc {
 
 	// create a queue for the tasks and start the dispatcher
 	// TODO: reuse the ticketing from benchmode to limit concurrent scheduler jobs
 	go Dispatcher(selector, taskQueue)
 
 	// TODO: this is a horrible graft ..
-	if benchmode {
+	if benchmode > 0 {
 		go func() {
 
 			// wait for required binary upload
@@ -70,7 +70,7 @@ func ExecHandler(store *provider.ProviderStore, selector Scheduler, benchmode bo
 			}
 
 			// use "tickets" to limit the number of concurrent tasks in-flight
-			inflight := 8192
+			inflight := benchmode
 			tickets := make(chan struct{}, inflight)
 			for len(tickets) < cap(tickets) {
 				tickets <- struct{}{}
@@ -112,10 +112,10 @@ func ExecHandler(store *provider.ProviderStore, selector Scheduler, benchmode bo
 			}
 		}()
 
-		// no other execs are allowed
-		return func(w http.ResponseWriter, r *http.Request) {
-			http.Error(w, "sorry, running in benchmode", http.StatusServiceUnavailable)
-		}
+		// // no other execs are allowed
+		// return func(w http.ResponseWriter, r *http.Request) {
+		// 	http.Error(w, "sorry, running in benchmode", http.StatusServiceUnavailable)
+		// }
 	}
 
 	// return the http handler to register as a route

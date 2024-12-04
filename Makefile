@@ -13,3 +13,8 @@ provider:
 client: wasimoff
 wasimoff: $(shell find client/ broker/ -name '*.go')
 	go build -o $@ ./client/
+
+.PHONY: deploy
+deploy: broker
+	docker save ansemjo/wasimoff:broker | ssh wasiteam docker load
+	ssh wasiteam "cd wasimoff/ && docker compose up -d broker"

@@ -33,7 +33,7 @@ type Configuration struct {
 	FileStorage string `desc:"Use persistent BoltDB storage for files" default:":memory:"`
 
 	// Activate the benchmarking mode where the Broker produces workload itself
-	Benchmode bool `desc:"Activate benchmarking mode" default:"false"` // TODO
+	Benchmode int `desc:"Activate benchmarking mode" default:"0"`
 
 	// Expose metrics for Prometheus via /metrics
 	Metrics bool `desc:"Enable Prometheus exporter on /metrics" default:"true"`
