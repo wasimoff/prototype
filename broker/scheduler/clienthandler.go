@@ -81,7 +81,7 @@ func ExecHandler(store *provider.ProviderStore, selector Scheduler, benchmode in
 			go func() {
 				for t := range doneChan {
 					if t.Error == nil {
-						store.RateTick()
+						// store.RateTick()
 					}
 					tickets <- struct{}{}
 				}
@@ -237,7 +237,7 @@ func DispatchTasks(
 	for t := range doneChan {
 		done++
 		if t.Error == nil {
-			store.RateTick()
+			// store.RateTick()
 		}
 		if done == len(pending) {
 			break

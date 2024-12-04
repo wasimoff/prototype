@@ -41,6 +41,6 @@ func (s *AnyFreeSelector) Schedule(ctx context.Context, task *provider.AsyncWasi
 
 }
 
-func (s *AnyFreeSelector) TaskDone() {
+func (s *AnyFreeSelector) RateTick() {
 	s.store.RateTick()
 }

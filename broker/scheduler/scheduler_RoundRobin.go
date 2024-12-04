@@ -61,6 +61,6 @@ func (s *RoundRobinSelector) Schedule(ctx context.Context, task *provider.AsyncW
 
 }
 
-func (s *RoundRobinSelector) TaskDone() {
+func (s *RoundRobinSelector) RateTick() {
 	s.store.RateTick()
 }

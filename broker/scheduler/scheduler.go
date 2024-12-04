@@ -13,7 +13,7 @@ type Scheduler interface {
 	// The Schedule function tries to submit a Task to a suitable Provider's queue and returns the WasmTask struct
 	Schedule(ctx context.Context, task *provider.AsyncWasiTask) error
 	// Called on task completion to measure overall throughput
-	TaskDone()
+	RateTick()
 }
 
 // The Dispatcher takes a task queue and a provider selector strategy and then
@@ -47,19 +47,14 @@ func Dispatcher(selector Scheduler, queue chan *provider.AsyncWasiTask) {
 				}
 			}
 
+			// still erroneous after retries, give up
 			if err != nil {
-				// TODO: retry task depending on error here (old TODO before the loop above)
 				task.Error = err
-				interceptedChannel <- task
-				return
+			} else {
+				// otherwise signal completion to measure throughput
+				selector.RateTick()
 			}
-
 			interceptedChannel <- task
-			// signal completion to measure throughput
-			// TODO: hijack the chan somewhere
-			// if task.Result.Error == nil {
-			// 	selector.TaskDone()
-			// }
 
 		}(task)
 	}

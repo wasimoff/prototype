@@ -80,6 +80,6 @@ func (s *SimpleMatchSelector) Schedule(ctx context.Context, task *provider.Async
 	}
 }
 
-func (s *SimpleMatchSelector) TaskDone() {
+func (s *SimpleMatchSelector) RateTick() {
 	s.store.RateTick()
 }
