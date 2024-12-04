@@ -19,7 +19,15 @@ type Scheduler interface {
 // The Dispatcher takes a task queue and a provider selector strategy and then
 // decides which task to send to which provider for computation.
 func Dispatcher(selector Scheduler, queue chan *provider.AsyncWasiTask) {
+
+	// use ticketing to limit simultaneous schedules
+	tickets := make(chan struct{}, 8)
+	for len(tickets) < cap(tickets) {
+		tickets <- struct{}{}
+	}
+
 	for task := range queue {
+		<-tickets // get a ticket
 
 		// each task is handled in a separate goroutine
 		go func(task *provider.AsyncWasiTask) {
@@ -29,11 +37,15 @@ func Dispatcher(selector Scheduler, queue chan *provider.AsyncWasiTask) {
 			retries := 10
 			var err error
 			for i := 0; i < retries; i++ {
-				// schedule the task with a provider
+
+				// schedule the task with a provider and release a ticket
 				err = selector.Schedule(context.TODO(), task)
+				tickets <- struct{}{}
+
 				if err == nil && task.Error == nil && task.Response.Error == nil {
 					result := <-interceptingChannel
 					if result.Error == nil && result.Response.Error == nil {
+						// everything is fine
 						break
 					}
 
@@ -44,6 +56,10 @@ func Dispatcher(selector Scheduler, queue chan *provider.AsyncWasiTask) {
 					log.Printf("selector.Schedule %v failed no. %d, retrying", task, i)
 					task.Response.Error = nil
 					task.Error = nil
+				}
+				// need to go another loop, reacquire a ticket
+				if i < (retries - 1) {
+					<-tickets
 				}
 			}
 
