@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
-    "protoc": "protoc --plugin=node_modules/.bin/protoc-gen-es --es_out=lib/proto --es_opt=target=ts,json_types=true -I=../broker ../broker/messages.proto"
+    "protoc": "protoc --plugin=node_modules/.bin/protoc-gen-es --es_out=lib/proto --es_opt=target=ts,json_types=true -I=../ ../messages.proto"
   },
   "dependencies": {
     "@bjorn3/browser_wasi_shim": "^0.3.0",
@@ -33,5 +33,6 @@
     "typescript": "^5.4.5",
     "vite": "^5.2.13",
     "vue-tsc": "^2.0.19"
-  }
+  },
+  "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
 }
