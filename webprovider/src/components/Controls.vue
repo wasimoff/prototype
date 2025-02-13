@@ -61,6 +61,7 @@ async function connect() {
 
 async function shutdown() {
   if (!$pool.value) return terminal.error("$pool not connected yet");
+  terminal.info("Draining tasks .. please wait.");
   await $pool.value.scale(0);
   await wasimoff.disconnect();
 }
