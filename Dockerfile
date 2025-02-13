@@ -37,10 +37,13 @@ ENTRYPOINT ["/tini", "--", "deno", "run", "--cached-only", \
 
 # ---> combine broker and frontend dist in default container
 # docker build --target wasimoff -t wasimoff/broker .
-FROM scratch AS wasimoff
+FROM alpine AS wasimoff
 COPY --from=broker   /broker/broker /broker
 COPY --from=frontend /provider/dist /provider
 ENTRYPOINT [ "/broker" ]
+
+# needed for healthcheck
+RUN apk add --no-cache curl
 
 # :: minimum container configuration ::
 

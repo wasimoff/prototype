@@ -1,0 +1,40 @@
+services:
+
+  broker:
+
+    image: ansemjo/wasimoff:broker
+    build:
+      context: ./
+      target: wasimoff
+    restart: unless-stopped
+    ports:
+      - 4080:4080
+    volumes:
+      - broker_storage:/data
+    healthcheck:
+      test: [ "CMD", "curl", "-sf", "http://localhost:4080/healthz" ]
+      interval: 2s
+    environment:
+      # listen on this address
+      WASIMOFF_HTTP_LISTEN: ":4080"
+      # allow requests from local frontend dev
+      WASIMOFF_ALLOWED_ORIGINS: localhost:5173
+      # store uploaded binaries in volume
+      WASIMOFF_FILESTORAGE: /data/broker_storage.boltdb
+      # enable pprof and metrics endpoints
+      WASIMOFF_DEBUG: "true"
+      WASIMOFF_METRICS: "true"
+
+  provider:
+    image: ansemjo/wasimoff:provider
+    build:
+      context: ./
+      target: provider
+    restart: unless-stopped
+    depends_on:
+      broker:
+        condition: service_healthy
+    command: ["--url", "http://broker:4080", "--workers", "2"]
+
+volumes:
+  broker_storage:
