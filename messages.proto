@@ -2,6 +2,11 @@
 edition = "2023";
 
 import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+
+// enable the new opaque api: https://protobuf.dev/reference/go/opaque-faq/
+// import "google/protobuf/go_features.proto";
+// option features.(pb.go).api_level = API_OPAQUE;
 
 
 // ---------- identifiers for codecs on the wire ---------- //
@@ -29,22 +34,13 @@ message Envelope {
   MessageType type = 2;
   enum MessageType { UNKNOWN = 0; Request = 1; Response = 2; Event = 3; }
 
-  // The presence of an error indicates that something went wrong with the call
-  // in general (like a server "oops"). Otherwise, the called function should
-  // encode specific errors within the payload.
+  // The presence of an error string indicates a fatal failure with a request.
+  // Responses should encode specific errors within the payload, if possible.
   string error = 3;
 
   // The payload itself. Needs to be (un)packed with `anypb`.
   google.protobuf.Any payload = 4;
 
-}
-
-// Ping stub, if the transport does not provide them. WebSocket does have its
-// own mechanism. On WebTransport, you should use a separate stream to avoid re-
-// introducing head-of-line blocking with the other RPC requests.
-message Ping {
-  enum Direction { Ping = 0; Pong = 1; }
-  Direction direction = 1;
 }
 
 
@@ -56,45 +52,114 @@ message Ping {
 // response message for different requests, even if their fields are identical.
 
 
-// ---> execute
+// The task message contains parameters to instantiate a task of a certain format
+// and return the output upon successful execution. The Request and Response herein
+// are the smallest unit of work that should be sent on the wire.
+message Task {
 
-// ExecuteWasi runs a webassembly/wasi binary on the Provider
-message ExecuteWasiRequest {
-  TaskMetadata info = 1; // metadata about this task
-  WasiTaskArgs task = 2; // arguments for the WebAssembly module
-}
-message ExecuteWasiResponse {
-  string error = 1; // error leading up to the instantiation
-  WasiTaskResult result = 2; // result of the execution
-}
+  // Information about this task for identification and tracing.
+  message Metadata {
+    string id = 1; // unique identifier for this task
+    string requester = 2; // who is requesting this task
+    string provider = 3; // which provider executed this task
+  }
 
-// TaskMetadata contains some information about the originating job request.
-message TaskMetadata {
-  string jobID = 1; // overall job ID
-  uint64 index = 3; // index within a job with multiple tasks
-  string client = 2; // info about the requesting client
-}
+  // Quality of Service (QoS) parameters for a given task.
+  message QoS {
+    bool priority = 1;
+    google.protobuf.Timestamp deadline = 2;
+    // TODO
+  }
 
-// WasiTaskArgs should not be sent as a toplevel message directly and instead
-// contains necessary references and execution arguments to instantiate a single
-// WebAssembly task on the Provider.
-message WasiTaskArgs {
-  File binary = 1;
-  repeated string args = 2;
-  repeated string envs = 3;
-  bytes stdin = 4;
-  File rootfs = 5;
-  repeated string artifacts = 6;
-}
+  // Event to terminate a running task on Provider.
+  message Cancel {
+    string id = 1; // unique identifier of the task
+    string reason = 2; // freeform reason for logging
+  }
 
-// WasiTaskResult is the result of an execution from a WasiTaskArgs. It should
-// only be returned if the module was instantiated successfully at all, i.e. any
-// errors leading up to that should be returned higher up.
-message WasiTaskResult {
-  int32 status = 1;
-  bytes stdout = 2;
-  bytes stderr = 3;
-  File artifacts = 4;
+  message Request {
+
+    // "header"
+    Metadata info = 1;
+    QoS qos = 2;
+    reserved 3 to 9;
+
+    oneof parameters {
+      Wasip1.Params wasip1 = 10;
+      Pyodide.Params pyodide = 11;
+    }
+
+  }
+
+  message Response {
+
+    // "header"
+    Metadata info = 1;
+    reserved 3 to 9;
+
+    oneof result {
+      string error = 2;
+      Wasip1.Result wasip1 = 10;
+      Pyodide.Result pyodide = 11;
+    }
+
+  }
+
+  //  WebAssembly System Interface (WASI), preview1
+  // ===============================================
+  message Wasip1 {
+
+    // Contains necessary references and execution arguments to instantiate a single
+    // WebAssembly task in a WASI preview 1 environment on the Provider.
+    message Params {
+      File binary = 1;
+      repeated string args = 2;
+      repeated string envs = 3;
+      bytes stdin = 4;
+      File rootfs = 5;
+      repeated string artifacts = 6;
+    }
+
+    // The result of an execution from a Wasip1.Params message. It should only be
+    // returned if the WebAssembly module was instantiated successfully at all.
+    message Output {
+      int32 status = 1;
+      bytes stdout = 2;
+      bytes stderr = 3;
+      File artifacts = 4;
+    }
+
+    // Wrap a Wasip1.Output in a Result, which can be an Error or OK.
+    message Result {
+      oneof result {
+        string error = 1;
+        Output ok = 2;
+      }
+    }
+
+  }
+
+
+  //  Pyodide Python scripts
+  // ========================
+  message Pyodide {
+
+    // TODO
+    message Params {   }
+
+    // TODO
+    message Output {   }
+
+    // Wrap a Pyodide.Output in a Result, which can be an Error or OK.
+    message Result {
+      oneof result {
+        string error = 1;
+        Output ok = 2;
+      }
+    }
+
+  }
+
 }
 
 
@@ -145,44 +210,48 @@ message FileDownloadResponse {
 
 // ---> event messages
 
-// Generic is just a generic piece of text for debugging
-message GenericEvent {
-  string message = 1;
-}
+message Event {
 
-// ProviderHello is sent once at the beginning to identify the Provider
-message ProviderHello {
-  string name = 1; // a logging-friendly name of the provider
-  string useragent = 2; // like the navigator.useragent in browser
-}
+  // GenericMessage is just a generic piece of text for logging
+  message GenericMessage {
+    string message = 1;
+  }
 
-// ProviderResources is information about the available resources in Worker pool
-message ProviderResources {
-  uint32 concurrency = 1; // maximum possible concurrency (~ number of Workers)
-  uint32 tasks = 2; // currently active tasks
-}
+  // ProviderHello is sent once at the beginning to identify the Provider
+  message ProviderHello {
+    string name = 1; // a logging-friendly name of the provider
+    string useragent = 2; // like the navigator.useragent in browser
+  }
 
-// ClusterInfo contains information about all connected Providers
-message ClusterInfo {
-  uint32 providers = 1; // number of currently connected providers
-}
+  // ProviderResources is information about the available resources in Worker pool
+  message ProviderResources {
+    uint32 concurrency = 1; // maximum possible concurrency (~ number of Workers)
+    uint32 tasks = 2; // currently active tasks
+  }
 
-// Throughput contains information about overall cluster throughput
-message Throughput {
-  float overall = 1; // current overall tasks/s throughput
-  float yours = 2; // your contribution (identified by name)
-}
+  // ClusterInfo contains information about all connected Providers
+  message ClusterInfo {
+    uint32 providers = 1; // number of currently connected providers
+  }
 
-// CancelTask tells the Provider that it can terminate a task
-message CancelTask {
-  TaskMetadata info = 1;
-  string reason = 2;
-}
+  // Throughput contains information about overall cluster throughput
+  message Throughput {
+    float overall = 1; // current overall tasks/s throughput
+    float yours = 2; // your contribution (identified by name)
+  }
 
-// FileSystemUpdate notifies the Broker about changed files on the Provider.
-message FileSystemUpdate {
-  repeated string added = 1;
-  repeated string removed = 2;
+  // CancelTask tells the Provider that it can terminate a task
+  message CancelTask {
+    string id = 1;
+    string reason = 2;
+  }
+
+  // FileSystemUpdate notifies the Broker about changed files on the Provider.
+  message FileSystemUpdate {
+    repeated string added = 1;
+    repeated string removed = 2;
+  }
+
 }
 
 
@@ -196,30 +265,36 @@ message FileSystemUpdate {
 // These client requests will arrive on predefined routes, so a normal RPC
 // library could be used and no Envelope wrapping is necessary.
 
-// The client upload is a POST request with the binary data as the body, media
-// type in the Contet-Type header and the optional friendly name in a query
-// parameter. So this message type isn't actually used anywhere yet.
-message ClientUploadRequest {
-  string name = 1; // friendly name for lookup
-  string media = 2; // media type
-  bytes body = 3; // binary file contents
-}
-message ClientUploadResponse {
-  string ref = 1; // the hashed ref the file was stored under
-  string err = 2; // any errors during file insertion
-}
+message Client {
 
-// An offloading request specifies a list of WasiTaskArgs, each possibly
-// containing a binary to use, args, envs etc. An optional common parent can
-// be given to fill values in tasks. There is no magic in the parameter
-// inheritance though: anything in the parent gets entirely replaced by the
-// corresponding field in a task spec. At least one task must always be present,
-// even if just an empty { } with all parameters inherited from the parent.
-message OffloadWasiJobRequest {
-  WasiTaskArgs parent = 1; // inherit common task parameters
-  repeated WasiTaskArgs tasks = 2; // list of task arguments
-}
-message OffloadWasiJobResponse {
-  string failure = 1; // the complete job failed
-  repeated ExecuteWasiResponse tasks = 2; // list of task results
+  // Jobs specify a simple parent-inheritance structure for each task format, so
+  // multiple similar tasks can be sent efficiently in a single HTTP request.
+  // There is no magic involved though: anything in the parent gets entirely
+  // replaced by the corresponding fields in a task specification. Thus, at least
+  // one task must always be present, even if just an empty { } with all
+  // parameters inherited from the parent.
+  message Job {
+
+    message Wasip1Request {
+      Task.Wasip1.Params parent = 1;
+      repeated Task.Wasip1.Params tasks = 2;
+    }
+
+    message Wasip1Response {
+      string error = 1;
+      repeated Task.Wasip1.Result tasks = 2;
+    }
+
+    message PyodideRequest {
+      Task.Pyodide.Params parent = 1;
+      repeated Task.Pyodide.Params tasks = 2;
+    }
+
+    message PyodideResponse {
+      string error = 1;
+      repeated Task.Pyodide.Result tasks = 2;
+    }
+
+  }
+
 }

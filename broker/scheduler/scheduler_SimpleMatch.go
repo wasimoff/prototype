@@ -17,17 +17,10 @@ func NewSimpleMatchSelector(store *provider.ProviderStore) SimpleMatchSelector {
 	return SimpleMatchSelector{store}
 }
 
-func (s *SimpleMatchSelector) selectCandidates(task *provider.AsyncWasiTask) (candidates []*provider.Provider, err error) {
+func (s *SimpleMatchSelector) selectCandidates(task *provider.AsyncTask) (candidates []*provider.Provider, err error) {
 
 	// create a list of needed files to check with the providers
-	targ := task.Args.Task
-	requiredFiles := make([]string, 0, 2)
-	if targ.Binary != nil && targ.Binary.GetRef() != "" {
-		requiredFiles = append(requiredFiles, *targ.Binary.Ref)
-	}
-	if targ.Rootfs != nil && targ.Rootfs.GetRef() != "" {
-		requiredFiles = append(requiredFiles, *targ.Rootfs.Ref)
-	}
+	requiredFiles := task.Request.GetRequiredFiles()
 
 	// find suitable candidates with free slots
 	candidates = make([]*provider.Provider, 0, s.store.Size())
@@ -55,7 +48,7 @@ func (s *SimpleMatchSelector) selectCandidates(task *provider.AsyncWasiTask) (ca
 
 }
 
-func (s *SimpleMatchSelector) Schedule(ctx context.Context, task *provider.AsyncWasiTask) (err error) {
+func (s *SimpleMatchSelector) Schedule(ctx context.Context, task *provider.AsyncTask) (err error) {
 	for {
 
 		providers, err := s.selectCandidates(task)

@@ -22,7 +22,7 @@ func NewRoundRobinSelector(store *provider.ProviderStore) RoundRobinSelector {
 	return RoundRobinSelector{store, -1} // will increment to 0 on first use
 }
 
-func (s *RoundRobinSelector) selectCandidates(task *provider.AsyncWasiTask) (candidates []*provider.Provider, err error) {
+func (s *RoundRobinSelector) selectCandidates(task *provider.AsyncTask) (candidates []*provider.Provider, err error) {
 	// round-robin actually got *harder* since using a map for the store ...
 
 	// if the list is empty, return nil
@@ -47,7 +47,7 @@ func (s *RoundRobinSelector) selectCandidates(task *provider.AsyncWasiTask) (can
 	return
 }
 
-func (s *RoundRobinSelector) Schedule(ctx context.Context, task *provider.AsyncWasiTask) (err error) {
+func (s *RoundRobinSelector) Schedule(ctx context.Context, task *provider.AsyncTask) (err error) {
 
 	providers, err := s.selectCandidates(task)
 	if err != nil {

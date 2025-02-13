@@ -11,14 +11,14 @@ import (
 // i.e. the type that selects suitable providers given task information and submits the task.
 type Scheduler interface {
 	// The Schedule function tries to submit a Task to a suitable Provider's queue and returns the WasmTask struct
-	Schedule(ctx context.Context, task *provider.AsyncWasiTask) error
+	Schedule(ctx context.Context, task *provider.AsyncTask) error
 	// Called on task completion to measure overall throughput
 	RateTick()
 }
 
 // The Dispatcher takes a task queue and a provider selector strategy and then
 // decides which task to send to which provider for computation.
-func Dispatcher(selector Scheduler, queue chan *provider.AsyncWasiTask) {
+func Dispatcher(selector Scheduler, queue chan *provider.AsyncTask) {
 
 	// use ticketing to limit simultaneous schedules
 	tickets := make(chan struct{}, 8)
@@ -30,8 +30,8 @@ func Dispatcher(selector Scheduler, queue chan *provider.AsyncWasiTask) {
 		<-tickets // get a ticket
 
 		// each task is handled in a separate goroutine
-		go func(task *provider.AsyncWasiTask) {
-			interceptingChannel := make(chan *provider.AsyncWasiTask, task.DoneCapacity())
+		go func(task *provider.AsyncTask) {
+			interceptingChannel := make(chan *provider.AsyncTask, task.DoneCapacity())
 			interceptedChannel := task.Intercept(interceptingChannel)
 
 			retries := 10
@@ -42,19 +42,19 @@ func Dispatcher(selector Scheduler, queue chan *provider.AsyncWasiTask) {
 				err = selector.Schedule(context.TODO(), task)
 				tickets <- struct{}{}
 
-				if err == nil && task.Error == nil && task.Response.Error == nil {
+				if err == nil && task.Error == nil && task.Response.OK() {
 					result := <-interceptingChannel
-					if result.Error == nil && result.Response.Error == nil {
+					if result.Error == nil && result.Response.OK() {
 						// everything is fine
 						break
 					}
 
-					log.Printf("Task %v failed no. %d, retrying", task, i)
-					result.Response.Error = nil
+					log.Printf("Retrying %s (%d) after: %v", task.Request.GetInfo().GetId(), i, task.Error)
+					result.Response.Result = nil
 					result.Error = nil
 				} else {
 					log.Printf("selector.Schedule %v failed no. %d, retrying", task, i)
-					task.Response.Error = nil
+					task.Response.Result = nil
 					task.Error = nil
 				}
 				// need to go another loop, reacquire a ticket
@@ -80,7 +80,7 @@ func Dispatcher(selector Scheduler, queue chan *provider.AsyncWasiTask) {
 // This uses the Providers' unbuffered Queue, so that a task can only be submitted to a Provider
 // when it currently has free capacity, without needing to busy-loop and recheck capacity yourself.
 // Based on StackOverflow answer by Dave C. on https://stackoverflow.com/a/32381409.
-func dynamicSubmit(ctx context.Context, call *provider.AsyncWasiTask, providers []*provider.Provider) error {
+func dynamicSubmit(ctx context.Context, call *provider.AsyncTask, providers []*provider.Provider) error {
 
 	// setup select cases
 	cases := make([]reflect.SelectCase, len(providers), len(providers)+1)

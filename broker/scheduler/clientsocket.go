@@ -2,7 +2,6 @@ package scheduler
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,7 +13,6 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// TODO text
 // ClientSocketHandler returns a http.HandlerFunc to be used on a route that shall serve
 // as an endpoint for Clients to connect to. This particular handler uses WebSocket
 // transport with either Protobuf or JSON encoding, negotiated using subprotocol strings.
@@ -34,16 +32,18 @@ func ClientSocketHandler(store *provider.ProviderStore) http.HandlerFunc {
 		log.Printf("[%s] New Client socket", addr)
 
 		// all tasks on this socket are counted as one "job"
-		job := fmt.Sprintf("ws/%05d", jobSequence.Add(1))
+		job := fmt.Sprintf("websocket/%05d", jobSequence.Add(1))
 		requestSequence := uint64(0)
 
 		// channel for finished requests
-		done := make(chan *provider.AsyncWasiTask, 32)
+		// TODO: limit task creation with an equally-sized ticket channel
+		done := make(chan *provider.AsyncTask, 32)
 
 		defer log.Printf("[%s] Client socket closed", addr)
 		for {
 			select {
 
+			// connection closing
 			case <-r.Context().Done():
 				return
 			case <-messenger.Closing():
@@ -51,63 +51,53 @@ func ClientSocketHandler(store *provider.ProviderStore) http.HandlerFunc {
 
 			// print any received events
 			case event, ok := <-messenger.Events():
-				if !ok {
+				if !ok { // messenger closing
 					return
 				}
 				log.Printf("{client %s} %s", addr, prototext.Format(event))
 
 			// dispatch received requests
 			case request, ok := <-messenger.Requests():
-				if !ok {
+				if !ok { // messenger closing
 					return
 				}
-				switch rq := request.Request.(type) {
+				switch taskrequest := request.Request.(type) {
 
-				case *pb.ClientUploadRequest:
-					request.Respond(r.Context(), &pb.ClientUploadResponse{}, proto.String("upload over socket not implemented yet"))
-					continue
-
-				case *pb.WasiTaskArgs:
+				case *pb.Task_Request:
 					requestSequence++
 
-					// resolve files
-					errs := []error{}
-					errs = append(errs, store.Storage.ResolvePbFile(rq.Binary))
-					errs = append(errs, store.Storage.ResolvePbFile(rq.Rootfs))
-					if err := errors.Join(errs...); err != nil {
-						request.Respond(r.Context(), &pb.WasiTaskResult{}, proto.String(err.Error()))
-						continue // next request
+					// resolve any filenames to storage hashes
+					if ferr := store.Storage.ResolveTaskFiles(taskrequest); ferr != nil {
+						request.Respond(r.Context(), nil, ferr)
+						continue // handle next request
 					}
 
 					// assemble the task for internal dispatcher queue
-					resp := pb.ExecuteWasiResponse{}
-					wreq := pb.ExecuteWasiRequest{
-						// common task metadata with index counter
-						Info: &pb.TaskMetadata{
-							JobID:  &job,
-							Index:  proto.Uint64(requestSequence),
-							Client: &addr,
-						},
-						Task: rq,
+					taskrequest.Info = &pb.Task_Metadata{
+						Id:        proto.String(fmt.Sprintf("%s/%d", job, requestSequence)),
+						Requester: &addr,
 					}
+					response := pb.Task_Response{}
 					taskctx := context.WithValue(r.Context(), ctxkeyRequest{}, request)
-					taskQueue <- provider.NewAsyncWasiTask(taskctx, &wreq, &resp, done)
+					taskQueue <- provider.NewAsyncTask(taskctx, taskrequest, &response, done)
 					// log.Printf("Task submit: %s :: %#v\n", wreq.Info.TaskID(), wreq.Task.Args)
 					continue
 
-				default:
-					request.Respond(r.Context(), &pb.GenericEvent{}, proto.String("request type not supported"))
+				default: // unexpected message type
+					request.Respond(r.Context(), nil, fmt.Errorf("expecting only Task_Request messages on this socket"))
 					continue
 
 				}
 
-				// respond with finished results
+			// respond with finished results
 			case task := <-done:
 				request, ok := task.Context.Value(ctxkeyRequest{}).(transport.IncomingRequest)
 				if !ok {
 					log.Fatalf("ClientSocketHandler: couldn't get incoming request from context")
 				}
-				request.Respond(r.Context(), task.Response.Result, task.Response.Error)
+
+				// pass through both internal and response errors directly
+				request.Respond(r.Context(), task.Response, task.Error)
 				// log.Printf("Task respond: %s :: %#v\n", task.Args.Info.TaskID(), task.Args.Task.Args)
 
 			}

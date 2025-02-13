@@ -38,26 +38,26 @@ export const useClusterState = defineStore("ClusterState", () => {
         switch (true) { // switch by message type
 
           // print generic messages to the terminal
-          case isMessage(event, pb.GenericEventSchema):
+          case isMessage(event, pb.Event_GenericMessageSchema):
             terminal.info(`Message: ${event.message}`);
             break;
 
           // update provider count
-          case isMessage(event, pb.ClusterInfoSchema):
+          case isMessage(event, pb.Event_ClusterInfoSchema):
             providers.value = event.providers;
             break;
 
           // update throughput
-          case isMessage(event, pb.ThroughputSchema):
+          case isMessage(event, pb.Event_ThroughputSchema):
             throughput.value = event.overall;
             break;
 
           // cancel a running task
-          case isMessage(event, pb.CancelTaskSchema): {
-            const { info } = event;
-            if (info !== undefined) {
-              let task = `${info.jobID}/${info.index}`;
-              wasimoff.$pool?.cancel(task);
+          case isMessage(event, pb.Event_CancelTaskSchema): {
+            const { id, reason } = event;
+            if (id !== undefined) {
+              console.warn(`cancelling task '${id}': ${reason}`);
+              wasimoff.$pool?.cancel(id);
             };
             break;
           };

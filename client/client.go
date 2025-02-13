@@ -115,12 +115,11 @@ func Execute(args, envs []string) {
 	}
 
 	// construct an ad-hoc job
-	job := &pb.OffloadWasiJobRequest{
-		Tasks: []*pb.WasiTaskArgs{{
+	job := &pb.Client_Job_Wasip1Request{
+		Tasks: []*pb.Task_Wasip1_Params{{
 			Binary: &pb.File{Ref: proto.String(args[0])},
 			Args:   args,
 			Envs:   envs,
-			// Stdin:  []byte{},
 		}},
 	}
 
@@ -147,7 +146,7 @@ func Execute(args, envs []string) {
 		fmt.Fprintln(os.Stderr, "ERR:", task.GetError())
 		os.Exit(1)
 	} else {
-		r := task.GetResult()
+		r := task.GetOk()
 		if verbose {
 			js, _ := protojson.Marshal(r)
 			log.Println("result:", string(js))
@@ -171,7 +170,7 @@ func RunJsonFile(config string) {
 	}
 
 	// decode with protojson and report any errors locally
-	job := &pb.OffloadWasiJobRequest{}
+	job := &pb.Client_Job_Wasip1Request{}
 	if err = protojson.Unmarshal(buf, job); err != nil {
 		log.Fatal("unmarshal job: ", err)
 	}
@@ -184,7 +183,7 @@ func RunJsonFile(config string) {
 		if task.GetError() != "" {
 			fmt.Fprintf(os.Stderr, "[task %d FAIL] %s\n", i, task.GetError())
 		} else {
-			r := task.GetResult()
+			r := task.GetOk()
 			fmt.Fprintf(os.Stderr, "[task %d => exit:%d]\n", i, *r.Status)
 			if r.Artifacts != nil {
 				fmt.Fprintf(os.Stderr, "artifact: %s\n", base64.StdEncoding.EncodeToString(r.Artifacts.GetBlob()))
@@ -199,7 +198,7 @@ func RunJsonFile(config string) {
 }
 
 // run a prepared job configuration from proto message
-func RunJob(job *pb.OffloadWasiJobRequest) []*pb.ExecuteWasiResponse {
+func RunJob(job *pb.Client_Job_Wasip1Request) []*pb.Task_Wasip1_Result {
 
 	// short-circuit to alternative function, when we should be using websocket
 	if websock {
@@ -222,7 +221,7 @@ func RunJob(job *pb.OffloadWasiJobRequest) []*pb.ExecuteWasiResponse {
 
 	// wait and read the full response
 	body, _ := io.ReadAll(resp.Body)
-	response := &pb.OffloadWasiJobResponse{}
+	response := &pb.Client_Job_Wasip1Response{}
 	if err := proto.Unmarshal(body, response); err != nil {
 		log.Println("can't unmarshal response: ", err)
 		fmt.Fprintln(os.Stderr, string(body))
@@ -237,15 +236,15 @@ func RunJob(job *pb.OffloadWasiJobRequest) []*pb.ExecuteWasiResponse {
 	}
 
 	// print overall failures
-	if f := response.GetFailure(); f != "" {
-		log.Fatal("job failed: ", f)
+	if response.Error != nil {
+		log.Fatal("job failed: ", response.GetError())
 	}
 
-	return response.Tasks
+	return response.GetTasks()
 }
 
 // alternatively, run a job by sending each task over websocket
-func RunJobOnWebSocket(job *pb.OffloadWasiJobRequest) []*pb.ExecuteWasiResponse {
+func RunJobOnWebSocket(job *pb.Client_Job_Wasip1Request) []*pb.Task_Wasip1_Result {
 
 	// open a websocket to the broker
 	socket, err := transport.DialWebSocketTransport(context.TODO(), brokerUrl+"/api/client/ws")
@@ -259,7 +258,7 @@ func RunJobOnWebSocket(job *pb.OffloadWasiJobRequest) []*pb.ExecuteWasiResponse 
 	// chan and list to collect responses
 	ntasks := len(job.GetTasks())
 	done := make(chan *transport.PendingCall, ntasks)
-	responses := make([]*pb.ExecuteWasiResponse, ntasks)
+	responses := make([]*pb.Task_Wasip1_Result, ntasks)
 
 	// submit all tasks
 	for i, task := range job.GetTasks() {
@@ -267,9 +266,17 @@ func RunJobOnWebSocket(job *pb.OffloadWasiJobRequest) []*pb.ExecuteWasiResponse 
 		if verbose {
 			log.Printf("websocket: submit task %d", i)
 		}
+
 		// store index in context
 		ctx := context.WithValue(context.TODO(), ctxJobIndex{}, i)
-		messenger.SendRequest(ctx, task, &pb.WasiTaskResult{}, done)
+
+		// assemble wrapped task and fire it off
+		tr := &pb.Task_Request{
+			Parameters: &pb.Task_Request_Wasip1{
+				Wasip1: task,
+			},
+		}
+		messenger.SendRequest(ctx, tr, &pb.Task_Response{}, done)
 	}
 
 	// wait for all responses
@@ -280,10 +287,19 @@ func RunJobOnWebSocket(job *pb.OffloadWasiJobRequest) []*pb.ExecuteWasiResponse 
 		if verbose {
 			log.Printf("websocket: received result %d: err=%v", i, call.Error)
 		}
-		// construct WasiResponse from TaskResult
-		responses[i] = &pb.ExecuteWasiResponse{Result: call.Response.(*pb.WasiTaskResult)}
+
 		if call.Error != nil {
-			responses[i].Error = proto.String(call.Error.Error())
+			responses[i].Result = &pb.Task_Wasip1_Result_Error{
+				Error: call.Error.Error(),
+			}
+		} else {
+			if resp, ok := call.Response.(*pb.Task_Response); ok {
+				responses[i].Result = resp.GetWasip1().Result
+			} else {
+				responses[i].Result = &pb.Task_Wasip1_Result_Error{
+					Error: "failed to parse the response as pb.Task_Response",
+				}
+			}
 		}
 	}
 

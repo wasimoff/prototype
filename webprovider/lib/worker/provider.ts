@@ -6,7 +6,7 @@ import { ProviderStorage } from "@wasimoff/storage/index.ts";
 import { Messenger, WebSocketTransport } from "@wasimoff/transport/index.ts";
 import { WasiWorkerPool } from "./workerpool.ts";
 import { create, Message } from "@bufbuild/protobuf";
-import { FileSystemUpdateSchema, ProviderHelloSchema, ProviderResourcesSchema } from "@wasimoff/proto/messages_pb.ts";
+import { Event_FileSystemUpdateSchema, Event_ProviderHelloSchema, Event_ProviderResourcesSchema } from "@wasimoff/proto/messages_pb.ts";
 import { rpchandler } from "@wasimoff/worker/rpchandler.ts";
 import { expose, proxy as comlinkProxy, workerReady, transfer, proxy } from "./comlink.ts";
 import { WasiTaskExecution } from "./wasiworker.ts";
@@ -128,7 +128,7 @@ export class WasimoffProvider {
 
     this.storage = new ProviderStorage(directory, origin);
     this.storage.updates.on(update => {
-      if (this.messenger) this.messenger.sendEvent(create(FileSystemUpdateSchema, update));
+      if (this.messenger) this.messenger.sendEvent(create(Event_FileSystemUpdateSchema, update));
     });
 
   };
@@ -235,10 +235,10 @@ export class WasimoffProvider {
   async sendInfo(pool?: number, name?: string, useragent?: string) {
     if (this.messenger === undefined) throw "not connected yet";
     if (pool !== undefined) {
-      this.messenger.sendEvent(create(ProviderResourcesSchema, { concurrency: pool }));
+      this.messenger.sendEvent(create(Event_ProviderResourcesSchema, { concurrency: pool }));
     };
     if (name !== undefined || useragent !== undefined) {
-      this.messenger.sendEvent(create(ProviderHelloSchema, { name, useragent }));
+      this.messenger.sendEvent(create(Event_ProviderHelloSchema, { name, useragent }));
     };
   };
 

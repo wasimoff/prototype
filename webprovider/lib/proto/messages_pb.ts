@@ -6,15 +6,15 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
-import type { Any, AnyJson } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_any } from "@bufbuild/protobuf/wkt";
+import type { Any, AnyJson, Timestamp, TimestampJson } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_any, file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file messages.proto.
  */
 export const file_messages: GenFile = /*@__PURE__*/
-  fileDesc("Cg5tZXNzYWdlcy5wcm90byK5AQoIRW52ZWxvcGUSEAoIc2VxdWVuY2UYASABKAQSIwoEdHlwZRgCIAEoDjIVLkVudmVsb3BlLk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADIksKBFBpbmcSIgoJZGlyZWN0aW9uGAEgASgOMg8uUGluZy5EaXJlY3Rpb24iHwoJRGlyZWN0aW9uEggKBFBpbmcQABIICgRQb25nEAEiTgoSRXhlY3V0ZVdhc2lSZXF1ZXN0EhsKBGluZm8YASABKAsyDS5UYXNrTWV0YWRhdGESGwoEdGFzaxgCIAEoCzINLldhc2lUYXNrQXJncyJFChNFeGVjdXRlV2FzaVJlc3BvbnNlEg0KBWVycm9yGAEgASgJEh8KBnJlc3VsdBgCIAEoCzIPLldhc2lUYXNrUmVzdWx0IjwKDFRhc2tNZXRhZGF0YRINCgVqb2JJRBgBIAEoCRINCgVpbmRleBgDIAEoBBIOCgZjbGllbnQYAiABKAkiegoMV2FzaVRhc2tBcmdzEhUKBmJpbmFyeRgBIAEoCzIFLkZpbGUSDAoEYXJncxgCIAMoCRIMCgRlbnZzGAMgAygJEg0KBXN0ZGluGAQgASgMEhUKBnJvb3RmcxgFIAEoCzIFLkZpbGUSEQoJYXJ0aWZhY3RzGAYgAygJIloKDldhc2lUYXNrUmVzdWx0Eg4KBnN0YXR1cxgBIAEoBRIOCgZzdGRvdXQYAiABKAwSDgoGc3RkZXJyGAMgASgMEhgKCWFydGlmYWN0cxgEIAEoCzIFLkZpbGUiMAoERmlsZRILCgNyZWYYASABKAkSDQoFbWVkaWEYAiABKAkSDAoEYmxvYhgDIAEoDCIUChJGaWxlTGlzdGluZ1JlcXVlc3QiJAoTRmlsZUxpc3RpbmdSZXNwb25zZRINCgVmaWxlcxgBIAMoCSIgChBGaWxlUHJvYmVSZXF1ZXN0EgwKBGZpbGUYASABKAkiHwoRRmlsZVByb2JlUmVzcG9uc2USCgoCb2sYASABKAgiKgoRRmlsZVVwbG9hZFJlcXVlc3QSFQoGdXBsb2FkGAEgASgLMgUuRmlsZSIhChJGaWxlVXBsb2FkUmVzcG9uc2USCwoDZXJyGAEgASgJIiMKE0ZpbGVEb3dubG9hZFJlcXVlc3QSDAoEZmlsZRgBIAEoCSI8ChRGaWxlRG93bmxvYWRSZXNwb25zZRIXCghkb3dubG9hZBgBIAEoCzIFLkZpbGUSCwoDZXJyGAIgASgJIh8KDEdlbmVyaWNFdmVudBIPCgdtZXNzYWdlGAEgASgJIjAKDVByb3ZpZGVySGVsbG8SDAoEbmFtZRgBIAEoCRIRCgl1c2VyYWdlbnQYAiABKAkiNwoRUHJvdmlkZXJSZXNvdXJjZXMSEwoLY29uY3VycmVuY3kYASABKA0SDQoFdGFza3MYAiABKA0iIAoLQ2x1c3RlckluZm8SEQoJcHJvdmlkZXJzGAEgASgNIiwKClRocm91Z2hwdXQSDwoHb3ZlcmFsbBgBIAEoAhINCgV5b3VycxgCIAEoAiI5CgpDYW5jZWxUYXNrEhsKBGluZm8YASABKAsyDS5UYXNrTWV0YWRhdGESDgoGcmVhc29uGAIgASgJIjIKEEZpbGVTeXN0ZW1VcGRhdGUSDQoFYWRkZWQYASADKAkSDwoHcmVtb3ZlZBgCIAMoCSJAChNDbGllbnRVcGxvYWRSZXF1ZXN0EgwKBG5hbWUYASABKAkSDQoFbWVkaWEYAiABKAkSDAoEYm9keRgDIAEoDCIwChRDbGllbnRVcGxvYWRSZXNwb25zZRILCgNyZWYYASABKAkSCwoDZXJyGAIgASgJIlQKFU9mZmxvYWRXYXNpSm9iUmVxdWVzdBIdCgZwYXJlbnQYASABKAsyDS5XYXNpVGFza0FyZ3MSHAoFdGFza3MYAiADKAsyDS5XYXNpVGFza0FyZ3MiTgoWT2ZmbG9hZFdhc2lKb2JSZXNwb25zZRIPCgdmYWlsdXJlGAEgASgJEiMKBXRhc2tzGAIgAygLMhQuRXhlY3V0ZVdhc2lSZXNwb25zZSpcCgtTdWJwcm90b2NvbBILCgdVTktOT1dOEAASIQodd2FzaW1vZmZfcHJvdmlkZXJfdjFfcHJvdG9idWYQARIdChl3YXNpbW9mZl9wcm92aWRlcl92MV9qc29uEAJiCGVkaXRpb25zcOgH", [file_google_protobuf_any]);
+  fileDesc("Cg5tZXNzYWdlcy5wcm90byK5AQoIRW52ZWxvcGUSEAoIc2VxdWVuY2UYASABKAQSIwoEdHlwZRgCIAEoDjIVLkVudmVsb3BlLk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADIvcGCgRUYXNrGjsKCE1ldGFkYXRhEgoKAmlkGAEgASgJEhEKCXJlcXVlc3RlchgCIAEoCRIQCghwcm92aWRlchgDIAEoCRpFCgNRb1MSEAoIcHJpb3JpdHkYASABKAgSLAoIZGVhZGxpbmUYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wGiQKBkNhbmNlbBIKCgJpZBgBIAEoCRIOCgZyZWFzb24YAiABKAkaowEKB1JlcXVlc3QSHAoEaW5mbxgBIAEoCzIOLlRhc2suTWV0YWRhdGESFgoDcW9zGAIgASgLMgkuVGFzay5Rb1MSJQoGd2FzaXAxGAogASgLMhMuVGFzay5XYXNpcDEuUGFyYW1zSAASJwoHcHlvZGlkZRgLIAEoCzIULlRhc2suUHlvZGlkZS5QYXJhbXNIAEIMCgpwYXJhbWV0ZXJzSgQIAxAKGpkBCghSZXNwb25zZRIcCgRpbmZvGAEgASgLMg4uVGFzay5NZXRhZGF0YRIPCgVlcnJvchgCIAEoCUgAEiUKBndhc2lwMRgKIAEoCzITLlRhc2suV2FzaXAxLlJlc3VsdEgAEicKB3B5b2RpZGUYCyABKAsyFC5UYXNrLlB5b2RpZGUuUmVzdWx0SABCCAoGcmVzdWx0SgQIAxAKGpoCCgZXYXNpcDEadAoGUGFyYW1zEhUKBmJpbmFyeRgBIAEoCzIFLkZpbGUSDAoEYXJncxgCIAMoCRIMCgRlbnZzGAMgAygJEg0KBXN0ZGluGAQgASgMEhUKBnJvb3RmcxgFIAEoCzIFLkZpbGUSEQoJYXJ0aWZhY3RzGAYgAygJGlIKBk91dHB1dBIOCgZzdGF0dXMYASABKAUSDgoGc3Rkb3V0GAIgASgMEg4KBnN0ZGVychgDIAEoDBIYCglhcnRpZmFjdHMYBCABKAsyBS5GaWxlGkYKBlJlc3VsdBIPCgVlcnJvchgBIAEoCUgAEiEKAm9rGAIgASgLMhMuVGFzay5XYXNpcDEuT3V0cHV0SABCCAoGcmVzdWx0GmYKB1B5b2RpZGUaCAoGUGFyYW1zGggKBk91dHB1dBpHCgZSZXN1bHQSDwoFZXJyb3IYASABKAlIABIiCgJvaxgCIAEoCzIULlRhc2suUHlvZGlkZS5PdXRwdXRIAEIICgZyZXN1bHQiMAoERmlsZRILCgNyZWYYASABKAkSDQoFbWVkaWEYAiABKAkSDAoEYmxvYhgDIAEoDCIUChJGaWxlTGlzdGluZ1JlcXVlc3QiJAoTRmlsZUxpc3RpbmdSZXNwb25zZRINCgVmaWxlcxgBIAMoCSIgChBGaWxlUHJvYmVSZXF1ZXN0EgwKBGZpbGUYASABKAkiHwoRRmlsZVByb2JlUmVzcG9uc2USCgoCb2sYASABKAgiKgoRRmlsZVVwbG9hZFJlcXVlc3QSFQoGdXBsb2FkGAEgASgLMgUuRmlsZSIhChJGaWxlVXBsb2FkUmVzcG9uc2USCwoDZXJyGAEgASgJIiMKE0ZpbGVEb3dubG9hZFJlcXVlc3QSDAoEZmlsZRgBIAEoCSI8ChRGaWxlRG93bmxvYWRSZXNwb25zZRIXCghkb3dubG9hZBgBIAEoCzIFLkZpbGUSCwoDZXJyGAIgASgJIsMCCgVFdmVudBohCg5HZW5lcmljTWVzc2FnZRIPCgdtZXNzYWdlGAEgASgJGjAKDVByb3ZpZGVySGVsbG8SDAoEbmFtZRgBIAEoCRIRCgl1c2VyYWdlbnQYAiABKAkaNwoRUHJvdmlkZXJSZXNvdXJjZXMSEwoLY29uY3VycmVuY3kYASABKA0SDQoFdGFza3MYAiABKA0aIAoLQ2x1c3RlckluZm8SEQoJcHJvdmlkZXJzGAEgASgNGiwKClRocm91Z2hwdXQSDwoHb3ZlcmFsbBgBIAEoAhINCgV5b3VycxgCIAEoAhooCgpDYW5jZWxUYXNrEgoKAmlkGAEgASgJEg4KBnJlYXNvbhgCIAEoCRoyChBGaWxlU3lzdGVtVXBkYXRlEg0KBWFkZGVkGAEgAygJEg8KB3JlbW92ZWQYAiADKAki0wIKBkNsaWVudBrIAgoDSm9iGlgKDVdhc2lwMVJlcXVlc3QSIwoGcGFyZW50GAEgASgLMhMuVGFzay5XYXNpcDEuUGFyYW1zEiIKBXRhc2tzGAIgAygLMhMuVGFzay5XYXNpcDEuUGFyYW1zGkMKDldhc2lwMVJlc3BvbnNlEg0KBWVycm9yGAEgASgJEiIKBXRhc2tzGAIgAygLMhMuVGFzay5XYXNpcDEuUmVzdWx0GlsKDlB5b2RpZGVSZXF1ZXN0EiQKBnBhcmVudBgBIAEoCzIULlRhc2suUHlvZGlkZS5QYXJhbXMSIwoFdGFza3MYAiADKAsyFC5UYXNrLlB5b2RpZGUuUGFyYW1zGkUKD1B5b2RpZGVSZXNwb25zZRINCgVlcnJvchgBIAEoCRIjCgV0YXNrcxgCIAMoCzIULlRhc2suUHlvZGlkZS5SZXN1bHQqXAoLU3VicHJvdG9jb2wSCwoHVU5LTk9XThAAEiEKHXdhc2ltb2ZmX3Byb3ZpZGVyX3YxX3Byb3RvYnVmEAESHQoZd2FzaW1vZmZfcHJvdmlkZXJfdjFfanNvbhACYghlZGl0aW9uc3DoBw", [file_google_protobuf_any, file_google_protobuf_timestamp]);
 
 /**
  * Envelope is a generic message wrapper with a sequence counter and message type.
@@ -40,9 +40,8 @@ export type Envelope = Message<"Envelope"> & {
   type: Envelope_MessageType;
 
   /**
-   * The presence of an error indicates that something went wrong with the call
-   * in general (like a server "oops"). Otherwise, the called function should
-   * encode specific errors within the payload.
+   * The presence of an error string indicates a fatal failure with a request.
+   * Responses should encode specific errors within the payload, if possible.
    *
    * @generated from field: string error = 3;
    */
@@ -125,209 +124,329 @@ export const Envelope_MessageTypeSchema: GenEnum<Envelope_MessageType, Envelope_
   enumDesc(file_messages, 0, 0);
 
 /**
- * Ping stub, if the transport does not provide them. WebSocket does have its
- * own mechanism. On WebTransport, you should use a separate stream to avoid re-
- * introducing head-of-line blocking with the other RPC requests.
+ * The task message contains parameters to instantiate a task of a certain format
+ * and return the output upon successful execution. The Request and Response herein
+ * are the smallest unit of work that should be sent on the wire.
  *
- * @generated from message Ping
+ * @generated from message Task
  */
-export type Ping = Message<"Ping"> & {
-  /**
-   * @generated from field: Ping.Direction direction = 1;
-   */
-  direction: Ping_Direction;
+export type Task = Message<"Task"> & {
 };
 
 /**
- * JSON type for the message Ping.
+ * JSON type for the message Task.
  */
-export type PingJson = {
-  /**
-   * @generated from field: Ping.Direction direction = 1;
-   */
-  direction?: Ping_DirectionJson;
+export type TaskJson = {
 };
 
 /**
- * Describes the message Ping.
- * Use `create(PingSchema)` to create a new message.
+ * Describes the message Task.
+ * Use `create(TaskSchema)` to create a new message.
  */
-export const PingSchema: GenMessage<Ping, PingJson> = /*@__PURE__*/
+export const TaskSchema: GenMessage<Task, TaskJson> = /*@__PURE__*/
   messageDesc(file_messages, 1);
 
 /**
- * @generated from enum Ping.Direction
- */
-export enum Ping_Direction {
-  /**
-   * @generated from enum value: Ping = 0;
-   */
-  Ping = 0,
-
-  /**
-   * @generated from enum value: Pong = 1;
-   */
-  Pong = 1,
-}
-
-/**
- * JSON type for the enum Ping.Direction.
- */
-export type Ping_DirectionJson = "Ping" | "Pong";
-
-/**
- * Describes the enum Ping.Direction.
- */
-export const Ping_DirectionSchema: GenEnum<Ping_Direction, Ping_DirectionJson> = /*@__PURE__*/
-  enumDesc(file_messages, 1, 0);
-
-/**
- * ExecuteWasi runs a webassembly/wasi binary on the Provider
+ * Information about this task for identification and tracing.
  *
- * @generated from message ExecuteWasiRequest
+ * @generated from message Task.Metadata
  */
-export type ExecuteWasiRequest = Message<"ExecuteWasiRequest"> & {
+export type Task_Metadata = Message<"Task.Metadata"> & {
   /**
-   * metadata about this task
+   * unique identifier for this task
    *
-   * @generated from field: TaskMetadata info = 1;
+   * @generated from field: string id = 1;
    */
-  info?: TaskMetadata;
+  id: string;
 
   /**
-   * arguments for the WebAssembly module
+   * who is requesting this task
    *
-   * @generated from field: WasiTaskArgs task = 2;
+   * @generated from field: string requester = 2;
    */
-  task?: WasiTaskArgs;
+  requester: string;
+
+  /**
+   * which provider executed this task
+   *
+   * @generated from field: string provider = 3;
+   */
+  provider: string;
 };
 
 /**
- * JSON type for the message ExecuteWasiRequest.
+ * JSON type for the message Task.Metadata.
  */
-export type ExecuteWasiRequestJson = {
+export type Task_MetadataJson = {
   /**
-   * @generated from field: TaskMetadata info = 1;
+   * @generated from field: string id = 1;
    */
-  info?: TaskMetadataJson;
+  id?: string;
 
   /**
-   * @generated from field: WasiTaskArgs task = 2;
+   * @generated from field: string requester = 2;
    */
-  task?: WasiTaskArgsJson;
+  requester?: string;
+
+  /**
+   * @generated from field: string provider = 3;
+   */
+  provider?: string;
 };
 
 /**
- * Describes the message ExecuteWasiRequest.
- * Use `create(ExecuteWasiRequestSchema)` to create a new message.
+ * Describes the message Task.Metadata.
+ * Use `create(Task_MetadataSchema)` to create a new message.
  */
-export const ExecuteWasiRequestSchema: GenMessage<ExecuteWasiRequest, ExecuteWasiRequestJson> = /*@__PURE__*/
-  messageDesc(file_messages, 2);
+export const Task_MetadataSchema: GenMessage<Task_Metadata, Task_MetadataJson> = /*@__PURE__*/
+  messageDesc(file_messages, 1, 0);
 
 /**
- * @generated from message ExecuteWasiResponse
+ * Quality of Service (QoS) parameters for a given task.
+ *
+ * @generated from message Task.QoS
  */
-export type ExecuteWasiResponse = Message<"ExecuteWasiResponse"> & {
+export type Task_QoS = Message<"Task.QoS"> & {
   /**
-   * error leading up to the instantiation
-   *
-   * @generated from field: string error = 1;
+   * @generated from field: bool priority = 1;
    */
-  error: string;
+  priority: boolean;
 
   /**
-   * result of the execution
+   * TODO
    *
-   * @generated from field: WasiTaskResult result = 2;
+   * @generated from field: google.protobuf.Timestamp deadline = 2;
    */
-  result?: WasiTaskResult;
+  deadline?: Timestamp;
 };
 
 /**
- * JSON type for the message ExecuteWasiResponse.
+ * JSON type for the message Task.QoS.
  */
-export type ExecuteWasiResponseJson = {
+export type Task_QoSJson = {
   /**
-   * @generated from field: string error = 1;
+   * @generated from field: bool priority = 1;
+   */
+  priority?: boolean;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp deadline = 2;
+   */
+  deadline?: TimestampJson;
+};
+
+/**
+ * Describes the message Task.QoS.
+ * Use `create(Task_QoSSchema)` to create a new message.
+ */
+export const Task_QoSSchema: GenMessage<Task_QoS, Task_QoSJson> = /*@__PURE__*/
+  messageDesc(file_messages, 1, 1);
+
+/**
+ * Event to terminate a running task on Provider.
+ *
+ * @generated from message Task.Cancel
+ */
+export type Task_Cancel = Message<"Task.Cancel"> & {
+  /**
+   * unique identifier of the task
+   *
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * freeform reason for logging
+   *
+   * @generated from field: string reason = 2;
+   */
+  reason: string;
+};
+
+/**
+ * JSON type for the message Task.Cancel.
+ */
+export type Task_CancelJson = {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id?: string;
+
+  /**
+   * @generated from field: string reason = 2;
+   */
+  reason?: string;
+};
+
+/**
+ * Describes the message Task.Cancel.
+ * Use `create(Task_CancelSchema)` to create a new message.
+ */
+export const Task_CancelSchema: GenMessage<Task_Cancel, Task_CancelJson> = /*@__PURE__*/
+  messageDesc(file_messages, 1, 2);
+
+/**
+ * @generated from message Task.Request
+ */
+export type Task_Request = Message<"Task.Request"> & {
+  /**
+   * "header"
+   *
+   * @generated from field: Task.Metadata info = 1;
+   */
+  info?: Task_Metadata;
+
+  /**
+   * @generated from field: Task.QoS qos = 2;
+   */
+  qos?: Task_QoS;
+
+  /**
+   * @generated from oneof Task.Request.parameters
+   */
+  parameters: {
+    /**
+     * @generated from field: Task.Wasip1.Params wasip1 = 10;
+     */
+    value: Task_Wasip1_Params;
+    case: "wasip1";
+  } | {
+    /**
+     * @generated from field: Task.Pyodide.Params pyodide = 11;
+     */
+    value: Task_Pyodide_Params;
+    case: "pyodide";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * JSON type for the message Task.Request.
+ */
+export type Task_RequestJson = {
+  /**
+   * @generated from field: Task.Metadata info = 1;
+   */
+  info?: Task_MetadataJson;
+
+  /**
+   * @generated from field: Task.QoS qos = 2;
+   */
+  qos?: Task_QoSJson;
+
+  /**
+   * @generated from field: Task.Wasip1.Params wasip1 = 10;
+   */
+  wasip1?: Task_Wasip1_ParamsJson;
+
+  /**
+   * @generated from field: Task.Pyodide.Params pyodide = 11;
+   */
+  pyodide?: Task_Pyodide_ParamsJson;
+};
+
+/**
+ * Describes the message Task.Request.
+ * Use `create(Task_RequestSchema)` to create a new message.
+ */
+export const Task_RequestSchema: GenMessage<Task_Request, Task_RequestJson> = /*@__PURE__*/
+  messageDesc(file_messages, 1, 3);
+
+/**
+ * @generated from message Task.Response
+ */
+export type Task_Response = Message<"Task.Response"> & {
+  /**
+   * "header"
+   *
+   * @generated from field: Task.Metadata info = 1;
+   */
+  info?: Task_Metadata;
+
+  /**
+   * @generated from oneof Task.Response.result
+   */
+  result: {
+    /**
+     * @generated from field: string error = 2;
+     */
+    value: string;
+    case: "error";
+  } | {
+    /**
+     * @generated from field: Task.Wasip1.Result wasip1 = 10;
+     */
+    value: Task_Wasip1_Result;
+    case: "wasip1";
+  } | {
+    /**
+     * @generated from field: Task.Pyodide.Result pyodide = 11;
+     */
+    value: Task_Pyodide_Result;
+    case: "pyodide";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * JSON type for the message Task.Response.
+ */
+export type Task_ResponseJson = {
+  /**
+   * @generated from field: Task.Metadata info = 1;
+   */
+  info?: Task_MetadataJson;
+
+  /**
+   * @generated from field: string error = 2;
    */
   error?: string;
 
   /**
-   * @generated from field: WasiTaskResult result = 2;
+   * @generated from field: Task.Wasip1.Result wasip1 = 10;
    */
-  result?: WasiTaskResultJson;
+  wasip1?: Task_Wasip1_ResultJson;
+
+  /**
+   * @generated from field: Task.Pyodide.Result pyodide = 11;
+   */
+  pyodide?: Task_Pyodide_ResultJson;
 };
 
 /**
- * Describes the message ExecuteWasiResponse.
- * Use `create(ExecuteWasiResponseSchema)` to create a new message.
+ * Describes the message Task.Response.
+ * Use `create(Task_ResponseSchema)` to create a new message.
  */
-export const ExecuteWasiResponseSchema: GenMessage<ExecuteWasiResponse, ExecuteWasiResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 3);
+export const Task_ResponseSchema: GenMessage<Task_Response, Task_ResponseJson> = /*@__PURE__*/
+  messageDesc(file_messages, 1, 4);
 
 /**
- * TaskMetadata contains some information about the originating job request.
+ *  WebAssembly System Interface (WASI), preview1
+ * ===============================================
  *
- * @generated from message TaskMetadata
+ * @generated from message Task.Wasip1
  */
-export type TaskMetadata = Message<"TaskMetadata"> & {
-  /**
-   * overall job ID
-   *
-   * @generated from field: string jobID = 1;
-   */
-  jobID: string;
-
-  /**
-   * index within a job with multiple tasks
-   *
-   * @generated from field: uint64 index = 3;
-   */
-  index: bigint;
-
-  /**
-   * info about the requesting client
-   *
-   * @generated from field: string client = 2;
-   */
-  client: string;
+export type Task_Wasip1 = Message<"Task.Wasip1"> & {
 };
 
 /**
- * JSON type for the message TaskMetadata.
+ * JSON type for the message Task.Wasip1.
  */
-export type TaskMetadataJson = {
-  /**
-   * @generated from field: string jobID = 1;
-   */
-  jobID?: string;
-
-  /**
-   * @generated from field: uint64 index = 3;
-   */
-  index?: string;
-
-  /**
-   * @generated from field: string client = 2;
-   */
-  client?: string;
+export type Task_Wasip1Json = {
 };
 
 /**
- * Describes the message TaskMetadata.
- * Use `create(TaskMetadataSchema)` to create a new message.
+ * Describes the message Task.Wasip1.
+ * Use `create(Task_Wasip1Schema)` to create a new message.
  */
-export const TaskMetadataSchema: GenMessage<TaskMetadata, TaskMetadataJson> = /*@__PURE__*/
-  messageDesc(file_messages, 4);
+export const Task_Wasip1Schema: GenMessage<Task_Wasip1, Task_Wasip1Json> = /*@__PURE__*/
+  messageDesc(file_messages, 1, 5);
 
 /**
- * WasiTaskArgs should not be sent as a toplevel message directly and instead
- * contains necessary references and execution arguments to instantiate a single
- * WebAssembly task on the Provider.
+ * Contains necessary references and execution arguments to instantiate a single
+ * WebAssembly task in a WASI preview 1 environment on the Provider.
  *
- * @generated from message WasiTaskArgs
+ * @generated from message Task.Wasip1.Params
  */
-export type WasiTaskArgs = Message<"WasiTaskArgs"> & {
+export type Task_Wasip1_Params = Message<"Task.Wasip1.Params"> & {
   /**
    * @generated from field: File binary = 1;
    */
@@ -360,9 +479,9 @@ export type WasiTaskArgs = Message<"WasiTaskArgs"> & {
 };
 
 /**
- * JSON type for the message WasiTaskArgs.
+ * JSON type for the message Task.Wasip1.Params.
  */
-export type WasiTaskArgsJson = {
+export type Task_Wasip1_ParamsJson = {
   /**
    * @generated from field: File binary = 1;
    */
@@ -395,20 +514,19 @@ export type WasiTaskArgsJson = {
 };
 
 /**
- * Describes the message WasiTaskArgs.
- * Use `create(WasiTaskArgsSchema)` to create a new message.
+ * Describes the message Task.Wasip1.Params.
+ * Use `create(Task_Wasip1_ParamsSchema)` to create a new message.
  */
-export const WasiTaskArgsSchema: GenMessage<WasiTaskArgs, WasiTaskArgsJson> = /*@__PURE__*/
-  messageDesc(file_messages, 5);
+export const Task_Wasip1_ParamsSchema: GenMessage<Task_Wasip1_Params, Task_Wasip1_ParamsJson> = /*@__PURE__*/
+  messageDesc(file_messages, 1, 5, 0);
 
 /**
- * WasiTaskResult is the result of an execution from a WasiTaskArgs. It should
- * only be returned if the module was instantiated successfully at all, i.e. any
- * errors leading up to that should be returned higher up.
+ * The result of an execution from a Wasip1.Params message. It should only be
+ * returned if the WebAssembly module was instantiated successfully at all.
  *
- * @generated from message WasiTaskResult
+ * @generated from message Task.Wasip1.Output
  */
-export type WasiTaskResult = Message<"WasiTaskResult"> & {
+export type Task_Wasip1_Output = Message<"Task.Wasip1.Output"> & {
   /**
    * @generated from field: int32 status = 1;
    */
@@ -431,9 +549,9 @@ export type WasiTaskResult = Message<"WasiTaskResult"> & {
 };
 
 /**
- * JSON type for the message WasiTaskResult.
+ * JSON type for the message Task.Wasip1.Output.
  */
-export type WasiTaskResultJson = {
+export type Task_Wasip1_OutputJson = {
   /**
    * @generated from field: int32 status = 1;
    */
@@ -456,11 +574,167 @@ export type WasiTaskResultJson = {
 };
 
 /**
- * Describes the message WasiTaskResult.
- * Use `create(WasiTaskResultSchema)` to create a new message.
+ * Describes the message Task.Wasip1.Output.
+ * Use `create(Task_Wasip1_OutputSchema)` to create a new message.
  */
-export const WasiTaskResultSchema: GenMessage<WasiTaskResult, WasiTaskResultJson> = /*@__PURE__*/
-  messageDesc(file_messages, 6);
+export const Task_Wasip1_OutputSchema: GenMessage<Task_Wasip1_Output, Task_Wasip1_OutputJson> = /*@__PURE__*/
+  messageDesc(file_messages, 1, 5, 1);
+
+/**
+ * Wrap a Wasip1.Output in a Result, which can be an Error or OK.
+ *
+ * @generated from message Task.Wasip1.Result
+ */
+export type Task_Wasip1_Result = Message<"Task.Wasip1.Result"> & {
+  /**
+   * @generated from oneof Task.Wasip1.Result.result
+   */
+  result: {
+    /**
+     * @generated from field: string error = 1;
+     */
+    value: string;
+    case: "error";
+  } | {
+    /**
+     * @generated from field: Task.Wasip1.Output ok = 2;
+     */
+    value: Task_Wasip1_Output;
+    case: "ok";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * JSON type for the message Task.Wasip1.Result.
+ */
+export type Task_Wasip1_ResultJson = {
+  /**
+   * @generated from field: string error = 1;
+   */
+  error?: string;
+
+  /**
+   * @generated from field: Task.Wasip1.Output ok = 2;
+   */
+  ok?: Task_Wasip1_OutputJson;
+};
+
+/**
+ * Describes the message Task.Wasip1.Result.
+ * Use `create(Task_Wasip1_ResultSchema)` to create a new message.
+ */
+export const Task_Wasip1_ResultSchema: GenMessage<Task_Wasip1_Result, Task_Wasip1_ResultJson> = /*@__PURE__*/
+  messageDesc(file_messages, 1, 5, 2);
+
+/**
+ *  Pyodide Python scripts
+ * ========================
+ *
+ * @generated from message Task.Pyodide
+ */
+export type Task_Pyodide = Message<"Task.Pyodide"> & {
+};
+
+/**
+ * JSON type for the message Task.Pyodide.
+ */
+export type Task_PyodideJson = {
+};
+
+/**
+ * Describes the message Task.Pyodide.
+ * Use `create(Task_PyodideSchema)` to create a new message.
+ */
+export const Task_PyodideSchema: GenMessage<Task_Pyodide, Task_PyodideJson> = /*@__PURE__*/
+  messageDesc(file_messages, 1, 6);
+
+/**
+ * TODO
+ *
+ * @generated from message Task.Pyodide.Params
+ */
+export type Task_Pyodide_Params = Message<"Task.Pyodide.Params"> & {
+};
+
+/**
+ * JSON type for the message Task.Pyodide.Params.
+ */
+export type Task_Pyodide_ParamsJson = {
+};
+
+/**
+ * Describes the message Task.Pyodide.Params.
+ * Use `create(Task_Pyodide_ParamsSchema)` to create a new message.
+ */
+export const Task_Pyodide_ParamsSchema: GenMessage<Task_Pyodide_Params, Task_Pyodide_ParamsJson> = /*@__PURE__*/
+  messageDesc(file_messages, 1, 6, 0);
+
+/**
+ * TODO
+ *
+ * @generated from message Task.Pyodide.Output
+ */
+export type Task_Pyodide_Output = Message<"Task.Pyodide.Output"> & {
+};
+
+/**
+ * JSON type for the message Task.Pyodide.Output.
+ */
+export type Task_Pyodide_OutputJson = {
+};
+
+/**
+ * Describes the message Task.Pyodide.Output.
+ * Use `create(Task_Pyodide_OutputSchema)` to create a new message.
+ */
+export const Task_Pyodide_OutputSchema: GenMessage<Task_Pyodide_Output, Task_Pyodide_OutputJson> = /*@__PURE__*/
+  messageDesc(file_messages, 1, 6, 1);
+
+/**
+ * Wrap a Pyodide.Output in a Result, which can be an Error or OK.
+ *
+ * @generated from message Task.Pyodide.Result
+ */
+export type Task_Pyodide_Result = Message<"Task.Pyodide.Result"> & {
+  /**
+   * @generated from oneof Task.Pyodide.Result.result
+   */
+  result: {
+    /**
+     * @generated from field: string error = 1;
+     */
+    value: string;
+    case: "error";
+  } | {
+    /**
+     * @generated from field: Task.Pyodide.Output ok = 2;
+     */
+    value: Task_Pyodide_Output;
+    case: "ok";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * JSON type for the message Task.Pyodide.Result.
+ */
+export type Task_Pyodide_ResultJson = {
+  /**
+   * @generated from field: string error = 1;
+   */
+  error?: string;
+
+  /**
+   * @generated from field: Task.Pyodide.Output ok = 2;
+   */
+  ok?: Task_Pyodide_OutputJson;
+};
+
+/**
+ * Describes the message Task.Pyodide.Result.
+ * Use `create(Task_Pyodide_ResultSchema)` to create a new message.
+ */
+export const Task_Pyodide_ResultSchema: GenMessage<Task_Pyodide_Result, Task_Pyodide_ResultJson> = /*@__PURE__*/
+  messageDesc(file_messages, 1, 6, 2);
 
 /**
  * File is a file reference with optional mime-type. The ref could be a plain
@@ -517,7 +791,7 @@ export type FileJson = {
  * Use `create(FileSchema)` to create a new message.
  */
 export const FileSchema: GenMessage<File, FileJson> = /*@__PURE__*/
-  messageDesc(file_messages, 7);
+  messageDesc(file_messages, 2);
 
 /**
  * FileListing asks for a listing of all available files on Provider
@@ -540,7 +814,7 @@ export type FileListingRequestJson = {
  * Use `create(FileListingRequestSchema)` to create a new message.
  */
 export const FileListingRequestSchema: GenMessage<FileListingRequest, FileListingRequestJson> = /*@__PURE__*/
-  messageDesc(file_messages, 8);
+  messageDesc(file_messages, 3);
 
 /**
  * @generated from message FileListingResponse
@@ -567,7 +841,7 @@ export type FileListingResponseJson = {
  * Use `create(FileListingResponseSchema)` to create a new message.
  */
 export const FileListingResponseSchema: GenMessage<FileListingResponse, FileListingResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 9);
+  messageDesc(file_messages, 4);
 
 /**
  * FileProbe checks if a certain file exists on provider
@@ -596,7 +870,7 @@ export type FileProbeRequestJson = {
  * Use `create(FileProbeRequestSchema)` to create a new message.
  */
 export const FileProbeRequestSchema: GenMessage<FileProbeRequest, FileProbeRequestJson> = /*@__PURE__*/
-  messageDesc(file_messages, 10);
+  messageDesc(file_messages, 5);
 
 /**
  * @generated from message FileProbeResponse
@@ -623,7 +897,7 @@ export type FileProbeResponseJson = {
  * Use `create(FileProbeResponseSchema)` to create a new message.
  */
 export const FileProbeResponseSchema: GenMessage<FileProbeResponse, FileProbeResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 11);
+  messageDesc(file_messages, 6);
 
 /**
  * FileUpload pushes a file to the Provider.
@@ -652,7 +926,7 @@ export type FileUploadRequestJson = {
  * Use `create(FileUploadRequestSchema)` to create a new message.
  */
 export const FileUploadRequestSchema: GenMessage<FileUploadRequest, FileUploadRequestJson> = /*@__PURE__*/
-  messageDesc(file_messages, 12);
+  messageDesc(file_messages, 7);
 
 /**
  * @generated from message FileUploadResponse
@@ -679,7 +953,7 @@ export type FileUploadResponseJson = {
  * Use `create(FileUploadResponseSchema)` to create a new message.
  */
 export const FileUploadResponseSchema: GenMessage<FileUploadResponse, FileUploadResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 13);
+  messageDesc(file_messages, 8);
 
 /**
  * FileDownload can be sent by the Provider to request a file download.
@@ -708,7 +982,7 @@ export type FileDownloadRequestJson = {
  * Use `create(FileDownloadRequestSchema)` to create a new message.
  */
 export const FileDownloadRequestSchema: GenMessage<FileDownloadRequest, FileDownloadRequestJson> = /*@__PURE__*/
-  messageDesc(file_messages, 14);
+  messageDesc(file_messages, 9);
 
 /**
  * @generated from message FileDownloadResponse
@@ -745,14 +1019,33 @@ export type FileDownloadResponseJson = {
  * Use `create(FileDownloadResponseSchema)` to create a new message.
  */
 export const FileDownloadResponseSchema: GenMessage<FileDownloadResponse, FileDownloadResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 15);
+  messageDesc(file_messages, 10);
 
 /**
- * Generic is just a generic piece of text for debugging
- *
- * @generated from message GenericEvent
+ * @generated from message Event
  */
-export type GenericEvent = Message<"GenericEvent"> & {
+export type Event = Message<"Event"> & {
+};
+
+/**
+ * JSON type for the message Event.
+ */
+export type EventJson = {
+};
+
+/**
+ * Describes the message Event.
+ * Use `create(EventSchema)` to create a new message.
+ */
+export const EventSchema: GenMessage<Event, EventJson> = /*@__PURE__*/
+  messageDesc(file_messages, 11);
+
+/**
+ * GenericMessage is just a generic piece of text for logging
+ *
+ * @generated from message Event.GenericMessage
+ */
+export type Event_GenericMessage = Message<"Event.GenericMessage"> & {
   /**
    * @generated from field: string message = 1;
    */
@@ -760,9 +1053,9 @@ export type GenericEvent = Message<"GenericEvent"> & {
 };
 
 /**
- * JSON type for the message GenericEvent.
+ * JSON type for the message Event.GenericMessage.
  */
-export type GenericEventJson = {
+export type Event_GenericMessageJson = {
   /**
    * @generated from field: string message = 1;
    */
@@ -770,18 +1063,18 @@ export type GenericEventJson = {
 };
 
 /**
- * Describes the message GenericEvent.
- * Use `create(GenericEventSchema)` to create a new message.
+ * Describes the message Event.GenericMessage.
+ * Use `create(Event_GenericMessageSchema)` to create a new message.
  */
-export const GenericEventSchema: GenMessage<GenericEvent, GenericEventJson> = /*@__PURE__*/
-  messageDesc(file_messages, 16);
+export const Event_GenericMessageSchema: GenMessage<Event_GenericMessage, Event_GenericMessageJson> = /*@__PURE__*/
+  messageDesc(file_messages, 11, 0);
 
 /**
  * ProviderHello is sent once at the beginning to identify the Provider
  *
- * @generated from message ProviderHello
+ * @generated from message Event.ProviderHello
  */
-export type ProviderHello = Message<"ProviderHello"> & {
+export type Event_ProviderHello = Message<"Event.ProviderHello"> & {
   /**
    * a logging-friendly name of the provider
    *
@@ -798,9 +1091,9 @@ export type ProviderHello = Message<"ProviderHello"> & {
 };
 
 /**
- * JSON type for the message ProviderHello.
+ * JSON type for the message Event.ProviderHello.
  */
-export type ProviderHelloJson = {
+export type Event_ProviderHelloJson = {
   /**
    * @generated from field: string name = 1;
    */
@@ -813,18 +1106,18 @@ export type ProviderHelloJson = {
 };
 
 /**
- * Describes the message ProviderHello.
- * Use `create(ProviderHelloSchema)` to create a new message.
+ * Describes the message Event.ProviderHello.
+ * Use `create(Event_ProviderHelloSchema)` to create a new message.
  */
-export const ProviderHelloSchema: GenMessage<ProviderHello, ProviderHelloJson> = /*@__PURE__*/
-  messageDesc(file_messages, 17);
+export const Event_ProviderHelloSchema: GenMessage<Event_ProviderHello, Event_ProviderHelloJson> = /*@__PURE__*/
+  messageDesc(file_messages, 11, 1);
 
 /**
  * ProviderResources is information about the available resources in Worker pool
  *
- * @generated from message ProviderResources
+ * @generated from message Event.ProviderResources
  */
-export type ProviderResources = Message<"ProviderResources"> & {
+export type Event_ProviderResources = Message<"Event.ProviderResources"> & {
   /**
    * maximum possible concurrency (~ number of Workers)
    *
@@ -841,9 +1134,9 @@ export type ProviderResources = Message<"ProviderResources"> & {
 };
 
 /**
- * JSON type for the message ProviderResources.
+ * JSON type for the message Event.ProviderResources.
  */
-export type ProviderResourcesJson = {
+export type Event_ProviderResourcesJson = {
   /**
    * @generated from field: uint32 concurrency = 1;
    */
@@ -856,18 +1149,18 @@ export type ProviderResourcesJson = {
 };
 
 /**
- * Describes the message ProviderResources.
- * Use `create(ProviderResourcesSchema)` to create a new message.
+ * Describes the message Event.ProviderResources.
+ * Use `create(Event_ProviderResourcesSchema)` to create a new message.
  */
-export const ProviderResourcesSchema: GenMessage<ProviderResources, ProviderResourcesJson> = /*@__PURE__*/
-  messageDesc(file_messages, 18);
+export const Event_ProviderResourcesSchema: GenMessage<Event_ProviderResources, Event_ProviderResourcesJson> = /*@__PURE__*/
+  messageDesc(file_messages, 11, 2);
 
 /**
  * ClusterInfo contains information about all connected Providers
  *
- * @generated from message ClusterInfo
+ * @generated from message Event.ClusterInfo
  */
-export type ClusterInfo = Message<"ClusterInfo"> & {
+export type Event_ClusterInfo = Message<"Event.ClusterInfo"> & {
   /**
    * number of currently connected providers
    *
@@ -877,9 +1170,9 @@ export type ClusterInfo = Message<"ClusterInfo"> & {
 };
 
 /**
- * JSON type for the message ClusterInfo.
+ * JSON type for the message Event.ClusterInfo.
  */
-export type ClusterInfoJson = {
+export type Event_ClusterInfoJson = {
   /**
    * @generated from field: uint32 providers = 1;
    */
@@ -887,18 +1180,18 @@ export type ClusterInfoJson = {
 };
 
 /**
- * Describes the message ClusterInfo.
- * Use `create(ClusterInfoSchema)` to create a new message.
+ * Describes the message Event.ClusterInfo.
+ * Use `create(Event_ClusterInfoSchema)` to create a new message.
  */
-export const ClusterInfoSchema: GenMessage<ClusterInfo, ClusterInfoJson> = /*@__PURE__*/
-  messageDesc(file_messages, 19);
+export const Event_ClusterInfoSchema: GenMessage<Event_ClusterInfo, Event_ClusterInfoJson> = /*@__PURE__*/
+  messageDesc(file_messages, 11, 3);
 
 /**
  * Throughput contains information about overall cluster throughput
  *
- * @generated from message Throughput
+ * @generated from message Event.Throughput
  */
-export type Throughput = Message<"Throughput"> & {
+export type Event_Throughput = Message<"Event.Throughput"> & {
   /**
    * current overall tasks/s throughput
    *
@@ -915,9 +1208,9 @@ export type Throughput = Message<"Throughput"> & {
 };
 
 /**
- * JSON type for the message Throughput.
+ * JSON type for the message Event.Throughput.
  */
-export type ThroughputJson = {
+export type Event_ThroughputJson = {
   /**
    * @generated from field: float overall = 1;
    */
@@ -930,22 +1223,22 @@ export type ThroughputJson = {
 };
 
 /**
- * Describes the message Throughput.
- * Use `create(ThroughputSchema)` to create a new message.
+ * Describes the message Event.Throughput.
+ * Use `create(Event_ThroughputSchema)` to create a new message.
  */
-export const ThroughputSchema: GenMessage<Throughput, ThroughputJson> = /*@__PURE__*/
-  messageDesc(file_messages, 20);
+export const Event_ThroughputSchema: GenMessage<Event_Throughput, Event_ThroughputJson> = /*@__PURE__*/
+  messageDesc(file_messages, 11, 4);
 
 /**
  * CancelTask tells the Provider that it can terminate a task
  *
- * @generated from message CancelTask
+ * @generated from message Event.CancelTask
  */
-export type CancelTask = Message<"CancelTask"> & {
+export type Event_CancelTask = Message<"Event.CancelTask"> & {
   /**
-   * @generated from field: TaskMetadata info = 1;
+   * @generated from field: string id = 1;
    */
-  info?: TaskMetadata;
+  id: string;
 
   /**
    * @generated from field: string reason = 2;
@@ -954,13 +1247,13 @@ export type CancelTask = Message<"CancelTask"> & {
 };
 
 /**
- * JSON type for the message CancelTask.
+ * JSON type for the message Event.CancelTask.
  */
-export type CancelTaskJson = {
+export type Event_CancelTaskJson = {
   /**
-   * @generated from field: TaskMetadata info = 1;
+   * @generated from field: string id = 1;
    */
-  info?: TaskMetadataJson;
+  id?: string;
 
   /**
    * @generated from field: string reason = 2;
@@ -969,18 +1262,18 @@ export type CancelTaskJson = {
 };
 
 /**
- * Describes the message CancelTask.
- * Use `create(CancelTaskSchema)` to create a new message.
+ * Describes the message Event.CancelTask.
+ * Use `create(Event_CancelTaskSchema)` to create a new message.
  */
-export const CancelTaskSchema: GenMessage<CancelTask, CancelTaskJson> = /*@__PURE__*/
-  messageDesc(file_messages, 21);
+export const Event_CancelTaskSchema: GenMessage<Event_CancelTask, Event_CancelTaskJson> = /*@__PURE__*/
+  messageDesc(file_messages, 11, 5);
 
 /**
  * FileSystemUpdate notifies the Broker about changed files on the Provider.
  *
- * @generated from message FileSystemUpdate
+ * @generated from message Event.FileSystemUpdate
  */
-export type FileSystemUpdate = Message<"FileSystemUpdate"> & {
+export type Event_FileSystemUpdate = Message<"Event.FileSystemUpdate"> & {
   /**
    * @generated from field: repeated string added = 1;
    */
@@ -993,9 +1286,9 @@ export type FileSystemUpdate = Message<"FileSystemUpdate"> & {
 };
 
 /**
- * JSON type for the message FileSystemUpdate.
+ * JSON type for the message Event.FileSystemUpdate.
  */
-export type FileSystemUpdateJson = {
+export type Event_FileSystemUpdateJson = {
   /**
    * @generated from field: repeated string added = 1;
    */
@@ -1008,198 +1301,204 @@ export type FileSystemUpdateJson = {
 };
 
 /**
- * Describes the message FileSystemUpdate.
- * Use `create(FileSystemUpdateSchema)` to create a new message.
+ * Describes the message Event.FileSystemUpdate.
+ * Use `create(Event_FileSystemUpdateSchema)` to create a new message.
  */
-export const FileSystemUpdateSchema: GenMessage<FileSystemUpdate, FileSystemUpdateJson> = /*@__PURE__*/
-  messageDesc(file_messages, 22);
+export const Event_FileSystemUpdateSchema: GenMessage<Event_FileSystemUpdate, Event_FileSystemUpdateJson> = /*@__PURE__*/
+  messageDesc(file_messages, 11, 6);
 
 /**
- * The client upload is a POST request with the binary data as the body, media
- * type in the Contet-Type header and the optional friendly name in a query
- * parameter. So this message type isn't actually used anywhere yet.
+ * @generated from message Client
+ */
+export type Client = Message<"Client"> & {
+};
+
+/**
+ * JSON type for the message Client.
+ */
+export type ClientJson = {
+};
+
+/**
+ * Describes the message Client.
+ * Use `create(ClientSchema)` to create a new message.
+ */
+export const ClientSchema: GenMessage<Client, ClientJson> = /*@__PURE__*/
+  messageDesc(file_messages, 12);
+
+/**
+ * Jobs specify a simple parent-inheritance structure for each task format, so
+ * multiple similar tasks can be sent efficiently in a single HTTP request.
+ * There is no magic involved though: anything in the parent gets entirely
+ * replaced by the corresponding fields in a task specification. Thus, at least
+ * one task must always be present, even if just an empty { } with all
+ * parameters inherited from the parent.
  *
- * @generated from message ClientUploadRequest
+ * @generated from message Client.Job
  */
-export type ClientUploadRequest = Message<"ClientUploadRequest"> & {
-  /**
-   * friendly name for lookup
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
-
-  /**
-   * media type
-   *
-   * @generated from field: string media = 2;
-   */
-  media: string;
-
-  /**
-   * binary file contents
-   *
-   * @generated from field: bytes body = 3;
-   */
-  body: Uint8Array;
+export type Client_Job = Message<"Client.Job"> & {
 };
 
 /**
- * JSON type for the message ClientUploadRequest.
+ * JSON type for the message Client.Job.
  */
-export type ClientUploadRequestJson = {
-  /**
-   * @generated from field: string name = 1;
-   */
-  name?: string;
-
-  /**
-   * @generated from field: string media = 2;
-   */
-  media?: string;
-
-  /**
-   * @generated from field: bytes body = 3;
-   */
-  body?: string;
+export type Client_JobJson = {
 };
 
 /**
- * Describes the message ClientUploadRequest.
- * Use `create(ClientUploadRequestSchema)` to create a new message.
+ * Describes the message Client.Job.
+ * Use `create(Client_JobSchema)` to create a new message.
  */
-export const ClientUploadRequestSchema: GenMessage<ClientUploadRequest, ClientUploadRequestJson> = /*@__PURE__*/
-  messageDesc(file_messages, 23);
+export const Client_JobSchema: GenMessage<Client_Job, Client_JobJson> = /*@__PURE__*/
+  messageDesc(file_messages, 12, 0);
 
 /**
- * @generated from message ClientUploadResponse
+ * @generated from message Client.Job.Wasip1Request
  */
-export type ClientUploadResponse = Message<"ClientUploadResponse"> & {
+export type Client_Job_Wasip1Request = Message<"Client.Job.Wasip1Request"> & {
   /**
-   * the hashed ref the file was stored under
-   *
-   * @generated from field: string ref = 1;
+   * @generated from field: Task.Wasip1.Params parent = 1;
    */
-  ref: string;
+  parent?: Task_Wasip1_Params;
 
   /**
-   * any errors during file insertion
-   *
-   * @generated from field: string err = 2;
+   * @generated from field: repeated Task.Wasip1.Params tasks = 2;
    */
-  err: string;
+  tasks: Task_Wasip1_Params[];
 };
 
 /**
- * JSON type for the message ClientUploadResponse.
+ * JSON type for the message Client.Job.Wasip1Request.
  */
-export type ClientUploadResponseJson = {
+export type Client_Job_Wasip1RequestJson = {
   /**
-   * @generated from field: string ref = 1;
+   * @generated from field: Task.Wasip1.Params parent = 1;
    */
-  ref?: string;
+  parent?: Task_Wasip1_ParamsJson;
 
   /**
-   * @generated from field: string err = 2;
+   * @generated from field: repeated Task.Wasip1.Params tasks = 2;
    */
-  err?: string;
+  tasks?: Task_Wasip1_ParamsJson[];
 };
 
 /**
- * Describes the message ClientUploadResponse.
- * Use `create(ClientUploadResponseSchema)` to create a new message.
+ * Describes the message Client.Job.Wasip1Request.
+ * Use `create(Client_Job_Wasip1RequestSchema)` to create a new message.
  */
-export const ClientUploadResponseSchema: GenMessage<ClientUploadResponse, ClientUploadResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 24);
+export const Client_Job_Wasip1RequestSchema: GenMessage<Client_Job_Wasip1Request, Client_Job_Wasip1RequestJson> = /*@__PURE__*/
+  messageDesc(file_messages, 12, 0, 0);
 
 /**
- * An offloading request specifies a list of WasiTaskArgs, each possibly
- * containing a binary to use, args, envs etc. An optional common parent can
- * be given to fill values in tasks. There is no magic in the parameter
- * inheritance though: anything in the parent gets entirely replaced by the
- * corresponding field in a task spec. At least one task must always be present,
- * even if just an empty { } with all parameters inherited from the parent.
- *
- * @generated from message OffloadWasiJobRequest
+ * @generated from message Client.Job.Wasip1Response
  */
-export type OffloadWasiJobRequest = Message<"OffloadWasiJobRequest"> & {
+export type Client_Job_Wasip1Response = Message<"Client.Job.Wasip1Response"> & {
   /**
-   * inherit common task parameters
-   *
-   * @generated from field: WasiTaskArgs parent = 1;
+   * @generated from field: string error = 1;
    */
-  parent?: WasiTaskArgs;
+  error: string;
 
   /**
-   * list of task arguments
-   *
-   * @generated from field: repeated WasiTaskArgs tasks = 2;
+   * @generated from field: repeated Task.Wasip1.Result tasks = 2;
    */
-  tasks: WasiTaskArgs[];
+  tasks: Task_Wasip1_Result[];
 };
 
 /**
- * JSON type for the message OffloadWasiJobRequest.
+ * JSON type for the message Client.Job.Wasip1Response.
  */
-export type OffloadWasiJobRequestJson = {
+export type Client_Job_Wasip1ResponseJson = {
   /**
-   * @generated from field: WasiTaskArgs parent = 1;
+   * @generated from field: string error = 1;
    */
-  parent?: WasiTaskArgsJson;
+  error?: string;
 
   /**
-   * @generated from field: repeated WasiTaskArgs tasks = 2;
+   * @generated from field: repeated Task.Wasip1.Result tasks = 2;
    */
-  tasks?: WasiTaskArgsJson[];
+  tasks?: Task_Wasip1_ResultJson[];
 };
 
 /**
- * Describes the message OffloadWasiJobRequest.
- * Use `create(OffloadWasiJobRequestSchema)` to create a new message.
+ * Describes the message Client.Job.Wasip1Response.
+ * Use `create(Client_Job_Wasip1ResponseSchema)` to create a new message.
  */
-export const OffloadWasiJobRequestSchema: GenMessage<OffloadWasiJobRequest, OffloadWasiJobRequestJson> = /*@__PURE__*/
-  messageDesc(file_messages, 25);
+export const Client_Job_Wasip1ResponseSchema: GenMessage<Client_Job_Wasip1Response, Client_Job_Wasip1ResponseJson> = /*@__PURE__*/
+  messageDesc(file_messages, 12, 0, 1);
 
 /**
- * @generated from message OffloadWasiJobResponse
+ * @generated from message Client.Job.PyodideRequest
  */
-export type OffloadWasiJobResponse = Message<"OffloadWasiJobResponse"> & {
+export type Client_Job_PyodideRequest = Message<"Client.Job.PyodideRequest"> & {
   /**
-   * the complete job failed
-   *
-   * @generated from field: string failure = 1;
+   * @generated from field: Task.Pyodide.Params parent = 1;
    */
-  failure: string;
+  parent?: Task_Pyodide_Params;
 
   /**
-   * list of task results
-   *
-   * @generated from field: repeated ExecuteWasiResponse tasks = 2;
+   * @generated from field: repeated Task.Pyodide.Params tasks = 2;
    */
-  tasks: ExecuteWasiResponse[];
+  tasks: Task_Pyodide_Params[];
 };
 
 /**
- * JSON type for the message OffloadWasiJobResponse.
+ * JSON type for the message Client.Job.PyodideRequest.
  */
-export type OffloadWasiJobResponseJson = {
+export type Client_Job_PyodideRequestJson = {
   /**
-   * @generated from field: string failure = 1;
+   * @generated from field: Task.Pyodide.Params parent = 1;
    */
-  failure?: string;
+  parent?: Task_Pyodide_ParamsJson;
 
   /**
-   * @generated from field: repeated ExecuteWasiResponse tasks = 2;
+   * @generated from field: repeated Task.Pyodide.Params tasks = 2;
    */
-  tasks?: ExecuteWasiResponseJson[];
+  tasks?: Task_Pyodide_ParamsJson[];
 };
 
 /**
- * Describes the message OffloadWasiJobResponse.
- * Use `create(OffloadWasiJobResponseSchema)` to create a new message.
+ * Describes the message Client.Job.PyodideRequest.
+ * Use `create(Client_Job_PyodideRequestSchema)` to create a new message.
  */
-export const OffloadWasiJobResponseSchema: GenMessage<OffloadWasiJobResponse, OffloadWasiJobResponseJson> = /*@__PURE__*/
-  messageDesc(file_messages, 26);
+export const Client_Job_PyodideRequestSchema: GenMessage<Client_Job_PyodideRequest, Client_Job_PyodideRequestJson> = /*@__PURE__*/
+  messageDesc(file_messages, 12, 0, 2);
+
+/**
+ * @generated from message Client.Job.PyodideResponse
+ */
+export type Client_Job_PyodideResponse = Message<"Client.Job.PyodideResponse"> & {
+  /**
+   * @generated from field: string error = 1;
+   */
+  error: string;
+
+  /**
+   * @generated from field: repeated Task.Pyodide.Result tasks = 2;
+   */
+  tasks: Task_Pyodide_Result[];
+};
+
+/**
+ * JSON type for the message Client.Job.PyodideResponse.
+ */
+export type Client_Job_PyodideResponseJson = {
+  /**
+   * @generated from field: string error = 1;
+   */
+  error?: string;
+
+  /**
+   * @generated from field: repeated Task.Pyodide.Result tasks = 2;
+   */
+  tasks?: Task_Pyodide_ResultJson[];
+};
+
+/**
+ * Describes the message Client.Job.PyodideResponse.
+ * Use `create(Client_Job_PyodideResponseSchema)` to create a new message.
+ */
+export const Client_Job_PyodideResponseSchema: GenMessage<Client_Job_PyodideResponse, Client_Job_PyodideResponseJson> = /*@__PURE__*/
+  messageDesc(file_messages, 12, 0, 3);
 
 /**
  * Subprotocol is used to identify the concrete encoding on the wire.

@@ -11,7 +11,6 @@ import (
 	"mime"
 	"net/http"
 	"sync/atomic"
-	"time"
 	"wasimoff/broker/net/pb"
 	"wasimoff/broker/provider"
 	"wasimoff/broker/storage"
@@ -31,91 +30,31 @@ var jobSequence atomic.Uint64
 type OffloadingJob struct {
 	JobID      string // used to track all tasks of this request
 	ClientAddr string // remote address of the requesting client
-	JobSpec    *pb.OffloadWasiJobRequest
+	JobSpec    *pb.Client_Job_Wasip1Request
 }
 
 // reuseable task queue for HTTP handler and websocket
-var taskQueue = make(chan *provider.AsyncWasiTask, 100)
+var taskQueue = make(chan *provider.AsyncTask, 100)
 
 // The ExecHandler returns a HTTP handler, which accepts run configurations for
 // existing WASM binaries and dispatches them to available providers. Upon task
 // completion, the results are returned to the HTTP requester.
 // MARK: ExecHdl
+// TODO: this handler is specific to Wasip1 Jobs .. either handle Task_Request generically or have a route for each
 func ExecHandler(store *provider.ProviderStore, selector Scheduler, benchmode int) http.HandlerFunc {
 
 	// create a queue for the tasks and start the dispatcher
 	// TODO: reuse the ticketing from benchmode to limit concurrent scheduler jobs
 	go Dispatcher(selector, taskQueue)
 
-	// TODO: this is a horrible graft ..
+	// maybe activate internal load generator
 	if benchmode > 0 {
-		go func() {
+		go tspbench(store, benchmode)
 
-			// wait for required binary upload
-			bin := "tsp.wasm"
-			args := []string{"tsp.wasm", "rand", "10"}
-			log.Printf("BENCHMODE: please upload %q binary", bin)
-			binary := pb.File{Ref: &bin}
-			for {
-				if store.Storage.Get(bin) != nil {
-					// file uploaded
-					log.Printf("BENCHMODE: required binary uploaded, let's go ...")
-					err := store.Storage.ResolvePbFile(&binary) // ! <-- this one is important
-					if err != nil {
-						panic(err)
-					}
-					break
-				}
-				time.Sleep(time.Second)
-			}
-
-			// use "tickets" to limit the number of concurrent tasks in-flight
-			inflight := benchmode
-			tickets := make(chan struct{}, inflight)
-			for len(tickets) < cap(tickets) {
-				tickets <- struct{}{}
-			}
-
-			// receive finished tasks to tick the throughput counter and reinsert ticket
-			doneChan := make(chan *provider.AsyncWasiTask, inflight)
-			go func() {
-				for t := range doneChan {
-					if t.Error == nil {
-						// store.RateTick()
-					}
-					tickets <- struct{}{}
-				}
-			}()
-
-			// reuse strings to reduce allocations
-			job := "benchmode"
-			broker := "broker"
-
-			for i := 0; ; i++ {
-				<-tickets
-				taskQueue <- provider.NewAsyncWasiTask(
-					context.Background(),
-					&pb.ExecuteWasiRequest{
-						Info: &pb.TaskMetadata{
-							JobID:  &job,
-							Client: &broker,
-							Index:  proto.Uint64(uint64(i)),
-						},
-						Task: &pb.WasiTaskArgs{
-							Binary: &binary,
-							Args:   args,
-						},
-					},
-					&pb.ExecuteWasiResponse{},
-					doneChan,
-				)
-			}
-		}()
-
-		// // no other execs are allowed
-		// return func(w http.ResponseWriter, r *http.Request) {
-		// 	http.Error(w, "sorry, running in benchmode", http.StatusServiceUnavailable)
-		// }
+		// no task submission allowed
+		return func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "sorry, running in benchmode", http.StatusServiceUnavailable)
+		}
 	}
 
 	// return the http handler to register as a route
@@ -145,12 +84,12 @@ func ExecHandler(store *provider.ProviderStore, selector Scheduler, benchmode in
 		}
 
 		// read the job specification from the request body
-		job := OffloadingJob{JobSpec: &pb.OffloadWasiJobRequest{}}
+		job := OffloadingJob{JobSpec: &pb.Client_Job_Wasip1Request{}}
 		err = UnmarshalJobArgs(body, mt, job.JobSpec)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			MarshalJobResponse(w, mt, &pb.OffloadWasiJobResponse{
-				Failure: proto.String(err.Error()),
+			MarshalJobResponse(w, mt, &pb.Client_Job_Wasip1Response{
+				Error: proto.String(err.Error()),
 			})
 			err = nil // don't log this
 			return
@@ -170,7 +109,7 @@ func ExecHandler(store *provider.ProviderStore, selector Scheduler, benchmode in
 			log.Printf("OffloadingJob [%s] from %q: canceled!", job.JobID, r.RemoteAddr)
 			http.Error(w, "request canceled", http.StatusRequestTimeout)
 		} else {
-			if results.GetFailure() != "" {
+			if results.GetError() != "" {
 				// set an error code, if there's an error; we don't want a "200 Failed Successfully"
 				w.WriteHeader(http.StatusFailedDependency)
 			}
@@ -188,10 +127,10 @@ func DispatchTasks(
 	ctx context.Context,
 	store *provider.ProviderStore,
 	job *OffloadingJob,
-	queue chan *provider.AsyncWasiTask,
-) *pb.OffloadWasiJobResponse {
+	queue chan *provider.AsyncTask,
+) *pb.Client_Job_Wasip1Response {
 
-	// go through all the *pb.Files and resolve them from storage
+	// go through all the *pb.Files in parent and tasks to resolve names from storage
 	errs := []error{}
 	if job.JobSpec.Parent != nil {
 		errs = append(errs, store.Storage.ResolvePbFile(job.JobSpec.Parent.Binary))
@@ -202,32 +141,34 @@ func DispatchTasks(
 		errs = append(errs, store.Storage.ResolvePbFile(task.Rootfs))
 	}
 	if err := errors.Join(errs...); err != nil {
-		return &pb.OffloadWasiJobResponse{
-			Failure: proto.String(err.Error()),
+		return &pb.Client_Job_Wasip1Response{
+			Error: proto.String(err.Error()),
 		}
 	}
 
 	// create slice for queued tasks and a sufficiently large channel for done signals
-	pending := make([]*provider.AsyncWasiTask, len(job.JobSpec.Tasks))
-	doneChan := make(chan *provider.AsyncWasiTask, len(pending)+10)
+	pending := make([]*provider.AsyncTask, len(job.JobSpec.Tasks))
+	doneChan := make(chan *provider.AsyncTask, len(pending)+10)
 
+	// dispatch each task from slice
 	for i, spec := range job.JobSpec.Tasks {
 
 		// create the request+response for remote procedure call
-		response := pb.ExecuteWasiResponse{}
-		request := pb.ExecuteWasiRequest{
+		response := pb.Task_Response{}
+		request := pb.Task_Request{
 			// common task metadata with index counter
-			Info: &pb.TaskMetadata{
-				JobID:  &job.JobID,
-				Index:  proto.Uint64(uint64(i)),
-				Client: &job.ClientAddr,
+			Info: &pb.Task_Metadata{
+				Id:        proto.String(fmt.Sprintf("%s/%d", job.JobID, i)),
+				Requester: &job.ClientAddr,
 			},
 			// inherit empty parameters from the parent job
-			Task: spec.InheritNil(job.JobSpec.Parent),
+			Parameters: &pb.Task_Request_Wasip1{
+				Wasip1: spec.InheritNil(job.JobSpec.Parent),
+			},
 		}
 
 		// create the async task with the common done channel and queue it for dispatch
-		task := provider.NewAsyncWasiTask(ctx, &request, &response, doneChan)
+		task := provider.NewAsyncTask(ctx, &request, &response, doneChan)
 		pending[i] = task
 		queue <- task
 	}
@@ -245,21 +186,42 @@ func DispatchTasks(
 	}
 
 	// collect the task responses
-	jobResponse := &pb.OffloadWasiJobResponse{
-		Tasks: make([]*pb.ExecuteWasiResponse, len(pending)),
+	jobResponse := &pb.Client_Job_Wasip1Response{
+		Tasks: make([]*pb.Task_Wasip1_Result, len(pending)),
 	}
 	for i, task := range pending {
-		jobResponse.Tasks[i] = task.Response
-		if task.Error != nil && task.Response.Error == nil {
-			jobResponse.Tasks[i].Error = proto.String(task.Error.Error())
+		r := &pb.Task_Wasip1_Result{}
+		// internal scheduling error
+		if task.Error != nil {
+			r.Result = &pb.Task_Wasip1_Result_Error{
+				Error: task.Error.Error(),
+			}
 		}
+		// need to repack result type
+		switch result := task.Response.Result.(type) {
+		case *pb.Task_Response_Error:
+			// error during task execution
+			r.Result = &pb.Task_Wasip1_Result_Error{
+				Error: result.Error,
+			}
+		case *pb.Task_Response_Wasip1:
+			// normal expected result
+			r.Result = result.Wasip1.Result
+		default:
+			// unexpected result type
+			log.Printf("DEBUG: unexpected result type: %s", protojson.Format(task.Response))
+			r.Result = &pb.Task_Wasip1_Result_Error{
+				Error: "unexpected result type",
+			}
+		}
+		jobResponse.Tasks[i] = r
 	}
 
 	return jobResponse
 }
 
 // MARK: Marshal
-func UnmarshalJobArgs(body []byte, mt string, spec *pb.OffloadWasiJobRequest) (err error) {
+func UnmarshalJobArgs(body []byte, mt string, spec *pb.Client_Job_Wasip1Request) (err error) {
 
 	// try to decode the body to the expected job spec
 	switch mt {
@@ -281,7 +243,7 @@ func UnmarshalJobArgs(body []byte, mt string, spec *pb.OffloadWasiJobRequest) (e
 	return err
 }
 
-func MarshalJobResponse(w http.ResponseWriter, mt string, result *pb.OffloadWasiJobResponse) (err error) {
+func MarshalJobResponse(w http.ResponseWriter, mt string, result *pb.Client_Job_Wasip1Response) (err error) {
 
 	// marshal the response to desired format
 	var body []byte

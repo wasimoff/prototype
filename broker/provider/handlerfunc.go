@@ -1,14 +1,13 @@
 package provider
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"slices"
 	"time"
 	"wasimoff/broker/net/pb"
 	"wasimoff/broker/net/transport"
-
-	"google.golang.org/protobuf/proto"
 )
 
 // WebSocketHandler returns a http.HandlerFunc to be used on a route that shall serve
@@ -81,7 +80,7 @@ func (p *Provider) eventTransmitter() {
 				return // channel is closing, quit
 			}
 			// log.Printf("[%s] Request %d: %s", p.messenger.Addr(), request.Seq, prototext.Format(request.Request))
-			request.Respond(p.lifetime.Context, &pb.GenericEvent{}, proto.String("provider socket does not accept requests"))
+			request.Respond(p.lifetime.Context, nil, fmt.Errorf("requests not supported on client socket"))
 
 		// handle incoming events
 		case event, ok := <-p.messenger.Events():
@@ -90,11 +89,11 @@ func (p *Provider) eventTransmitter() {
 			}
 			switch ev := event.(type) {
 
-			case *pb.GenericEvent:
+			case *pb.Event_GenericMessage:
 				// generic text message
 				log.Printf("[%s] says: %s", p.Get(Address), ev.GetMessage())
 
-			case *pb.ProviderHello:
+			case *pb.Event_ProviderHello:
 				// initial hello with platform information
 				if v := ev.GetName(); v != "" {
 					p.info[Name] = v
@@ -104,7 +103,7 @@ func (p *Provider) eventTransmitter() {
 					log.Printf("[%s] UserAgent: %s", p.Get(Address), v)
 				}
 
-			case *pb.ProviderResources:
+			case *pb.Event_ProviderResources:
 				// TODO: set active tasks
 				// The problem is that you can't really "set" a semaphore, so possibly
 				// need to switch to a manual atomic, when providers are allowed to receive
@@ -114,7 +113,7 @@ func (p *Provider) eventTransmitter() {
 					p.limiter.SetLimit(int(*ev.Concurrency))
 				}
 
-			case *pb.FileSystemUpdate:
+			case *pb.Event_FileSystemUpdate:
 				// update about stored files on provider
 				for _, file := range ev.GetAdded() {
 					// first add

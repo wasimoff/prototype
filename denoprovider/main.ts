@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno run --allow-env --allow-read=./,../webprovider/ --allow-net
 
 import { create, isMessage } from "@bufbuild/protobuf";
-import { GenericEventSchema, CancelTaskSchema, CancelTask } from "@wasimoff/proto/messages_pb.ts";
+import { Event_GenericMessageSchema, Event_CancelTaskSchema, Event_CancelTask } from "@wasimoff/proto/messages_pb.ts";
 import { parseArgs } from "@std/cli/parse-args";
 import { WasimoffProvider } from "@wasimoff/worker/provider.ts";
 
@@ -37,22 +37,22 @@ const workers = await provider.pool.fill();
 await provider.sendInfo(workers, "deno", `${navigator.userAgent} (${Deno.build.target})`);
 
 // say hello
-provider.messenger?.sendEvent(create(GenericEventSchema, { message: "Hello, World!" }));
+provider.messenger?.sendEvent(create(Event_GenericMessageSchema, { message: "Hello, World!" }));
 
 // log received messages
 (async () => {
   for await (const event of provider.messenger!.events) {
     switch (true) {
 
-      case isMessage(event, GenericEventSchema): {
+      case isMessage(event, Event_GenericMessageSchema): {
         console.log("Message: " + JSON.stringify(event));
         break;
       };
 
       // TODO: can we move this handling into the provider class?
-      case isMessage(event, CancelTaskSchema): {
+      case isMessage(event, Event_CancelTaskSchema): {
         console.error("Canceled:", event);
-        const { info } = event as CancelTask;
+        const { info } = event as Event_CancelTask;
         const task = `${info.jobID}/${info.index}`;
         provider.pool.cancel(task);
         break;

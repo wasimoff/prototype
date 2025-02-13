@@ -17,7 +17,7 @@ func NewAnyFreeSelector(store *provider.ProviderStore) AnyFreeSelector {
 	return AnyFreeSelector{store}
 }
 
-func (s *AnyFreeSelector) selectCandidates(task *provider.AsyncWasiTask) (candidates []*provider.Provider, err error) {
+func (s *AnyFreeSelector) selectCandidates(_ *provider.AsyncTask) (candidates []*provider.Provider, err error) {
 
 	// if the list is empty, return nil
 	if s.store.Size() == 0 {
@@ -29,7 +29,7 @@ func (s *AnyFreeSelector) selectCandidates(task *provider.AsyncWasiTask) (candid
 	return s.store.Values(), nil
 }
 
-func (s *AnyFreeSelector) Schedule(ctx context.Context, task *provider.AsyncWasiTask) (call *provider.AsyncWasiTask, err error) {
+func (s *AnyFreeSelector) Schedule(ctx context.Context, task *provider.AsyncTask) (call *provider.AsyncTask, err error) {
 
 	providers, err := s.selectCandidates(task)
 	if err != nil {

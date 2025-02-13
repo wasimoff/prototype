@@ -9,14 +9,19 @@ import { WasimoffProvider } from "./provider.ts";
 export async function rpchandler(this: WasimoffProvider, request: ProtoMessage): Promise<ProtoMessage> {
   switch (true) {
 
-    // execute wasi binary
-    case isMessage(request, pb.ExecuteWasiRequestSchema): return <Promise<pb.ExecuteWasiResponse>>(async () => {
+    // execute a task
+    case isMessage(request, pb.Task_RequestSchema): return <Promise<pb.Task_Response>>(async () => {
 
-      // deconstruct the request
-      let { info, task } = request;
-      if (info === undefined || task === undefined || task.binary === undefined)
-        throw "info, task and task.binary cannot be undefined";
-      const taskid = `${info.jobID}/${info.index}`;
+      // deconstruct the request and check type
+      let { info, parameters } = request;
+      if (info === undefined || parameters === undefined)
+        throw "info and parameters cannot be undefined";
+      if (parameters.case != "wasip1")
+        throw "tasks other than wasip1 not implemented yet";
+      const taskid = info.id;
+      const task = parameters.value;
+      if (task.binary === undefined)
+        throw "wasip1.binary cannot be undefined";
 
       // get or compile the webassembly module
       let wasm: WebAssembly.Module;
@@ -59,18 +64,29 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
           artifacts: task.artifacts,
         });
         // send back the result
-        return create(pb.ExecuteWasiResponseSchema, {
+        return create(pb.Task_ResponseSchema, {
           result: {
-            status: run.returncode,
-            stdout: run.stdout,
-            stderr: run.stderr,
-            artifacts: run.artifacts ? { blob: run.artifacts } : undefined,
-          },
+            case: "wasip1",
+            value: {
+              result: {
+                case: "ok",
+                value: {
+                  status: run.returncode,
+                  stdout: run.stdout,
+                  stderr: run.stderr,
+                  artifacts: run.artifacts ? { blob: run.artifacts } : undefined,
+                }
+              }
+            }
+          }
         });
       } catch (err) {
         // format exceptions as WasiResponse.Error
-        return create(pb.ExecuteWasiResponseSchema, {
-          error: String(err),
+        return create(pb.Task_ResponseSchema, {
+          result: {
+            case: "error",
+            value: String(err),
+          },
         });
       };
     })();

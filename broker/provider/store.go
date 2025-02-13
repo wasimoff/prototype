@@ -81,7 +81,7 @@ func (s *ProviderStore) throughput(tick time.Duration) {
 		metrics.Throughput.Set(float64(tps))
 
 		select {
-		case s.Broadcast <- &pb.Throughput{
+		case s.Broadcast <- &pb.Event_Throughput{
 			Overall: proto.Float32(float32(tps)),
 			// TODO: add individual contribution
 		}:
@@ -98,14 +98,14 @@ func (s *ProviderStore) throughput(tick time.Duration) {
 func (s *ProviderStore) Add(provider *Provider) {
 	s.providers.Store(provider.Get(Address), provider)
 	log.Printf("ProviderStore: %d connected", s.Size())
-	s.Broadcast <- &pb.ClusterInfo{Providers: proto.Uint32(uint32(s.Size()))}
+	s.Broadcast <- &pb.Event_ClusterInfo{Providers: proto.Uint32(uint32(s.Size()))}
 }
 
 // Remove a Provider from the Map.
 func (s *ProviderStore) Remove(provider *Provider) {
 	s.providers.Delete(provider.Get(Address))
 	log.Printf("ProviderStore: %d connected", s.Size())
-	s.Broadcast <- &pb.ClusterInfo{Providers: proto.Uint32(uint32(s.Size()))}
+	s.Broadcast <- &pb.Event_ClusterInfo{Providers: proto.Uint32(uint32(s.Size()))}
 }
 
 // Size is the current size of the Map.

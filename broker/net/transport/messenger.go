@@ -17,13 +17,13 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net/rpc"
 	"reflect"
 	"sync"
 	"sync/atomic"
 	"wasimoff/broker/net/pb"
 
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 // Messenger is an abstraction over a Transport, which implements bidirectional
@@ -125,7 +125,7 @@ func (m *Messenger) putEvent(event proto.Message) {
 type IncomingRequest struct {
 	Seq     uint64
 	Request proto.Message // received request payload
-	Respond func(ctx context.Context, response proto.Message, err *string) error
+	Respond func(ctx context.Context, response proto.Message, err error) error
 }
 
 // Get a receive-only channel of incoming Events to handle.
@@ -138,7 +138,7 @@ func (m *Messenger) putRequest(seq uint64, request proto.Message) {
 	r := IncomingRequest{
 		Seq:     seq,
 		Request: request,
-		Respond: func(ctx context.Context, response proto.Message, err *string) error {
+		Respond: func(ctx context.Context, response proto.Message, err error) error {
 			return m.SendResponse(ctx, seq, response, err)
 		},
 	}
@@ -206,15 +206,15 @@ func (m *Messenger) receiver() {
 				log.Printf("WARN: receiver[%s]: no pending call for seq=%d", m.transport.Addr(), seq)
 				continue
 			}
-			// check if this is a response error
-			if envelope.Error != nil {
-				call.Error = rpc.ServerError(envelope.GetError())
-			}
 			// unpack the payload into expected response
-			err := envelope.Payload.UnmarshalTo(call.Response)
-			// ignore payload err if this is an error response anyway
-			if err != nil && call.Error == nil {
-				call.Error = fmt.Errorf("unpacking response payload: %w", err)
+			if envelope.Error != nil {
+				call.Error = errors.New(*envelope.Error)
+			} else {
+				err := envelope.Payload.UnmarshalTo(call.Response)
+				// ignore payload err if this is an error response anyway
+				if err != nil && call.Error == nil {
+					call.Error = fmt.Errorf("unpacking response payload: %w", err)
+				}
 			}
 			call.done()
 			continue
@@ -256,12 +256,15 @@ func (m *Messenger) receiver() {
 // -------------------- transmitter -------------------- >>
 
 // Send a prepared Envelope of some type on the transport.
-func (m *Messenger) send(ctx context.Context, seq *uint64, mt *pb.Envelope_MessageType, body proto.Message, error *string) error {
+func (m *Messenger) send(ctx context.Context, seq *uint64, mt *pb.Envelope_MessageType, body proto.Message, reqErr error) (err error) {
 
 	// pack the payload before locking
-	payload, err := pb.Any(body)
-	if err != nil {
-		return fmt.Errorf("failed marshalling payload: %w", err)
+	var payload *anypb.Any
+	if body != nil {
+		payload, err = pb.Any(body)
+		if err != nil {
+			return fmt.Errorf("failed marshalling payload: %w", err)
+		}
 	}
 
 	// prevent concurrent access on envelope
@@ -269,8 +272,12 @@ func (m *Messenger) send(ctx context.Context, seq *uint64, mt *pb.Envelope_Messa
 	defer m.sendMutex.Unlock()
 	m.envelope.Sequence = seq
 	m.envelope.Type = mt
-	m.envelope.Payload = payload
-	m.envelope.Error = error
+	if payload != nil {
+		m.envelope.Payload = payload
+	}
+	if reqErr != nil {
+		m.envelope.Error = proto.String(reqErr.Error())
+	}
 
 	// write the full message
 	if werr := m.transport.WriteMessage(ctx, &m.envelope); werr != nil {
@@ -280,7 +287,7 @@ func (m *Messenger) send(ctx context.Context, seq *uint64, mt *pb.Envelope_Messa
 }
 
 // Send a Response to a previous request.
-func (m *Messenger) SendResponse(ctx context.Context, seq uint64, response proto.Message, err *string) error {
+func (m *Messenger) SendResponse(ctx context.Context, seq uint64, response proto.Message, err error) error {
 	return m.send(ctx, &seq, pb.Envelope_Response.Enum(), response, err)
 }
 

@@ -2,8 +2,10 @@ package storage
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"iter"
+	"log"
 	"net/http"
 	"time"
 	"wasimoff/broker/net/pb"
@@ -60,6 +62,25 @@ func (fs *FileStorage) ResolvePbFile(pbf *pb.File) error {
 	// couldn't resolve the file
 	return fmt.Errorf("Ref not found in storage")
 
+}
+
+func (fs *FileStorage) ResolveTaskFiles(request *pb.Task_Request) error {
+	// collect errors for all tried files
+	errs := []error{}
+
+	switch p := request.Parameters.(type) {
+
+	case *pb.Task_Request_Wasip1:
+		errs = append(errs, fs.ResolvePbFile(p.Wasip1.Binary))
+		errs = append(errs, fs.ResolvePbFile(p.Wasip1.Rootfs))
+
+	case *pb.Task_Request_Pyodide:
+		log.Fatalln("ResolveTaskFiles is not implemented for Pyodide yet")
+
+	}
+
+	// will be nil if there are no errs
+	return errors.Join(errs...)
 }
 
 // TODO: should store the upload time as modtime
