@@ -34,14 +34,14 @@ if (!window.isSecureContext) {
 
   </div>
 
-  <center>
+  <div style="text-align:center">
     <div class="github">
       <a href="https://github.com/wasimoff/wasimoff">
         <img src="https://github.githubassets.com/favicons/favicon.svg" alt="GitHub Logo" />
         <span>github.com/wasimoff</span>
       </a>
     </div>
-  </center>
+  </div>
 
 </template>
 
