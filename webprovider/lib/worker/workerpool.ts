@@ -11,7 +11,32 @@ export class WasiWorkerPool {
   constructor(
     /** The absolute maximum number of workers in this pool. */
     public readonly capacity: number = navigator.hardwareConcurrency,
-  ) { };
+  ) {
+
+    // test the pyodide worker
+    setTimeout(async () => {
+      while (true) {
+
+        // pause as long as pool is empty
+        if (this.length === 0) {
+          await new Promise(r => setTimeout(r, 1000));
+          continue;
+        };
+
+        // queue work on a worker but continue this loop as soon as a worker is popped
+        await new Promise<void>(next => {
+          this.do(async worker => {
+            await worker.link.runpy(
+              "testing",
+              "import numpy as np; print('random mean:', np.random.rand(5,5).mean())",
+              [ "numpy" ]
+            );
+          }, next)
+        });
+      }
+    }, 9999999999999); // basically, never, but Infinity doesn't work
+
+  };
 
   // hold the Workers in an array
   private pool: WrappedWorker<WasiWorker, {
@@ -174,6 +199,29 @@ export class WasiWorkerPool {
     };
 
   };
+
+  async do(work: (worker: typeof this.pool[0]) => Promise<void>, next?: () => void) {
+
+    // exit early if pool is empty
+    if (this.length === 0) throw new Error("no workers in pool");
+
+    // take an idle worker from the queue
+    const worker = await this.queue.get(); next?.();
+    worker.busy = true;
+
+    try {
+      return await new Promise((resolve, reject) => {
+        worker.reject = reject;
+        work(worker).then(resolve);
+      });
+    } finally {
+      if (worker.cancelled !== true) {
+        worker.busy = false;
+        worker.taskid = undefined;
+        await this.queue.put(worker);
+      };
+    };
+  }
 
   // TODO: this was used to benchmark main thread vs workers
   // async race(n: number, task: WasiTaskExecution) {

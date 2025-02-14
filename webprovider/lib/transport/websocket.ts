@@ -156,7 +156,7 @@ export namespace WebSocketTransport {
 };
 
 // enable console.logs in the "hot" path (tx/rx)?
-const debugging = true;
+const debugging = false;
 
 // pretty console logging prefixes
 const prefix = {

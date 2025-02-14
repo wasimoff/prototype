@@ -11,6 +11,7 @@ import { ZipReader, Uint8ArrayReader, Uint8ArrayWriter, ZipWriter } from "@zip.j
 import { expose, workerReady } from "./comlink.ts";
 import { Inode } from "@bjorn3/browser_wasi_shim";
 import { Directory } from "@bjorn3/browser_wasi_shim";
+import { loadPyodide } from "pyodide";
 
 // be more verbose with the messages
 const VERBOSE = true;
@@ -29,6 +30,38 @@ export class WasiWorker {
   private trace(msg: string) { if (false) console.debug(...this.logprefix, msg); };
 
 
+  /** Run a Python script through Pyodide. */
+  public async runpy(id: string, script: string, load: string[]) /* TODO: add explicit return type */ {
+
+    // load a fresh pyodide instance, otherwise they'd share state
+    console.log(...this.logprefix, "Loading Pyodide for task", id);
+    let t0 = new Date();
+    const py = await loadPyodide({
+      jsglobals: { /* empty globals */ },
+      fullStdLib: false, // probably faster
+      checkAPIVersion: true, // must be this exact version
+      packages: load, // preload packages
+    });
+    console.log(...this.logprefix, "Took", Number(new Date()) - Number(t0), "ms");
+
+    // setup the io buffers
+    // TODO: make this use Uint8Array buffers, but efficiently ..
+    let stdout = "";
+    let stderr = "";
+    py.setStdout({ batched: line => {
+      console.log(...this.logprefix, "pyodide:", line);
+      stdout += line;
+    }});
+    py.setStderr({ batched: line => {
+      console.warn(...this.logprefix, "pyodide:", line);
+      stderr += line;
+    }});
+
+    // run the script
+    let ret = py.runPython(script);
+    return { ret, stdout, stderr };
+
+  };
 
   /** Run a WebAssembly module with a WASI shim with commandline arguments, environment
    * variables etc. The binary can be either a precompiled module or raw bytes. */
