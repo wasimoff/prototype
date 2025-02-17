@@ -24,3 +24,8 @@ app.use(createPinia());
 
 // mount app in index.html
 app.mount("#app");
+
+// stub the pyodide loader to be able to use it in console
+// TODO: remove me
+import { loadPyodide } from "pyodide";
+(globalThis as any)["loadPyodide"] = loadPyodide;

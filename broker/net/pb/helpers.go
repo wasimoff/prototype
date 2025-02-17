@@ -1,9 +1,5 @@
 package pb
 
-import (
-	"log"
-)
-
 // Additional helpers on the generated types.
 
 // Fill any nil (!) task parameters from a parent task specification.
@@ -49,7 +45,7 @@ func (tr *Task_Request) GetRequiredFiles() (files []string) {
 		}
 
 	case *Task_Request_Pyodide:
-		log.Fatalln("GetRequiredFiles is not implemented for Pyodide yet")
+		// log.Fatalln("GetRequiredFiles is not implemented for Pyodide yet")
 
 	}
 

@@ -47,6 +47,9 @@ func ExecHandler(store *provider.ProviderStore, selector Scheduler, benchmode in
 	// TODO: reuse the ticketing from benchmode to limit concurrent scheduler jobs
 	go Dispatcher(selector, taskQueue)
 
+	// TODO: remove me
+	go pytest(4)
+
 	// maybe activate internal load generator
 	if benchmode > 0 {
 		go tspbench(store, benchmode)

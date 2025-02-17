@@ -37,29 +37,48 @@ export class WasiWorker {
     console.log(...this.logprefix, "Loading Pyodide for task", id);
     let t0 = new Date();
     const py = await loadPyodide({
-      jsglobals: { /* empty globals */ },
-      fullStdLib: false, // probably faster
+      jsglobals: new Map(), // do not pollute worker context
+      fullStdLib: false, // probably a little faster
       checkAPIVersion: true, // must be this exact version
-      packages: load, // preload packages
+      packages: load, // preload some packages explicitly
     });
     console.log(...this.logprefix, "Took", Number(new Date()) - Number(t0), "ms");
 
     // setup the io buffers
-    // TODO: make this use Uint8Array buffers, but efficiently ..
-    let stdout = "";
-    let stderr = "";
-    py.setStdout({ batched: line => {
-      console.log(...this.logprefix, "pyodide:", line);
-      stdout += line;
+    let stdout = new Uint8Array();
+    let stderr = new Uint8Array();
+    py.setStdout({ write: (more: Uint8Array) => {
+      let larger = new Uint8Array(stdout.length + more.length);
+      larger.set(stdout, 0); larger.set(more, stdout.length);
+      stdout = larger;
+      return more.length;
     }});
-    py.setStderr({ batched: line => {
-      console.warn(...this.logprefix, "pyodide:", line);
-      stderr += line;
+    py.setStderr({ write: (more: Uint8Array) => {
+      let larger = new Uint8Array(stderr.length + more.length);
+      larger.set(stderr, 0); larger.set(more, stderr.length);
+      stderr = larger;
+      return more.length;
     }});
 
     // run the script
-    let ret = py.runPython(script);
-    return { ret, stdout, stderr };
+    await py.loadPackagesFromImports(script);
+    let r = py.runPython(script);
+
+    // maybe pickle the call result
+    let pickle: Uint8Array | undefined;
+    if (r !== undefined) {
+      console.log(...this.logprefix, "Pickling the result ...");
+      await py.loadPackage("cloudpickle");
+      let pickled = py.runPython("import cloudpickle as cp; cp.dumps(ret)", { locals: new Map([["ret", r]]) as any });
+      if (pickled.type !== "bytes") throw "couldn't pickle the execution result";
+      pickle = pickled.toJs();
+      try {
+        pickled.destroy();
+        r.destroy();
+      } catch { };
+    }
+
+    return { pickle, stdout, stderr };
 
   };
 
@@ -350,6 +369,7 @@ export type SomeWasiWorkerMessage = {
 // ----------------------------------------------------
 
 import { wasi } from "@bjorn3/browser_wasi_shim";
+import { PyProxy } from "pyodide/ffi";
 
 // Workaround for https://github.com/bjorn3/browser_wasi_shim/issues/14
 // from: https://gist.github.com/igrep/0cf42131477422ebba45107031cd964c

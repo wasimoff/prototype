@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file messages.proto.
  */
 export const file_messages: GenFile = /*@__PURE__*/
-  fileDesc("Cg5tZXNzYWdlcy5wcm90byK5AQoIRW52ZWxvcGUSEAoIc2VxdWVuY2UYASABKAQSIwoEdHlwZRgCIAEoDjIVLkVudmVsb3BlLk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADIvcGCgRUYXNrGjsKCE1ldGFkYXRhEgoKAmlkGAEgASgJEhEKCXJlcXVlc3RlchgCIAEoCRIQCghwcm92aWRlchgDIAEoCRpFCgNRb1MSEAoIcHJpb3JpdHkYASABKAgSLAoIZGVhZGxpbmUYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wGiQKBkNhbmNlbBIKCgJpZBgBIAEoCRIOCgZyZWFzb24YAiABKAkaowEKB1JlcXVlc3QSHAoEaW5mbxgBIAEoCzIOLlRhc2suTWV0YWRhdGESFgoDcW9zGAIgASgLMgkuVGFzay5Rb1MSJQoGd2FzaXAxGAogASgLMhMuVGFzay5XYXNpcDEuUGFyYW1zSAASJwoHcHlvZGlkZRgLIAEoCzIULlRhc2suUHlvZGlkZS5QYXJhbXNIAEIMCgpwYXJhbWV0ZXJzSgQIAxAKGpkBCghSZXNwb25zZRIcCgRpbmZvGAEgASgLMg4uVGFzay5NZXRhZGF0YRIPCgVlcnJvchgCIAEoCUgAEiUKBndhc2lwMRgKIAEoCzITLlRhc2suV2FzaXAxLlJlc3VsdEgAEicKB3B5b2RpZGUYCyABKAsyFC5UYXNrLlB5b2RpZGUuUmVzdWx0SABCCAoGcmVzdWx0SgQIAxAKGpoCCgZXYXNpcDEadAoGUGFyYW1zEhUKBmJpbmFyeRgBIAEoCzIFLkZpbGUSDAoEYXJncxgCIAMoCRIMCgRlbnZzGAMgAygJEg0KBXN0ZGluGAQgASgMEhUKBnJvb3RmcxgFIAEoCzIFLkZpbGUSEQoJYXJ0aWZhY3RzGAYgAygJGlIKBk91dHB1dBIOCgZzdGF0dXMYASABKAUSDgoGc3Rkb3V0GAIgASgMEg4KBnN0ZGVychgDIAEoDBIYCglhcnRpZmFjdHMYBCABKAsyBS5GaWxlGkYKBlJlc3VsdBIPCgVlcnJvchgBIAEoCUgAEiEKAm9rGAIgASgLMhMuVGFzay5XYXNpcDEuT3V0cHV0SABCCAoGcmVzdWx0GmYKB1B5b2RpZGUaCAoGUGFyYW1zGggKBk91dHB1dBpHCgZSZXN1bHQSDwoFZXJyb3IYASABKAlIABIiCgJvaxgCIAEoCzIULlRhc2suUHlvZGlkZS5PdXRwdXRIAEIICgZyZXN1bHQiMAoERmlsZRILCgNyZWYYASABKAkSDQoFbWVkaWEYAiABKAkSDAoEYmxvYhgDIAEoDCIUChJGaWxlTGlzdGluZ1JlcXVlc3QiJAoTRmlsZUxpc3RpbmdSZXNwb25zZRINCgVmaWxlcxgBIAMoCSIgChBGaWxlUHJvYmVSZXF1ZXN0EgwKBGZpbGUYASABKAkiHwoRRmlsZVByb2JlUmVzcG9uc2USCgoCb2sYASABKAgiKgoRRmlsZVVwbG9hZFJlcXVlc3QSFQoGdXBsb2FkGAEgASgLMgUuRmlsZSIhChJGaWxlVXBsb2FkUmVzcG9uc2USCwoDZXJyGAEgASgJIiMKE0ZpbGVEb3dubG9hZFJlcXVlc3QSDAoEZmlsZRgBIAEoCSI8ChRGaWxlRG93bmxvYWRSZXNwb25zZRIXCghkb3dubG9hZBgBIAEoCzIFLkZpbGUSCwoDZXJyGAIgASgJIsMCCgVFdmVudBohCg5HZW5lcmljTWVzc2FnZRIPCgdtZXNzYWdlGAEgASgJGjAKDVByb3ZpZGVySGVsbG8SDAoEbmFtZRgBIAEoCRIRCgl1c2VyYWdlbnQYAiABKAkaNwoRUHJvdmlkZXJSZXNvdXJjZXMSEwoLY29uY3VycmVuY3kYASABKA0SDQoFdGFza3MYAiABKA0aIAoLQ2x1c3RlckluZm8SEQoJcHJvdmlkZXJzGAEgASgNGiwKClRocm91Z2hwdXQSDwoHb3ZlcmFsbBgBIAEoAhINCgV5b3VycxgCIAEoAhooCgpDYW5jZWxUYXNrEgoKAmlkGAEgASgJEg4KBnJlYXNvbhgCIAEoCRoyChBGaWxlU3lzdGVtVXBkYXRlEg0KBWFkZGVkGAEgAygJEg8KB3JlbW92ZWQYAiADKAki0wIKBkNsaWVudBrIAgoDSm9iGlgKDVdhc2lwMVJlcXVlc3QSIwoGcGFyZW50GAEgASgLMhMuVGFzay5XYXNpcDEuUGFyYW1zEiIKBXRhc2tzGAIgAygLMhMuVGFzay5XYXNpcDEuUGFyYW1zGkMKDldhc2lwMVJlc3BvbnNlEg0KBWVycm9yGAEgASgJEiIKBXRhc2tzGAIgAygLMhMuVGFzay5XYXNpcDEuUmVzdWx0GlsKDlB5b2RpZGVSZXF1ZXN0EiQKBnBhcmVudBgBIAEoCzIULlRhc2suUHlvZGlkZS5QYXJhbXMSIwoFdGFza3MYAiADKAsyFC5UYXNrLlB5b2RpZGUuUGFyYW1zGkUKD1B5b2RpZGVSZXNwb25zZRINCgVlcnJvchgBIAEoCRIjCgV0YXNrcxgCIAMoCzIULlRhc2suUHlvZGlkZS5SZXN1bHQqXAoLU3VicHJvdG9jb2wSCwoHVU5LTk9XThAAEiEKHXdhc2ltb2ZmX3Byb3ZpZGVyX3YxX3Byb3RvYnVmEAESHQoZd2FzaW1vZmZfcHJvdmlkZXJfdjFfanNvbhACYghlZGl0aW9uc3DoBw", [file_google_protobuf_any, file_google_protobuf_timestamp]);
+  fileDesc("Cg5tZXNzYWdlcy5wcm90byK5AQoIRW52ZWxvcGUSEAoIc2VxdWVuY2UYASABKAQSIwoEdHlwZRgCIAEoDjIVLkVudmVsb3BlLk1lc3NhZ2VUeXBlEg0KBWVycm9yGAMgASgJEiUKB3BheWxvYWQYBCABKAsyFC5nb29nbGUucHJvdG9idWYuQW55IkAKC01lc3NhZ2VUeXBlEgsKB1VOS05PV04QABILCgdSZXF1ZXN0EAESDAoIUmVzcG9uc2UQAhIJCgVFdmVudBADItoHCgRUYXNrGjsKCE1ldGFkYXRhEgoKAmlkGAEgASgJEhEKCXJlcXVlc3RlchgCIAEoCRIQCghwcm92aWRlchgDIAEoCRpFCgNRb1MSEAoIcHJpb3JpdHkYASABKAgSLAoIZGVhZGxpbmUYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wGiQKBkNhbmNlbBIKCgJpZBgBIAEoCRIOCgZyZWFzb24YAiABKAkaowEKB1JlcXVlc3QSHAoEaW5mbxgBIAEoCzIOLlRhc2suTWV0YWRhdGESFgoDcW9zGAIgASgLMgkuVGFzay5Rb1MSJQoGd2FzaXAxGAogASgLMhMuVGFzay5XYXNpcDEuUGFyYW1zSAASJwoHcHlvZGlkZRgLIAEoCzIULlRhc2suUHlvZGlkZS5QYXJhbXNIAEIMCgpwYXJhbWV0ZXJzSgQIAxAKGpkBCghSZXNwb25zZRIcCgRpbmZvGAEgASgLMg4uVGFzay5NZXRhZGF0YRIPCgVlcnJvchgCIAEoCUgAEiUKBndhc2lwMRgKIAEoCzITLlRhc2suV2FzaXAxLlJlc3VsdEgAEicKB3B5b2RpZGUYCyABKAsyFC5UYXNrLlB5b2RpZGUuUmVzdWx0SABCCAoGcmVzdWx0SgQIAxAKGpoCCgZXYXNpcDEadAoGUGFyYW1zEhUKBmJpbmFyeRgBIAEoCzIFLkZpbGUSDAoEYXJncxgCIAMoCRIMCgRlbnZzGAMgAygJEg0KBXN0ZGluGAQgASgMEhUKBnJvb3RmcxgFIAEoCzIFLkZpbGUSEQoJYXJ0aWZhY3RzGAYgAygJGlIKBk91dHB1dBIOCgZzdGF0dXMYASABKAUSDgoGc3Rkb3V0GAIgASgMEg4KBnN0ZGVychgDIAEoDBIYCglhcnRpZmFjdHMYBCABKAsyBS5GaWxlGkYKBlJlc3VsdBIPCgVlcnJvchgBIAEoCUgAEiEKAm9rGAIgASgLMhMuVGFzay5XYXNpcDEuT3V0cHV0SABCCAoGcmVzdWx0GsgBCgdQeW9kaWRlGjoKBlBhcmFtcxIOCgZzY3JpcHQYASABKAkSEAoIcGFja2FnZXMYByADKAkSDgoGcGlja2xlGAggASgMGjgKBk91dHB1dBIOCgZwaWNrbGUYASABKAwSDgoGc3Rkb3V0GAIgASgMEg4KBnN0ZGVychgDIAEoDBpHCgZSZXN1bHQSDwoFZXJyb3IYASABKAlIABIiCgJvaxgCIAEoCzIULlRhc2suUHlvZGlkZS5PdXRwdXRIAEIICgZyZXN1bHQiMAoERmlsZRILCgNyZWYYASABKAkSDQoFbWVkaWEYAiABKAkSDAoEYmxvYhgDIAEoDCIUChJGaWxlTGlzdGluZ1JlcXVlc3QiJAoTRmlsZUxpc3RpbmdSZXNwb25zZRINCgVmaWxlcxgBIAMoCSIgChBGaWxlUHJvYmVSZXF1ZXN0EgwKBGZpbGUYASABKAkiHwoRRmlsZVByb2JlUmVzcG9uc2USCgoCb2sYASABKAgiKgoRRmlsZVVwbG9hZFJlcXVlc3QSFQoGdXBsb2FkGAEgASgLMgUuRmlsZSIhChJGaWxlVXBsb2FkUmVzcG9uc2USCwoDZXJyGAEgASgJIiMKE0ZpbGVEb3dubG9hZFJlcXVlc3QSDAoEZmlsZRgBIAEoCSI8ChRGaWxlRG93bmxvYWRSZXNwb25zZRIXCghkb3dubG9hZBgBIAEoCzIFLkZpbGUSCwoDZXJyGAIgASgJIsMCCgVFdmVudBohCg5HZW5lcmljTWVzc2FnZRIPCgdtZXNzYWdlGAEgASgJGjAKDVByb3ZpZGVySGVsbG8SDAoEbmFtZRgBIAEoCRIRCgl1c2VyYWdlbnQYAiABKAkaNwoRUHJvdmlkZXJSZXNvdXJjZXMSEwoLY29uY3VycmVuY3kYASABKA0SDQoFdGFza3MYAiABKA0aIAoLQ2x1c3RlckluZm8SEQoJcHJvdmlkZXJzGAEgASgNGiwKClRocm91Z2hwdXQSDwoHb3ZlcmFsbBgBIAEoAhINCgV5b3VycxgCIAEoAhooCgpDYW5jZWxUYXNrEgoKAmlkGAEgASgJEg4KBnJlYXNvbhgCIAEoCRoyChBGaWxlU3lzdGVtVXBkYXRlEg0KBWFkZGVkGAEgAygJEg8KB3JlbW92ZWQYAiADKAki0wIKBkNsaWVudBrIAgoDSm9iGlgKDVdhc2lwMVJlcXVlc3QSIwoGcGFyZW50GAEgASgLMhMuVGFzay5XYXNpcDEuUGFyYW1zEiIKBXRhc2tzGAIgAygLMhMuVGFzay5XYXNpcDEuUGFyYW1zGkMKDldhc2lwMVJlc3BvbnNlEg0KBWVycm9yGAEgASgJEiIKBXRhc2tzGAIgAygLMhMuVGFzay5XYXNpcDEuUmVzdWx0GlsKDlB5b2RpZGVSZXF1ZXN0EiQKBnBhcmVudBgBIAEoCzIULlRhc2suUHlvZGlkZS5QYXJhbXMSIwoFdGFza3MYAiADKAsyFC5UYXNrLlB5b2RpZGUuUGFyYW1zGkUKD1B5b2RpZGVSZXNwb25zZRINCgVlcnJvchgBIAEoCRIjCgV0YXNrcxgCIAMoCzIULlRhc2suUHlvZGlkZS5SZXN1bHQqXAoLU3VicHJvdG9jb2wSCwoHVU5LTk9XThAAEiEKHXdhc2ltb2ZmX3Byb3ZpZGVyX3YxX3Byb3RvYnVmEAESHQoZd2FzaW1vZmZfcHJvdmlkZXJfdjFfanNvbhACYghlZGl0aW9uc3DoBw", [file_google_protobuf_any, file_google_protobuf_timestamp]);
 
 /**
  * Envelope is a generic message wrapper with a sequence counter and message type.
@@ -649,17 +649,49 @@ export const Task_PyodideSchema: GenMessage<Task_Pyodide, Task_PyodideJson> = /*
   messageDesc(file_messages, 1, 6);
 
 /**
- * TODO
- *
  * @generated from message Task.Pyodide.Params
  */
 export type Task_Pyodide_Params = Message<"Task.Pyodide.Params"> & {
+  /**
+   * @generated from field: string script = 1;
+   */
+  script: string;
+
+  /**
+   * @generated from field: repeated string packages = 7;
+   */
+  packages: string[];
+
+  /**
+   * repeated string args = 2; // TODO
+   * repeated string envs = 3; // TODO
+   * bytes stdin = 4; // TODO
+   * File rootfs = 5; // TODO
+   * repeated string artifacts = 6; // TODO
+   *
+   * @generated from field: bytes pickle = 8;
+   */
+  pickle: Uint8Array;
 };
 
 /**
  * JSON type for the message Task.Pyodide.Params.
  */
 export type Task_Pyodide_ParamsJson = {
+  /**
+   * @generated from field: string script = 1;
+   */
+  script?: string;
+
+  /**
+   * @generated from field: repeated string packages = 7;
+   */
+  packages?: string[];
+
+  /**
+   * @generated from field: bytes pickle = 8;
+   */
+  pickle?: string;
 };
 
 /**
@@ -670,17 +702,45 @@ export const Task_Pyodide_ParamsSchema: GenMessage<Task_Pyodide_Params, Task_Pyo
   messageDesc(file_messages, 1, 6, 0);
 
 /**
- * TODO
- *
  * @generated from message Task.Pyodide.Output
  */
 export type Task_Pyodide_Output = Message<"Task.Pyodide.Output"> & {
+  /**
+   * @generated from field: bytes pickle = 1;
+   */
+  pickle: Uint8Array;
+
+  /**
+   * @generated from field: bytes stdout = 2;
+   */
+  stdout: Uint8Array;
+
+  /**
+   * File artifacts = 4;
+   *
+   * @generated from field: bytes stderr = 3;
+   */
+  stderr: Uint8Array;
 };
 
 /**
  * JSON type for the message Task.Pyodide.Output.
  */
 export type Task_Pyodide_OutputJson = {
+  /**
+   * @generated from field: bytes pickle = 1;
+   */
+  pickle?: string;
+
+  /**
+   * @generated from field: bytes stdout = 2;
+   */
+  stdout?: string;
+
+  /**
+   * @generated from field: bytes stderr = 3;
+   */
+  stderr?: string;
 };
 
 /**

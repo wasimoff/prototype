@@ -11,32 +11,7 @@ export class WasiWorkerPool {
   constructor(
     /** The absolute maximum number of workers in this pool. */
     public readonly capacity: number = navigator.hardwareConcurrency,
-  ) {
-
-    // test the pyodide worker
-    setTimeout(async () => {
-      while (true) {
-
-        // pause as long as pool is empty
-        if (this.length === 0) {
-          await new Promise(r => setTimeout(r, 1000));
-          continue;
-        };
-
-        // queue work on a worker but continue this loop as soon as a worker is popped
-        await new Promise<void>(next => {
-          this.do(async worker => {
-            await worker.link.runpy(
-              "testing",
-              "import numpy as np; print('random mean:', np.random.rand(5,5).mean())",
-              [ "numpy" ]
-            );
-          }, next)
-        });
-      }
-    }, 9999999999999); // basically, never, but Infinity doesn't work
-
-  };
+  ) { };
 
   // hold the Workers in an array
   private pool: WrappedWorker<WasiWorker, {
@@ -187,7 +162,7 @@ export class WasiWorkerPool {
       // promise can be rejected if the task is cancelled
       return await new Promise<WasiTaskResult>((resolve, reject) => {
         worker.reject = reject;
-        worker.link.run(taskid, task).then(resolve);
+        worker.link.run(taskid, task).then(resolve, reject);
       });
     } finally {
       // don't requeue if it's terminated
@@ -200,7 +175,7 @@ export class WasiWorkerPool {
 
   };
 
-  async do(work: (worker: typeof this.pool[0]) => Promise<void>, next?: () => void) {
+  async do<T>(work: (worker: typeof this.pool[0]) => Promise<T>, next?: () => void) {
 
     // exit early if pool is empty
     if (this.length === 0) throw new Error("no workers in pool");
@@ -212,7 +187,7 @@ export class WasiWorkerPool {
     try {
       return await new Promise((resolve, reject) => {
         worker.reject = reject;
-        work(worker).then(resolve);
+        work(worker).then(resolve, reject);
       });
     } finally {
       if (worker.cancelled !== true) {

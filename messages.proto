@@ -109,6 +109,12 @@ message Task {
   // ===============================================
   message Wasip1 {
 
+    // message Request {
+    //   Metadata info = 1;
+    //   QoS qos = 2;
+    //   Params params = 3;
+    // }
+
     // Contains necessary references and execution arguments to instantiate a single
     // WebAssembly task in a WASI preview 1 environment on the Provider.
     message Params {
@@ -119,6 +125,14 @@ message Task {
       File rootfs = 5;
       repeated string artifacts = 6;
     }
+
+    // message Response {
+    //   Metadata info = 1;
+    //   oneof result {
+    //     string error = 2;
+    //     Output ok = 3;
+    //   }
+    // }
 
     // The result of an execution from a Wasip1.Params message. It should only be
     // returned if the WebAssembly module was instantiated successfully at all.
@@ -144,11 +158,37 @@ message Task {
   // ========================
   message Pyodide {
 
-    // TODO
-    message Params {   }
+    // message Request {
+    //   Metadata info = 1;
+    //   QoS qos = 2;
+    //   Params params = 3;
+    // }
 
-    // TODO
-    message Output {   }
+    message Params {
+      string script = 1;
+      repeated string packages = 7;
+      bytes pickle = 8;
+      // repeated string args = 2; // TODO
+      // repeated string envs = 3; // TODO
+      // bytes stdin = 4; // TODO
+      // File rootfs = 5; // TODO
+      // repeated string artifacts = 6; // TODO
+    }
+
+    // message Response {
+    //   Metadata info = 1;
+    //   oneof result {
+    //     string error = 2;
+    //     Output ok = 3;
+    //   }
+    // }
+
+    message Output {
+      bytes pickle = 1;
+      bytes stdout = 2;
+      bytes stderr = 3;
+      // File artifacts = 4;
+    }
 
     // Wrap a Pyodide.Output in a Result, which can be an Error or OK.
     message Result {
