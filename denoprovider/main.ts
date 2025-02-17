@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-env --allow-read=./,../webprovider/ --allow-net
+#!/usr/bin/env -S deno run --allow-env --allow-read --allow-net
 
 import { create, isMessage } from "@bufbuild/protobuf";
 import { Event_GenericMessageSchema, Event_CancelTaskSchema, Event_CancelTask } from "@wasimoff/proto/messages_pb.ts";
@@ -33,7 +33,7 @@ if (Number.isNaN(nproc) || nproc < 1) throw "--workers must be a positive number
 // initialize the provider
 console.log("%c[Wasimoff]", "color: red;", "starting Provider in Deno ...");
 const provider = await WasimoffProvider.init(nproc, brokerurl, ":memory:");
-const workers = await provider.pool.fill();
+const workers = await provider.pool.scale();
 await provider.sendInfo(workers, "deno", `${navigator.userAgent} (${Deno.build.target})`);
 
 // say hello

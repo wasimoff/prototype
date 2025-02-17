@@ -9,7 +9,7 @@ import { create, Message } from "@bufbuild/protobuf";
 import { Event_FileSystemUpdateSchema, Event_ProviderHelloSchema, Event_ProviderResourcesSchema } from "@wasimoff/proto/messages_pb.ts";
 import { rpchandler } from "@wasimoff/worker/rpchandler.ts";
 import { expose, proxy as comlinkProxy, workerReady, transfer, proxy } from "./comlink.ts";
-import { WasiTaskExecution } from "./wasiworker.ts";
+import { Wasip1TaskParams } from "./wasiworker.ts";
 
 /**
  *     Wasimoff Provider
@@ -59,7 +59,7 @@ export class WasimoffProvider {
     this.pool = new Proxy(new WasiWorkerPool(this.nmax), {
       // trap property accesses that return methods which can change the pool length
       get: (target, prop, receiver) => {
-        const traps = ["spawn", "scale", "fill", "drop", "flush", "killall"];
+        const traps = ["spawn", "scale", "drop", "killall"];
         const method = Reflect.get(target, prop, receiver);
         // wrap the function calls with an update to the broker
         if (typeof method === "function" && traps.includes(prop as string)) {
@@ -106,8 +106,8 @@ export class WasimoffProvider {
   // hold the wasiworkers in a pool
   public pool: WasiWorkerPool;
 
-  async run(id: string, task: WasiTaskExecution) {
-    return this.pool.run(id, task);
+  async run(id: string, task: Wasip1TaskParams) {
+    return this.pool.runWasip1(id, task);
   };
 
 

@@ -1,5 +1,5 @@
 import { construct, releaseProxy, type WrappedWorker } from "./comlink.ts";
-import { type WasiWorker, type WasiTaskExecution, WasiTaskResult } from "./wasiworker.ts";
+import { type WasiWorker, type Wasip1TaskParams, Wasip1TaskResult, PyodideTaskParams, PyodideTaskResult } from "./wasiworker.ts";
 import { Queue } from "@wasimoff/func/queue.ts";
 
 // colorful console logging prefix
@@ -21,6 +21,8 @@ export class WasiWorkerPool {
     cancelled?: boolean,
     reject?: () => void,
   }>[] = [];
+
+  /** Incrementing index for new workers. */
   private nextindex = 0;
 
   /** Get the number of Workers currently in the pool. */
@@ -30,7 +32,7 @@ export class WasiWorkerPool {
   get busy() { return this.pool.map(w => w.busy); };
 
   // an asynchronous queue to fetch an available worker
-  private queue = new Queue<typeof this.pool[0]>;
+  private idlequeue = new Queue<typeof this.pool[0]>;
 
 
   // --------->  spawn new workers
@@ -40,8 +42,8 @@ export class WasiWorkerPool {
     // TODO: serialization for multiple async calls, e.g. call spawn twice with len=cap-1
 
     // check for maximum size
-    if (this.length >= this.capacity)
-      throw "Maximum pool capacity reached!";
+    // if (this.length >= this.capacity)
+    //   throw "Maximum pool capacity reached!";
 
     // construct a new worker with comlink
     let index = this.nextindex++;
@@ -52,7 +54,7 @@ export class WasiWorkerPool {
     // append to pool and enqueue available for work
     const wrapped = { index, worker, link, busy: false };
     this.pool.push(wrapped);
-    this.queue.put(wrapped);
+    this.idlequeue.put(wrapped);
     return this.length;
 
   };
@@ -67,11 +69,6 @@ export class WasiWorkerPool {
     return this.length;
   };
 
-  /** Add Workers to maximum capacity. */
-  async fill() {
-    return this.scale();
-  };
-
   // clamp a desired value to maximum number of workers
   private clamped(n?: number): number {
     if (n === undefined || n > this.capacity) return this.capacity;
@@ -84,25 +81,15 @@ export class WasiWorkerPool {
 
   /** Stop a Worker gracefully and remove it from the pool. */
   async drop() {
-
     // exit early if pool is already empty
     if (this.length === 0) return this.length;
-
     // take an idle worker from the queue
-    const worker = await this.queue.get();
-
+    const worker = await this.idlequeue.get();
     // remove it from the pool and release resources
     this.pool.splice(this.pool.findIndex(el => el === worker), 1);
     console.info(...logprefix, "shutdown worker", worker.index);
     worker.link[releaseProxy]();
     worker.worker.terminate();
-    return this.length;
-
-  };
-
-  /** Terminate all Workers in the pool gracefully. */
-  async flush() {
-    while (await this.drop() !== 0);
     return this.length;
   };
 
@@ -115,7 +102,7 @@ export class WasiWorkerPool {
       w.worker.terminate();
     });
     this.pool = [];
-    this.queue = new Queue();
+    this.idlequeue = new Queue();
     return this.length;
   };
 
@@ -141,47 +128,77 @@ export class WasiWorkerPool {
 
   // --------->  send tasks to workers
 
-  /** The `run` method tries to get a free (~ non computing) worker from
+  /** The `run` method tries to get an idle worker from
    * the pool and executes a Wasi task on it. The `next` function is called
    * when a worker has been taken from the queue and before execution begins.
    * Afterwards, the method makes sure to put the worker back into the queue,
    * so *don't* keep any references to it around! The result of the computation
    * is finally returned to the caller in a Promise. */
-  async run(taskid: string, task: WasiTaskExecution, next?: () => void) {
-
-    // exit early if pool is empty
+  async runWasip1(id: string, task: Wasip1TaskParams): Promise<Wasip1TaskResult> {
     if (this.length === 0) throw new Error("no workers in pool");
 
     // take an idle worker from the queue
-    const worker = await this.queue.get(); next?.();
+    const worker = await this.idlequeue.get();
     worker.busy = true;
-    worker.taskid = taskid;
+    worker.taskid = id;
 
     // try to execute the task and put worker back into queue
     try {
       // promise can be rejected if the task is cancelled
-      return await new Promise<WasiTaskResult>((resolve, reject) => {
+      return await new Promise<Wasip1TaskResult>((resolve, reject) => {
         worker.reject = reject;
-        worker.link.run(taskid, task).then(resolve, reject);
+        worker.link.runWasip1(id, task).then(resolve, reject);
       });
     } finally {
       // don't requeue if it's terminated
       if (worker.cancelled !== true) {
         worker.busy = false;
         worker.taskid = undefined;
-        await this.queue.put(worker);
+        await this.idlequeue.put(worker);
       };
     };
 
   };
 
-  async do<T>(work: (worker: typeof this.pool[0]) => Promise<T>, next?: () => void) {
+
+  async runPyodide(id: string, task: PyodideTaskParams): Promise<PyodideTaskResult> {
+    if (this.length === 0) throw new Error("no workers in pool");
+
+    // take an idle worker from the queue
+    const worker = await this.idlequeue.get();
+    worker.busy = true;
+    worker.taskid = id;
+
+    // try to execute the task and forcibly respawn afterwards due to memory leak
+    // https://github.com/pyodide/pyodide/discussions/4338
+    try {
+      // promise can be rejected if the task is cancelled
+      return await new Promise<PyodideTaskResult>((resolve, reject) => {
+        worker.reject = reject;
+        worker.link.runPyodide(id, task).then(resolve, reject);
+      });
+    } finally {
+      // always respawn this worker
+      console.log(...logprefix, `force worker ${worker.index} respawn`);
+      worker.busy = false;
+      worker.taskid = undefined;
+      worker.link[releaseProxy]();
+      worker.worker.terminate();
+      await this.spawn();
+      // move splice last to avoid "no workers in pool" errors
+      this.pool.splice(this.pool.findIndex(el => el === worker), 1);
+    };
+
+  };
+
+
+  private async do<T>(work: (worker: typeof this.pool[0]) => Promise<T>, next?: () => void) {
 
     // exit early if pool is empty
     if (this.length === 0) throw new Error("no workers in pool");
 
     // take an idle worker from the queue
-    const worker = await this.queue.get(); next?.();
+    const worker = await this.idlequeue.get(); next?.();
     worker.busy = true;
 
     try {
@@ -193,19 +210,10 @@ export class WasiWorkerPool {
       if (worker.cancelled !== true) {
         worker.busy = false;
         worker.taskid = undefined;
-        await this.queue.put(worker);
+        await this.idlequeue.put(worker);
       };
     };
-  }
 
-  // TODO: this was used to benchmark main thread vs workers
-  // async race(n: number, task: WasiTaskExecution) {
-  //   if (!(task.wasm instanceof WebAssembly.Module))
-  //     task.wasm = await WebAssembly.compile(task.wasm);
-  //   let t0 = performance.now();
-  //   let promises = Array(n).fill(null).map((_, i) => this.run(`${i}`, task));
-  //   await Promise.all(promises);
-  //   return performance.now() - t0;
-  // };
+  };
 
 }

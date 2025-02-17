@@ -67,7 +67,7 @@ export const useProvider = defineStore("WasimoffProvider", () => {
     $pool.value = new Proxy(await $provider.value.poolProxy(), {
       // trap property accesses that return methods which can change the pool length
       get: (target, prop, receiver) => {
-        const traps = ["spawn", "scale", "fill", "drop", "flush", "killall"];
+        const traps = ["spawn", "scale", "drop", "killall"];
         const method = Reflect.get(target, prop, receiver);
         // wrap the function calls with an update to the broker
         if (typeof method === "function" && traps.includes(prop as string)) {

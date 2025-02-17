@@ -60,7 +60,7 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
     
           try {
             // execute the module in a worker
-            let run = await this.pool.run(info.id, {
+            let run = await this.pool.runWasip1(info.id, {
               wasm: wasm,
               argv: task.args,
               envs: task.envs,
@@ -98,7 +98,6 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
 
         // -------------------------------------------------------------------
         case "pyodide":
-          // TODO: add pyproxy.destroy() when python to js conversion occured
 
           const pytask = parameters.value;
           if (pytask.script === undefined)
@@ -107,18 +106,15 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
           console.debug("%c[RPCHandler]", "color: orange;", pytask);
           try {
 
-            return await this.pool.do(async worker => {
-              worker.taskid = info.id;
-              let out = await worker.link.runpy(info.id, pytask.script, pytask.packages);
-              return create(pb.Task_ResponseSchema, {
-                result: { case: "pyodide", value: {
-                  result: { case: "ok", value: {
-                    pickle: out.pickle,
-                    stdout: new TextEncoder().encode(out.stdout),
-                    stderr: new TextEncoder().encode(out.stderr),
-                  }},
+            let run = await this.pool.runPyodide(info.id, pytask);
+            return create(pb.Task_ResponseSchema, {
+              result: { case: "pyodide", value: {
+                result: { case: "ok", value: {
+                  pickle: run.pickle,
+                  stdout: run.stdout,
+                  stderr: run.stderr,
                 }},
-              })
+              }},
             });
 
           } catch (err) {
