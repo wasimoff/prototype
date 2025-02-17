@@ -41,6 +41,7 @@ func main() {
 	upload := flag.String("upload", "", "Upload a file (wasm or zip) to the Broker and receive its ref")
 	exec := flag.Bool("exec", false, "Execute an uploaded binary by passing all non-flag args")
 	run := flag.String("run", "", "Run a prepared JSON job file")
+	runpy := flag.String("runpy", "", "Run a Python script file with Pyodide")
 	flag.BoolVar(&verbose, "verbose", verbose, "Be more verbose and print raw messages for -exec")
 	flag.BoolVar(&readstdin, "stdin", readstdin, "Read and send stdin when using -exec (not streamed)")
 	flag.BoolVar(&websock, "ws", websock, "Use a WebSocket to send tasks")
@@ -62,6 +63,10 @@ func main() {
 	// execute a prepared JSON job
 	case *run != "":
 		RunJsonFile(*run)
+
+	// execute a python script task
+	case *runpy != "":
+		RunPythonScript(*runpy)
 
 	// no command specified
 	default:
@@ -304,6 +309,59 @@ func RunJobOnWebSocket(job *pb.Client_Job_Wasip1Request) []*pb.Task_Wasip1_Resul
 	}
 
 	return responses
+}
+
+// run a python script from file
+func RunPythonScript(script string) {
+
+	// read the file
+	buf, err := os.ReadFile(script)
+	if err != nil {
+		log.Fatal("reading file: ", err)
+	}
+	script = string(buf)
+
+	// prepare a request using this file
+	request := &pb.Task_Request{
+		Parameters: &pb.Task_Request_Pyodide{
+			Pyodide: &pb.Task_Pyodide_Params{
+				Script: &script,
+			},
+		},
+	}
+
+	// open a websocket to the broker
+	socket, err := transport.DialWebSocketTransport(context.TODO(), brokerUrl+"/api/client/ws")
+	if err != nil {
+		log.Printf("ERR: opening websocket: %s", err)
+	}
+	// wrap it in a messenger for RPC
+	messenger := transport.NewMessengerInterface(socket)
+	defer messenger.Close(nil)
+
+	// send the request
+	response := &pb.Task_Response{}
+	messenger.RequestSync(context.TODO(), request, response)
+
+	// print all task results
+	if response.GetError() != "" {
+		fmt.Fprintf(os.Stderr, "[task py FAIL] %s\n", response.GetError())
+	} else {
+		if response.GetPyodide().GetError() != "" {
+			fmt.Fprintf(os.Stderr, "[task py FAIL] %s\n", response.GetPyodide().GetError())
+			return
+		}
+		r := response.GetPyodide().GetOk()
+		fmt.Fprintf(os.Stderr, "# Pyodide v%s: https://pyodide.org/en/%s/usage/packages-in-pyodide.html\n", r.GetVersion(), r.GetVersion())
+		if len(r.GetStderr()) != 0 {
+			fmt.Fprintf(os.Stderr, "\033[31m%s\033[0m\n", string(r.GetStderr()))
+		}
+		fmt.Fprintln(os.Stdout, string(r.GetStdout()))
+		if r.Pickle != nil {
+			fmt.Fprintf(os.Stderr, "\nresult pickle: %s\n", base64.StdEncoding.EncodeToString(r.GetPickle()))
+		}
+	}
+
 }
 
 // typed key to store index in context

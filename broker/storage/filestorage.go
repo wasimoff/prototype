@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"iter"
-	"log"
 	"net/http"
 	"time"
 	"wasimoff/broker/net/pb"
@@ -75,7 +74,8 @@ func (fs *FileStorage) ResolveTaskFiles(request *pb.Task_Request) error {
 		errs = append(errs, fs.ResolvePbFile(p.Wasip1.Rootfs))
 
 	case *pb.Task_Request_Pyodide:
-		log.Fatalln("ResolveTaskFiles is not implemented for Pyodide yet")
+		// ok
+		// log.Fatalln("ResolveTaskFiles is not implemented for Pyodide yet")
 
 	}
 

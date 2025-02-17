@@ -113,6 +113,7 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
                   pickle: run.pickle,
                   stdout: run.stdout,
                   stderr: run.stderr,
+                  version: run.version,
                 }},
               }},
             });

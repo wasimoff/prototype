@@ -48,7 +48,7 @@ func ExecHandler(store *provider.ProviderStore, selector Scheduler, benchmode in
 	go Dispatcher(selector, taskQueue)
 
 	// TODO: remove me
-	go pytest(4)
+	// go pytest(4)
 
 	// maybe activate internal load generator
 	if benchmode > 0 {

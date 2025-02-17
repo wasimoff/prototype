@@ -148,7 +148,7 @@ export class WasiWorker {
       await py.loadPackagesFromImports(task.script);
       let ret = py.runPython(task.script);
       let result: PyodideTaskResult = {
-        stdout, stderr,
+        stdout, stderr, version: py.version,
       };
 
       // maybe pickle the last line result
@@ -230,6 +230,8 @@ export type PyodideTaskResult = {
   stderr: Uint8Array;
   /** Pickled result from last statement in script, if any. */
   pickle?: Uint8Array;
+  /** Pyodide version, might be important to unpickle. */
+  version: string;
 };
 
 

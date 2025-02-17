@@ -187,6 +187,7 @@ message Task {
       bytes pickle = 1;
       bytes stdout = 2;
       bytes stderr = 3;
+      string version = 4;
       // File artifacts = 4;
     }
 
