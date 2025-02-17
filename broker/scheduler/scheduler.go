@@ -31,36 +31,43 @@ func Dispatcher(selector Scheduler, queue chan *provider.AsyncTask) {
 
 		// each task is handled in a separate goroutine
 		go func(task *provider.AsyncTask) {
-			interceptingChannel := make(chan *provider.AsyncTask, task.DoneCapacity())
+			interceptingChannel := make(chan *provider.AsyncTask, 1)
 			interceptedChannel := task.Intercept(interceptingChannel)
 
 			retries := 10
 			var err error
 			for i := 0; i < retries; i++ {
 
+				// when retrying, we need to reacquire a ticket
+				if i > 0 {
+					<-tickets
+				}
+
 				// schedule the task with a provider and release a ticket
 				err = selector.Schedule(context.TODO(), task)
 				tickets <- struct{}{}
 
-				if err == nil && task.Error == nil && task.Response.OK() {
-					result := <-interceptingChannel
-					if result.Error == nil && result.Response.OK() {
-						// everything is fine
-						break
-					}
-
-					log.Printf("Retrying %s (%d) after: %v", task.Request.GetInfo().GetId(), i, task.Error)
-					result.Response.Result = nil
-					result.Error = nil
-				} else {
-					log.Printf("selector.Schedule %v failed no. %d, retrying", task, i)
-					task.Response.Result = nil
+				// oops, scheduling error
+				if err != nil {
+					log.Printf("RETRY: selector.Schedule %s failed (%d)", task.Request.GetInfo().GetId(), i)
 					task.Error = nil
+					continue // retry
 				}
-				// need to go another loop, reacquire a ticket
-				if i < (retries - 1) {
-					<-tickets
+
+				result := <-interceptingChannel
+
+				// oops, instantiation error or similar
+				if result.Error != nil {
+					log.Printf("RETRY: task %s failed (%d): %v", task.Request.GetInfo().GetId(), i, task.Error)
+					task.Error = nil
+					continue // retry
 				}
+
+				// application errors should not be retried, as they are probably client's fault
+				if result.Response.GetError() != "" || result.Response.OK() {
+					break
+				}
+
 			}
 
 			// still erroneous after retries, give up
