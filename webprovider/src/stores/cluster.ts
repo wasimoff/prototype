@@ -52,16 +52,6 @@ export const useClusterState = defineStore("ClusterState", () => {
             throughput.value = event.overall;
             break;
 
-          // cancel a running task
-          case isMessage(event, pb.Event_CancelTaskSchema): {
-            const { id, reason } = event;
-            if (id !== undefined) {
-              console.warn(`cancelling task '${id}': ${reason}`);
-              wasimoff.$pool?.cancel(id);
-            };
-            break;
-          };
-
         };
       };
 

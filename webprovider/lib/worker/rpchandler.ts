@@ -132,6 +132,18 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
       };
     })();
 
+    // cancel a running task
+    case isMessage(request, pb.Task_CancelSchema): return <Promise<pb.Task_Cancel>>(async () => {
+      const { id, reason } = request;
+      if (id !== undefined) {
+        console.warn(...WasimoffProvider.logprefix, `cancelling task '${id}': ${reason}`);
+        await this.pool.cancel(id);
+      } else {
+        throw "missing the task id to cancel!";
+      };
+      return request; // echo back
+    })();
+
     // list files in storage
     case isMessage(request, pb.FileListingRequestSchema): return <Promise<pb.FileListingResponse>>(async () => {
       if (this.storage === undefined) throw "cannot access storage yet";

@@ -281,12 +281,6 @@ message Event {
     float yours = 2; // your contribution (identified by name)
   }
 
-  // CancelTask tells the Provider that it can terminate a task
-  message CancelTask {
-    string id = 1;
-    string reason = 2;
-  }
-
   // FileSystemUpdate notifies the Broker about changed files on the Provider.
   message FileSystemUpdate {
     repeated string added = 1;

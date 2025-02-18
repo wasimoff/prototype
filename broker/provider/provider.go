@@ -171,12 +171,12 @@ func (p *Provider) acceptTasks() (err error) {
 			go func() {
 				task.Error = p.run(task.Context, task.Request, task.Response)
 				// send cancellation event if error is due to context
-				// TODO: semaphore is released before worker is definitely terminated
 				if errors.Is(task.Error, context.Canceled) {
-					p.messenger.SendEvent(p.lifetime.Context, &pb.Task_Cancel{
+					// don't really care for result or error here, just that it completed somehow
+					_ = p.messenger.RequestSync(p.lifetime.Context, &pb.Task_Cancel{
 						Id:     task.Request.GetInfo().Id,
 						Reason: proto.String(context.Canceled.Error()),
-					})
+					}, &pb.Task_Cancel{})
 				}
 				task.Done()
 				p.limiter.Release(1)

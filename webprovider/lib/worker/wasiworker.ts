@@ -182,7 +182,9 @@ if (self.constructor.name === "DedicatedWorkerGlobalScope" && self.postMessage !
 };
 
 
+//
 // ------------------------- typings ------------------------- //
+// these are similar to protobuf messages but not entirely ..
 
 /** Parameters for a wasip1 task. */
 export type Wasip1TaskParams = {
