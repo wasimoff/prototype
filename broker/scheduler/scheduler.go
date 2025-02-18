@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"context"
+	"errors"
 	"log"
 	"reflect"
 	"wasimoff/broker/provider"
@@ -58,6 +59,10 @@ func Dispatcher(selector Scheduler, queue chan *provider.AsyncTask) {
 
 				// oops, instantiation error or similar
 				if result.Error != nil {
+					// don't retry, if the context was cancelled
+					if errors.Is(result.Error, context.Canceled) {
+						break
+					}
 					log.Printf("RETRY: task %s failed (%d): %v", task.Request.GetInfo().GetId(), i, task.Error)
 					task.Error = nil
 					continue // retry
