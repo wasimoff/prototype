@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"time"
-	"wasimoff/broker/net/pb"
 	"wasimoff/broker/provider"
+	wasimoff "wasimoff/proto/v1"
 
 	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/proto"
@@ -18,7 +18,7 @@ func tspbench(store *provider.ProviderStore, parallel int) {
 	bin := "tsp.wasm"
 	args := []string{"tsp.wasm", "rand", "10"}
 	log.Printf("BENCHMODE: please upload %q binary", bin)
-	binary := pb.File{Ref: &bin}
+	binary := wasimoff.File{Ref: &bin}
 	for {
 		if store.Storage.Get(bin) != nil {
 			// file uploaded
@@ -54,18 +54,18 @@ func tspbench(store *provider.ProviderStore, parallel int) {
 		<-tickets
 		taskQueue <- provider.NewAsyncTask(
 			context.Background(),
-			&pb.Task_Request{
-				Info: &pb.Task_Metadata{
+			&wasimoff.Task_Request{
+				Info: &wasimoff.Task_Metadata{
 					Id: proto.String(fmt.Sprintf("benchmode/%d", i)),
 				},
-				Parameters: &pb.Task_Request_Wasip1{
-					Wasip1: &pb.Task_Wasip1_Params{
+				Parameters: &wasimoff.Task_Request_Wasip1{
+					Wasip1: &wasimoff.Task_Wasip1_Params{
 						Binary: &binary,
 						Args:   args,
 					},
 				},
 			},
-			&pb.Task_Response{},
+			&wasimoff.Task_Response{},
 			doneChan,
 		)
 	}
@@ -101,18 +101,18 @@ func pytest(parallel int) {
 		<-tickets
 		taskQueue <- provider.NewAsyncTask(
 			context.Background(),
-			&pb.Task_Request{
-				Info: &pb.Task_Metadata{
+			&wasimoff.Task_Request{
+				Info: &wasimoff.Task_Metadata{
 					Id: proto.String(fmt.Sprintf("pytest/%d", i)),
 				},
-				Parameters: &pb.Task_Request_Pyodide{
-					Pyodide: &pb.Task_Pyodide_Params{
+				Parameters: &wasimoff.Task_Request_Pyodide{
+					Pyodide: &wasimoff.Task_Pyodide_Params{
 						Script:   proto.String("import numpy as np; mat = np.random.rand(5,5); print(mat); mat.mean()"),
 						Packages: []string{"numpy"},
 					},
 				},
 			},
-			&pb.Task_Response{},
+			&wasimoff.Task_Response{},
 			doneChan,
 		)
 	}

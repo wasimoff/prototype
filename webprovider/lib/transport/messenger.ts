@@ -1,6 +1,6 @@
 import { create, createRegistry, toBinary, Message as ProtoMessage } from "@bufbuild/protobuf";
 import { AnySchema, anyUnpack, type Any } from "@bufbuild/protobuf/wkt";
-import { Envelope_MessageType as MessageType, EnvelopeSchema, file_messages } from "@wasimoff/proto/messages_pb.ts";
+import { Envelope_MessageType as MessageType, EnvelopeSchema, file_proto_v1_messages } from "@wasimoff/proto/v1/messages_pb.ts";
 import { type Transport } from "./index.ts";
 import { PushableAsyncIterable } from "@wasimoff/func/pushableiterable.ts";
 
@@ -41,7 +41,7 @@ export class Messenger implements MessengerInterface {
     this.switchboard();
   }
 
-  private readonly registry = createRegistry(file_messages);
+  private readonly registry = createRegistry(file_proto_v1_messages);
 
   private async switchboard() {
     for await (const m of this.transport.messages) {

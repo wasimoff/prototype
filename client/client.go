@@ -12,8 +12,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"wasimoff/broker/net/pb"
 	"wasimoff/broker/net/transport"
+	wasimoff "wasimoff/proto/v1"
 
 	"github.com/gabriel-vasile/mimetype"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -120,9 +120,9 @@ func Execute(args, envs []string) {
 	}
 
 	// construct an ad-hoc job
-	job := &pb.Client_Job_Wasip1Request{
-		Tasks: []*pb.Task_Wasip1_Params{{
-			Binary: &pb.File{Ref: proto.String(args[0])},
+	job := &wasimoff.Client_Job_Wasip1Request{
+		Tasks: []*wasimoff.Task_Wasip1_Params{{
+			Binary: &wasimoff.File{Ref: proto.String(args[0])},
 			Args:   args,
 			Envs:   envs,
 		}},
@@ -175,7 +175,7 @@ func RunJsonFile(config string) {
 	}
 
 	// decode with protojson and report any errors locally
-	job := &pb.Client_Job_Wasip1Request{}
+	job := &wasimoff.Client_Job_Wasip1Request{}
 	if err = protojson.Unmarshal(buf, job); err != nil {
 		log.Fatal("unmarshal job: ", err)
 	}
@@ -203,7 +203,7 @@ func RunJsonFile(config string) {
 }
 
 // run a prepared job configuration from proto message
-func RunJob(job *pb.Client_Job_Wasip1Request) []*pb.Task_Wasip1_Result {
+func RunJob(job *wasimoff.Client_Job_Wasip1Request) []*wasimoff.Task_Wasip1_Result {
 
 	// short-circuit to alternative function, when we should be using websocket
 	if websock {
@@ -226,7 +226,7 @@ func RunJob(job *pb.Client_Job_Wasip1Request) []*pb.Task_Wasip1_Result {
 
 	// wait and read the full response
 	body, _ := io.ReadAll(resp.Body)
-	response := &pb.Client_Job_Wasip1Response{}
+	response := &wasimoff.Client_Job_Wasip1Response{}
 	if err := proto.Unmarshal(body, response); err != nil {
 		log.Println("can't unmarshal response: ", err)
 		fmt.Fprintln(os.Stderr, string(body))
@@ -249,7 +249,7 @@ func RunJob(job *pb.Client_Job_Wasip1Request) []*pb.Task_Wasip1_Result {
 }
 
 // alternatively, run a job by sending each task over websocket
-func RunJobOnWebSocket(job *pb.Client_Job_Wasip1Request) []*pb.Task_Wasip1_Result {
+func RunJobOnWebSocket(job *wasimoff.Client_Job_Wasip1Request) []*wasimoff.Task_Wasip1_Result {
 
 	// open a websocket to the broker
 	socket, err := transport.DialWebSocketTransport(context.TODO(), brokerUrl+"/api/client/ws")
@@ -263,7 +263,7 @@ func RunJobOnWebSocket(job *pb.Client_Job_Wasip1Request) []*pb.Task_Wasip1_Resul
 	// chan and list to collect responses
 	ntasks := len(job.GetTasks())
 	done := make(chan *transport.PendingCall, ntasks)
-	responses := make([]*pb.Task_Wasip1_Result, ntasks)
+	responses := make([]*wasimoff.Task_Wasip1_Result, ntasks)
 
 	// submit all tasks
 	for i, task := range job.GetTasks() {
@@ -276,12 +276,12 @@ func RunJobOnWebSocket(job *pb.Client_Job_Wasip1Request) []*pb.Task_Wasip1_Resul
 		ctx := context.WithValue(context.TODO(), ctxJobIndex{}, i)
 
 		// assemble wrapped task and fire it off
-		tr := &pb.Task_Request{
-			Parameters: &pb.Task_Request_Wasip1{
+		tr := &wasimoff.Task_Request{
+			Parameters: &wasimoff.Task_Request_Wasip1{
 				Wasip1: task,
 			},
 		}
-		messenger.SendRequest(ctx, tr, &pb.Task_Response{}, done)
+		messenger.SendRequest(ctx, tr, &wasimoff.Task_Response{}, done)
 	}
 
 	// wait for all responses
@@ -294,14 +294,14 @@ func RunJobOnWebSocket(job *pb.Client_Job_Wasip1Request) []*pb.Task_Wasip1_Resul
 		}
 
 		if call.Error != nil {
-			responses[i].Result = &pb.Task_Wasip1_Result_Error{
+			responses[i].Result = &wasimoff.Task_Wasip1_Result_Error{
 				Error: call.Error.Error(),
 			}
 		} else {
-			if resp, ok := call.Response.(*pb.Task_Response); ok {
+			if resp, ok := call.Response.(*wasimoff.Task_Response); ok {
 				responses[i].Result = resp.GetWasip1().Result
 			} else {
-				responses[i].Result = &pb.Task_Wasip1_Result_Error{
+				responses[i].Result = &wasimoff.Task_Wasip1_Result_Error{
 					Error: "failed to parse the response as pb.Task_Response",
 				}
 			}
@@ -322,9 +322,9 @@ func RunPythonScript(script string) {
 	script = string(buf)
 
 	// prepare a request using this file
-	request := &pb.Task_Request{
-		Parameters: &pb.Task_Request_Pyodide{
-			Pyodide: &pb.Task_Pyodide_Params{
+	request := &wasimoff.Task_Request{
+		Parameters: &wasimoff.Task_Request_Pyodide{
+			Pyodide: &wasimoff.Task_Pyodide_Params{
 				Script: &script,
 			},
 		},
@@ -340,7 +340,7 @@ func RunPythonScript(script string) {
 	defer messenger.Close(nil)
 
 	// send the request
-	response := &pb.Task_Response{}
+	response := &wasimoff.Task_Response{}
 	messenger.RequestSync(context.TODO(), request, response)
 
 	// print all task results

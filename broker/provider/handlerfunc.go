@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"slices"
 	"time"
-	"wasimoff/broker/net/pb"
 	"wasimoff/broker/net/transport"
+	wasimoff "wasimoff/proto/v1"
 )
 
 // WebSocketHandler returns a http.HandlerFunc to be used on a route that shall serve
@@ -89,11 +89,11 @@ func (p *Provider) eventTransmitter() {
 			}
 			switch ev := event.(type) {
 
-			case *pb.Event_GenericMessage:
+			case *wasimoff.Event_GenericMessage:
 				// generic text message
 				log.Printf("[%s] says: %s", p.Get(Address), ev.GetMessage())
 
-			case *pb.Event_ProviderHello:
+			case *wasimoff.Event_ProviderHello:
 				// initial hello with platform information
 				if v := ev.GetName(); v != "" {
 					p.info[Name] = v
@@ -103,7 +103,7 @@ func (p *Provider) eventTransmitter() {
 					log.Printf("[%s] UserAgent: %s", p.Get(Address), v)
 				}
 
-			case *pb.Event_ProviderResources:
+			case *wasimoff.Event_ProviderResources:
 				// TODO: set active tasks
 				// The problem is that you can't really "set" a semaphore, so possibly
 				// need to switch to a manual atomic, when providers are allowed to receive
@@ -113,7 +113,7 @@ func (p *Provider) eventTransmitter() {
 					p.limiter.SetLimit(int(*ev.Concurrency))
 				}
 
-			case *pb.Event_FileSystemUpdate:
+			case *wasimoff.Event_FileSystemUpdate:
 				// update about stored files on provider
 				for _, file := range ev.GetAdded() {
 					// first add

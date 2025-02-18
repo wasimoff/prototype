@@ -4,6 +4,9 @@ edition = "2023";
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 
+package wasimoff.v1;
+option go_package = "wasimoff/proto/v1;wasimoffv1";
+
 // enable the new opaque api: https://protobuf.dev/reference/go/opaque-faq/
 // import "google/protobuf/go_features.proto";
 // option features.(pb.go).api_level = API_OPAQUE;
@@ -201,6 +204,10 @@ message Task {
 
   }
 
+}
+
+service Wasimoff {
+  rpc RunWasip1(Task.Wasip1.Params) returns (Task.Wasip1.Result) {}
 }
 
 

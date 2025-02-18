@@ -7,8 +7,8 @@ import (
 	"log"
 	"sync/atomic"
 	"time"
-	"wasimoff/broker/net/pb"
 	"wasimoff/broker/net/transport"
+	wasimoff "wasimoff/proto/v1"
 
 	"google.golang.org/protobuf/proto"
 )
@@ -32,8 +32,8 @@ func main() {
 	defer messenger.Close(nil)
 
 	// construct task structure once
-	task := &pb.WasiTaskArgs{
-		Binary: &pb.File{Ref: proto.String("tsp.wasm")},
+	task := &wasimoff.Task_Wasip1_Params{
+		Binary: &wasimoff.File{Ref: proto.String("tsp.wasm")},
 		Args:   []string{"tsp.wasm", "rand", fmt.Sprintf("%d", tspn)},
 	}
 
@@ -50,7 +50,7 @@ func main() {
 		<-tickets
 		go func() {
 
-			result := &pb.WasiTaskResult{}
+			result := &wasimoff.Task_Wasip1_Result{}
 			err := messenger.RequestSync(context.TODO(), task, result)
 			if err != nil {
 				time.Sleep(time.Second)

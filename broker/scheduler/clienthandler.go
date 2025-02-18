@@ -11,9 +11,9 @@ import (
 	"mime"
 	"net/http"
 	"sync/atomic"
-	"wasimoff/broker/net/pb"
 	"wasimoff/broker/provider"
 	"wasimoff/broker/storage"
+	wasimoff "wasimoff/proto/v1"
 
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
@@ -30,7 +30,7 @@ var jobSequence atomic.Uint64
 type OffloadingJob struct {
 	JobID      string // used to track all tasks of this request
 	ClientAddr string // remote address of the requesting client
-	JobSpec    *pb.Client_Job_Wasip1Request
+	JobSpec    *wasimoff.Client_Job_Wasip1Request
 }
 
 // reuseable task queue for HTTP handler and websocket
@@ -87,11 +87,11 @@ func ExecHandler(store *provider.ProviderStore, selector Scheduler, benchmode in
 		}
 
 		// read the job specification from the request body
-		job := OffloadingJob{JobSpec: &pb.Client_Job_Wasip1Request{}}
+		job := OffloadingJob{JobSpec: &wasimoff.Client_Job_Wasip1Request{}}
 		err = UnmarshalJobArgs(body, mt, job.JobSpec)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			MarshalJobResponse(w, mt, &pb.Client_Job_Wasip1Response{
+			MarshalJobResponse(w, mt, &wasimoff.Client_Job_Wasip1Response{
 				Error: proto.String(err.Error()),
 			})
 			err = nil // don't log this
@@ -131,7 +131,7 @@ func DispatchTasks(
 	store *provider.ProviderStore,
 	job *OffloadingJob,
 	queue chan *provider.AsyncTask,
-) *pb.Client_Job_Wasip1Response {
+) *wasimoff.Client_Job_Wasip1Response {
 
 	// go through all the *pb.Files in parent and tasks to resolve names from storage
 	errs := []error{}
@@ -144,7 +144,7 @@ func DispatchTasks(
 		errs = append(errs, store.Storage.ResolvePbFile(task.Rootfs))
 	}
 	if err := errors.Join(errs...); err != nil {
-		return &pb.Client_Job_Wasip1Response{
+		return &wasimoff.Client_Job_Wasip1Response{
 			Error: proto.String(err.Error()),
 		}
 	}
@@ -157,15 +157,15 @@ func DispatchTasks(
 	for i, spec := range job.JobSpec.Tasks {
 
 		// create the request+response for remote procedure call
-		response := pb.Task_Response{}
-		request := pb.Task_Request{
+		response := wasimoff.Task_Response{}
+		request := wasimoff.Task_Request{
 			// common task metadata with index counter
-			Info: &pb.Task_Metadata{
+			Info: &wasimoff.Task_Metadata{
 				Id:        proto.String(fmt.Sprintf("%s/%d", job.JobID, i)),
 				Requester: &job.ClientAddr,
 			},
 			// inherit empty parameters from the parent job
-			Parameters: &pb.Task_Request_Wasip1{
+			Parameters: &wasimoff.Task_Request_Wasip1{
 				Wasip1: spec.InheritNil(job.JobSpec.Parent),
 			},
 		}
@@ -189,31 +189,31 @@ func DispatchTasks(
 	}
 
 	// collect the task responses
-	jobResponse := &pb.Client_Job_Wasip1Response{
-		Tasks: make([]*pb.Task_Wasip1_Result, len(pending)),
+	jobResponse := &wasimoff.Client_Job_Wasip1Response{
+		Tasks: make([]*wasimoff.Task_Wasip1_Result, len(pending)),
 	}
 	for i, task := range pending {
-		r := &pb.Task_Wasip1_Result{}
+		r := &wasimoff.Task_Wasip1_Result{}
 		// internal scheduling error
 		if task.Error != nil {
-			r.Result = &pb.Task_Wasip1_Result_Error{
+			r.Result = &wasimoff.Task_Wasip1_Result_Error{
 				Error: task.Error.Error(),
 			}
 		}
 		// need to repack result type
 		switch result := task.Response.Result.(type) {
-		case *pb.Task_Response_Error:
+		case *wasimoff.Task_Response_Error:
 			// error during task execution
-			r.Result = &pb.Task_Wasip1_Result_Error{
+			r.Result = &wasimoff.Task_Wasip1_Result_Error{
 				Error: result.Error,
 			}
-		case *pb.Task_Response_Wasip1:
+		case *wasimoff.Task_Response_Wasip1:
 			// normal expected result
 			r.Result = result.Wasip1.Result
 		default:
 			// unexpected result type
 			log.Printf("DEBUG: unexpected result type: %s", protojson.Format(task.Response))
-			r.Result = &pb.Task_Wasip1_Result_Error{
+			r.Result = &wasimoff.Task_Wasip1_Result_Error{
 				Error: "unexpected result type",
 			}
 		}
@@ -224,7 +224,7 @@ func DispatchTasks(
 }
 
 // MARK: Marshal
-func UnmarshalJobArgs(body []byte, mt string, spec *pb.Client_Job_Wasip1Request) (err error) {
+func UnmarshalJobArgs(body []byte, mt string, spec *wasimoff.Client_Job_Wasip1Request) (err error) {
 
 	// try to decode the body to the expected job spec
 	switch mt {
@@ -246,7 +246,7 @@ func UnmarshalJobArgs(body []byte, mt string, spec *pb.Client_Job_Wasip1Request)
 	return err
 }
 
-func MarshalJobResponse(w http.ResponseWriter, mt string, result *pb.Client_Job_Wasip1Response) (err error) {
+func MarshalJobResponse(w http.ResponseWriter, mt string, result *wasimoff.Client_Job_Wasip1Response) (err error) {
 
 	// marshal the response to desired format
 	var body []byte

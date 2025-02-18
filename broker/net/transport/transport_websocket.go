@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"wasimoff/broker/net/pb"
+	wasimoff "wasimoff/proto/v1"
 
 	"github.com/coder/websocket"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -13,8 +13,8 @@ import (
 
 // Subprotocol between a Provider and the Broker defines the concrete codec.
 var (
-	provider_v1_protobuf = pb.Subprotocol_wasimoff_provider_v1_protobuf.String()
-	provider_v1_json     = pb.Subprotocol_wasimoff_provider_v1_json.String()
+	provider_v1_protobuf = wasimoff.Subprotocol_wasimoff_provider_v1_protobuf.String()
+	provider_v1_json     = wasimoff.Subprotocol_wasimoff_provider_v1_json.String()
 )
 
 // WebSocketTransport implements broker/net/transport.Transport for Messaging
@@ -100,7 +100,7 @@ func DialWasimoff(ctx context.Context, base string) (*Messenger, error) {
 
 // WriteMessage will marshal the given message using the negotiated subprotocol codec
 // and send it over the WebSocket connection. It is safe for concurrent writes.
-func (ws *WebSocketTransport) WriteMessage(ctx context.Context, message *pb.Envelope) (err error) {
+func (ws *WebSocketTransport) WriteMessage(ctx context.Context, message *wasimoff.Envelope) (err error) {
 	defer wraperr(&err, "transport write: %w")
 
 	var b []byte
@@ -135,7 +135,7 @@ func (ws *WebSocketTransport) WriteMessage(ctx context.Context, message *pb.Enve
 // ReadMessage will read the next message from the WebSocket connection and unmarshal
 // the message using the negotiated subprotocol codec. NOT safe for concurrent reads,
 // so you need to synchronize yourself or limit to a single reader.
-func (ws *WebSocketTransport) ReadMessage(ctx context.Context, message *pb.Envelope) (err error) {
+func (ws *WebSocketTransport) ReadMessage(ctx context.Context, message *wasimoff.Envelope) (err error) {
 	defer wraperr(&err, "transport read: %w")
 
 	// read bytes from socket

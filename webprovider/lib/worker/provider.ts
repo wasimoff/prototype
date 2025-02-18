@@ -6,7 +6,8 @@ import { ProviderStorage } from "@wasimoff/storage/index.ts";
 import { Messenger, WebSocketTransport } from "@wasimoff/transport/index.ts";
 import { WasiWorkerPool } from "./workerpool.ts";
 import { create, Message } from "@bufbuild/protobuf";
-import { Event_FileSystemUpdateSchema, Event_ProviderHelloSchema, Event_ProviderResourcesSchema } from "@wasimoff/proto/messages_pb.ts";
+import { Event_FileSystemUpdateSchema, Event_ProviderHelloSchema, Event_ProviderResourcesSchema }
+  from "@wasimoff/proto/v1/messages_pb.ts";
 import { rpchandler } from "@wasimoff/worker/rpchandler.ts";
 import { expose, proxy as comlinkProxy, workerReady, transfer, proxy } from "./comlink.ts";
 import { Wasip1TaskParams } from "./wasiworker.ts";

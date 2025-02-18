@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"wasimoff/broker/net/pb"
 	"wasimoff/broker/net/transport"
 	"wasimoff/broker/provider"
+	wasimoff "wasimoff/proto/v1"
 
 	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/proto"
@@ -63,7 +63,7 @@ func ClientSocketHandler(store *provider.ProviderStore) http.HandlerFunc {
 				}
 				switch taskrequest := request.Request.(type) {
 
-				case *pb.Task_Request:
+				case *wasimoff.Task_Request:
 					requestSequence++
 
 					// resolve any filenames to storage hashes
@@ -73,11 +73,11 @@ func ClientSocketHandler(store *provider.ProviderStore) http.HandlerFunc {
 					}
 
 					// assemble the task for internal dispatcher queue
-					taskrequest.Info = &pb.Task_Metadata{
+					taskrequest.Info = &wasimoff.Task_Metadata{
 						Id:        proto.String(fmt.Sprintf("%s/%d", job, requestSequence)),
 						Requester: &addr,
 					}
-					response := pb.Task_Response{}
+					response := wasimoff.Task_Response{}
 					taskctx := context.WithValue(r.Context(), ctxkeyRequest{}, request)
 					taskQueue <- provider.NewAsyncTask(taskctx, taskrequest, &response, done)
 					// log.Printf("Task submit: %s :: %#v\n", wreq.Info.TaskID(), wreq.Task.Args)

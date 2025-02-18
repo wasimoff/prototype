@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"wasimoff/broker/net/pb"
+	wasimoff "wasimoff/proto/v1"
 )
 
 // Transport is an abstract connection interface which handles message-based
 // wire serialization over the network for you.
 type Transport interface {
-	WriteMessage(context.Context, *pb.Envelope) error
-	ReadMessage(context.Context, *pb.Envelope) error
+	WriteMessage(context.Context, *wasimoff.Envelope) error
+	ReadMessage(context.Context, *wasimoff.Envelope) error
 	Addr() string // remote's address
 	Close(cause error)
 }

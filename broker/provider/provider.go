@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"sync"
-	"wasimoff/broker/net/pb"
 	"wasimoff/broker/net/transport"
+	wasimoff "wasimoff/proto/v1"
 
 	"github.com/marusama/semaphore/v2"
 	"google.golang.org/protobuf/proto"
@@ -173,10 +173,10 @@ func (p *Provider) acceptTasks() (err error) {
 				// send cancellation event if error is due to context
 				if errors.Is(task.Error, context.Canceled) {
 					// don't really care for result or error here, just that it completed somehow
-					_ = p.messenger.RequestSync(p.lifetime.Context, &pb.Task_Cancel{
+					_ = p.messenger.RequestSync(p.lifetime.Context, &wasimoff.Task_Cancel{
 						Id:     task.Request.GetInfo().Id,
 						Reason: proto.String(context.Canceled.Error()),
-					}, &pb.Task_Cancel{})
+					}, &wasimoff.Task_Cancel{})
 				}
 				task.Done()
 				p.limiter.Release(1)

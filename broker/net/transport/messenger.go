@@ -20,7 +20,7 @@ import (
 	"reflect"
 	"sync"
 	"sync/atomic"
-	"wasimoff/broker/net/pb"
+	wasimoff "wasimoff/proto/v1"
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -35,8 +35,8 @@ type Messenger struct {
 	events   chan proto.Message   // incoming event messages
 	requests chan IncomingRequest // incoming request messages
 
-	sendMutex       sync.Mutex  // only one sender
-	envelope        pb.Envelope // reusable for sending
+	sendMutex       sync.Mutex        // only one sender
+	envelope        wasimoff.Envelope // reusable for sending
 	eventSequence   atomic.Uint64
 	requestSequence atomic.Uint64
 
@@ -163,7 +163,7 @@ func (m *Messenger) putRequest(seq uint64, request proto.Message) {
 // responded to with an Error message. Call receiver in a gofunc after instantiation.
 func (m *Messenger) receiver() {
 	var receiveErr error
-	var envelope pb.Envelope
+	var envelope wasimoff.Envelope
 
 	for receiveErr == nil {
 
@@ -173,7 +173,7 @@ func (m *Messenger) receiver() {
 		}
 		switch envelope.GetType() {
 
-		case pb.Envelope_Request:
+		case wasimoff.Envelope_Request:
 			request, err := envelope.Payload.UnmarshalNew()
 			if err != nil {
 				// this usually means that the message type is not known
@@ -183,7 +183,7 @@ func (m *Messenger) receiver() {
 			m.putRequest(*envelope.Sequence, request)
 			continue
 
-		case pb.Envelope_Event:
+		case wasimoff.Envelope_Event:
 			// unpack event payload
 			event, err := envelope.Payload.UnmarshalNew()
 			if err != nil {
@@ -194,7 +194,7 @@ func (m *Messenger) receiver() {
 			m.putEvent(event)
 			continue
 
-		case pb.Envelope_Response:
+		case wasimoff.Envelope_Response:
 			// get the sequence number from message; valid RPC responses will never
 			// be 0, which is the default if this field was not set in message
 			seq := envelope.GetSequence()
@@ -256,12 +256,12 @@ func (m *Messenger) receiver() {
 // -------------------- transmitter -------------------- >>
 
 // Send a prepared Envelope of some type on the transport.
-func (m *Messenger) send(ctx context.Context, seq *uint64, mt *pb.Envelope_MessageType, body proto.Message, reqErr error) (err error) {
+func (m *Messenger) send(ctx context.Context, seq *uint64, mt *wasimoff.Envelope_MessageType, body proto.Message, reqErr error) (err error) {
 
 	// pack the payload before locking
 	var payload *anypb.Any
 	if body != nil {
-		payload, err = pb.Any(body)
+		payload, err = wasimoff.Any(body)
 		if err != nil {
 			return fmt.Errorf("failed marshalling payload: %w", err)
 		}
@@ -288,13 +288,13 @@ func (m *Messenger) send(ctx context.Context, seq *uint64, mt *pb.Envelope_Messa
 
 // Send a Response to a previous request.
 func (m *Messenger) SendResponse(ctx context.Context, seq uint64, response proto.Message, err error) error {
-	return m.send(ctx, &seq, pb.Envelope_Response.Enum(), response, err)
+	return m.send(ctx, &seq, wasimoff.Envelope_Response.Enum(), response, err)
 }
 
 // Send an Event using the next sequence number.
 func (m *Messenger) SendEvent(ctx context.Context, event proto.Message) error {
 	seq := m.eventSequence.Add(1) // ++seq
-	return m.send(ctx, &seq, pb.Envelope_Event.Enum(), event, nil)
+	return m.send(ctx, &seq, wasimoff.Envelope_Event.Enum(), event, nil)
 }
 
 // Send a Request using the next sequence number and register a pending
@@ -326,7 +326,7 @@ func (m *Messenger) SendRequest(ctx context.Context, request proto.Message, resp
 	}
 
 	// send over transport
-	if err := m.send(ctx, &seq, pb.Envelope_Request.Enum(), request, nil); err != nil {
+	if err := m.send(ctx, &seq, wasimoff.Envelope_Request.Enum(), request, nil); err != nil {
 		// unregister call immediately on error
 		if call = m.popPending(seq); call != nil {
 			call.Error = err

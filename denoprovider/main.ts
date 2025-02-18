@@ -1,7 +1,5 @@
 #!/usr/bin/env -S deno run --allow-env --allow-read --allow-net
 
-import { create, isMessage } from "@bufbuild/protobuf";
-import { Event_GenericMessageSchema } from "@wasimoff/proto/messages_pb.ts";
 import { parseArgs } from "@std/cli/parse-args";
 import { WasimoffProvider } from "@wasimoff/worker/provider.ts";
 
@@ -36,18 +34,12 @@ const provider = await WasimoffProvider.init(nproc, brokerurl, ":memory:");
 const workers = await provider.pool.scale();
 await provider.sendInfo(workers, "deno", `${navigator.userAgent} (${Deno.build.target})`);
 
-// say hello
-provider.messenger?.sendEvent(create(Event_GenericMessageSchema, { message: "Hello, World!" }));
-
 // log received messages
 (async () => {
   for await (const event of provider.messenger!.events) {
-    switch (true) {
-      case isMessage(event, Event_GenericMessageSchema): {
-        console.log("Message: " + JSON.stringify(event));
-        break;
-      };
-    };
+    const typename = event.$typeName;
+    delete event.$typeName;
+    console.log(`%c[${typename}]`, "color: green;", JSON.stringify(event));
   };
 })();
 

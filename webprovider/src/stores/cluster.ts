@@ -3,11 +3,11 @@ import { useProvider } from "./provider";
 import { ref, watch } from "vue";
 import { useTerminal } from "./terminal";
 import { isMessage, Message } from "@bufbuild/protobuf";
-import * as pb from "@wasimoff/proto/messages_pb";
+import * as wasimoff from "@wasimoff/proto/v1/messages_pb";
 
 export const useClusterState = defineStore("ClusterState", () => {
 
-  const wasimoff = useProvider();
+  const providerstore = useProvider();
   const terminal = useTerminal();
 
   // number of providers currently connected to the broker
@@ -17,14 +17,14 @@ export const useClusterState = defineStore("ClusterState", () => {
   const throughput = ref<number>(0);
 
   // whenever the provider messenger reconnects
-  watch(() => wasimoff.$messenger, async (messenger) => {
-    if (messenger !== undefined && wasimoff.$provider !== undefined) {
+  watch(() => providerstore.$messenger, async (messenger) => {
+    if (messenger !== undefined && providerstore.$provider !== undefined) {
 
       // transfer a readablestream from the provider directly
       // const stream = await wasimoff.$provider.getEventstream();
 
       // get the event iterator's next function and create a stream ourselves
-      const next = await wasimoff.$provider.getEventIteratorNext();
+      const next = await providerstore.$provider.getEventIteratorNext();
       const stream = new ReadableStream<Message>({
         async pull(controller) {
           let { done, value } = await next();
@@ -38,17 +38,17 @@ export const useClusterState = defineStore("ClusterState", () => {
         switch (true) { // switch by message type
 
           // print generic messages to the terminal
-          case isMessage(event, pb.Event_GenericMessageSchema):
+          case isMessage(event, wasimoff.Event_GenericMessageSchema):
             terminal.info(`Message: ${event.message}`);
             break;
 
           // update provider count
-          case isMessage(event, pb.Event_ClusterInfoSchema):
+          case isMessage(event, wasimoff.Event_ClusterInfoSchema):
             providers.value = event.providers;
             break;
 
           // update throughput
-          case isMessage(event, pb.Event_ThroughputSchema):
+          case isMessage(event, wasimoff.Event_ThroughputSchema):
             throughput.value = event.overall;
             break;
 

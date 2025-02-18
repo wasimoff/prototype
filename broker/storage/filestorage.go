@@ -7,7 +7,7 @@ import (
 	"iter"
 	"net/http"
 	"time"
-	"wasimoff/broker/net/pb"
+	wasimoff "wasimoff/proto/v1"
 )
 
 type AbstractFileStorage interface {
@@ -23,7 +23,7 @@ type FileStorage struct {
 // ResolvePbFile checks if this file is usable as an argument in offloading
 // requests, i.e. if it either contains a blob or is a known file in the
 // storage. If so, set the resolved Ref on the file.
-func (fs *FileStorage) ResolvePbFile(pbf *pb.File) error {
+func (fs *FileStorage) ResolvePbFile(pbf *wasimoff.File) error {
 
 	// argument is nil, no need to do anything
 	if pbf == nil {
@@ -63,17 +63,17 @@ func (fs *FileStorage) ResolvePbFile(pbf *pb.File) error {
 
 }
 
-func (fs *FileStorage) ResolveTaskFiles(request *pb.Task_Request) error {
+func (fs *FileStorage) ResolveTaskFiles(request *wasimoff.Task_Request) error {
 	// collect errors for all tried files
 	errs := []error{}
 
 	switch p := request.Parameters.(type) {
 
-	case *pb.Task_Request_Wasip1:
+	case *wasimoff.Task_Request_Wasip1:
 		errs = append(errs, fs.ResolvePbFile(p.Wasip1.Binary))
 		errs = append(errs, fs.ResolvePbFile(p.Wasip1.Rootfs))
 
-	case *pb.Task_Request_Pyodide:
+	case *wasimoff.Task_Request_Pyodide:
 		// ok
 		// log.Fatalln("ResolveTaskFiles is not implemented for Pyodide yet")
 

@@ -1,4 +1,4 @@
-package pb
+package wasimoffv1
 
 import (
 	"google.golang.org/protobuf/proto"

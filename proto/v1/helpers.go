@@ -1,4 +1,4 @@
-package pb
+package wasimoffv1
 
 // Additional helpers on the generated types.
 

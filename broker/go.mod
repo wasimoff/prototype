@@ -17,6 +17,7 @@ require (
 )
 
 require (
+	connectrpc.com/connect v1.18.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect

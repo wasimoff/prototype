@@ -3,24 +3,24 @@ package provider
 import (
 	"context"
 	"log"
-	"wasimoff/broker/net/pb"
+	wasimoff "wasimoff/proto/v1"
 )
 
 // AsyncTask is an individual parametrized task from an offloading job that
 // can be submitted to a Provider's Submit() channel.
 type AsyncTask struct {
 	Context  context.Context
-	Request  *pb.Task_Request  // the overall request with metadata, QoS and task parameters
-	Response *pb.Task_Response // response containing either an error or specific output
-	Error    error             // errors encountered internally during scheduling or RPC
-	done     chan *AsyncTask   // received itself when complete
+	Request  *wasimoff.Task_Request  // the overall request with metadata, QoS and task parameters
+	Response *wasimoff.Task_Response // response containing either an error or specific output
+	Error    error                   // errors encountered internally during scheduling or RPC
+	done     chan *AsyncTask         // received itself when complete
 }
 
 // NewAsyncTask creates a new call struct for a scheduler
 func NewAsyncTask(
 	ctx context.Context,
-	args *pb.Task_Request,
-	res *pb.Task_Response,
+	args *wasimoff.Task_Request,
+	res *wasimoff.Task_Response,
 	done chan *AsyncTask,
 ) *AsyncTask {
 	if done == nil {

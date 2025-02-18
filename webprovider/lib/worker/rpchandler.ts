@@ -1,5 +1,5 @@
 import { create, isMessage, Message as ProtoMessage } from "@bufbuild/protobuf";
-import * as pb from "@wasimoff/proto/messages_pb.ts";
+import * as wasimoff from "@wasimoff/proto/v1/messages_pb.ts";
 import { getRef, isRef } from "@wasimoff/storage/index.ts";
 import { WasimoffProvider } from "./provider.ts";
 
@@ -10,7 +10,7 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
   switch (true) {
 
     // execute a task
-    case isMessage(request, pb.Task_RequestSchema): return <Promise<pb.Task_Response>>(async () => {
+    case isMessage(request, wasimoff.Task_RequestSchema): return <Promise<wasimoff.Task_Response>>(async () => {
 
       // deconstruct the request and check type
       let { info, parameters } = request;
@@ -69,7 +69,7 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
               artifacts: task.artifacts,
             });
             // send back the result
-            return create(pb.Task_ResponseSchema, {
+            return create(wasimoff.Task_ResponseSchema, {
               result: {
                 case: "wasip1",
                 value: {
@@ -87,7 +87,7 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
             });
           } catch (err) {
             // format exceptions as WasiResponse.Error
-            return create(pb.Task_ResponseSchema, {
+            return create(wasimoff.Task_ResponseSchema, {
               result: {
                 case: "error",
                 value: String(err),
@@ -107,7 +107,7 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
           try {
 
             let run = await this.pool.runPyodide(info.id, pytask);
-            return create(pb.Task_ResponseSchema, {
+            return create(wasimoff.Task_ResponseSchema, {
               result: { case: "pyodide", value: {
                 result: { case: "ok", value: {
                   pickle: run.pickle,
@@ -120,7 +120,7 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
 
           } catch (err) {
             // format exceptions as WasiResponse.Error
-            return create(pb.Task_ResponseSchema, {
+            return create(wasimoff.Task_ResponseSchema, {
               result: {
                 case: "error",
                 value: String(err),
@@ -133,7 +133,7 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
     })();
 
     // cancel a running task
-    case isMessage(request, pb.Task_CancelSchema): return <Promise<pb.Task_Cancel>>(async () => {
+    case isMessage(request, wasimoff.Task_CancelSchema): return <Promise<wasimoff.Task_Cancel>>(async () => {
       const { id, reason } = request;
       if (id !== undefined) {
         console.warn(...WasimoffProvider.logprefix, `cancelling task '${id}': ${reason}`);
@@ -145,28 +145,28 @@ export async function rpchandler(this: WasimoffProvider, request: ProtoMessage):
     })();
 
     // list files in storage
-    case isMessage(request, pb.FileListingRequestSchema): return <Promise<pb.FileListingResponse>>(async () => {
+    case isMessage(request, wasimoff.FileListingRequestSchema): return <Promise<wasimoff.FileListingResponse>>(async () => {
       if (this.storage === undefined) throw "cannot access storage yet";
       const files = (await this.storage.filesystem.list());
-      return create(pb.FileListingResponseSchema, { files });
+      return create(wasimoff.FileListingResponseSchema, { files });
     })();
 
     // probe for a specific file in storage
-    case isMessage(request, pb.FileProbeRequestSchema): return <Promise<pb.FileProbeResponse>>(async () => {
+    case isMessage(request, wasimoff.FileProbeRequestSchema): return <Promise<wasimoff.FileProbeResponse>>(async () => {
       if (this.storage === undefined) throw "cannot access storage yet";
       let ok = await this.storage.filesystem.get(request.file) !== undefined;
-      return create(pb.FileProbeResponseSchema, { ok });
+      return create(wasimoff.FileProbeResponseSchema, { ok });
     })();
 
     // binaries uploaded from the broker inside an rpc
-    case isMessage(request, pb.FileUploadRequestSchema): return <Promise<pb.FileUploadResponse>>(async () => {
+    case isMessage(request, wasimoff.FileUploadRequestSchema): return <Promise<wasimoff.FileUploadResponse>>(async () => {
       if (request.upload === undefined) throw "empty upload";
       if (this.storage === undefined) throw "cannot access storage yet";
       let { blob, media, ref } = request.upload;
       // overwrite name with computed digest
       if (!isRef(ref)) { ref = await getRef(blob); };
       await this.storage.filesystem.put(ref, new File([blob], ref, { type: media }));
-      return create(pb.FileUploadResponseSchema, { });
+      return create(wasimoff.FileUploadResponseSchema, { });
     })();
 
     default:
